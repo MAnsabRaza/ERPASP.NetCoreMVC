@@ -1,0 +1,243 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - ERP</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .sidebar-transition {
+            transition: transform 0.3s ease-in-out;
+        }
+        .sidebar-closed {
+            transform: translateX(-100%);
+        }
+      
+        .hover-bg:hover {
+            background-color: rgba(59, 130, 246, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200 fixed w-full top-0 z-30">
+        <div class="flex items-center justify-between px-4 py-3">
+            <div class="flex items-center">
+                <button id="sidebarToggle" class="md:hidden text-gray-600 hover:text-gray-900 focus:outline-none mr-3">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+                <div class="flex items-center">
+                    <div class="bg-blue-600 text-white p-2 rounded-lg mr-3">
+                        <i class="fas fa-chart-line text-xl"></i>
+                    </div>
+                    <h1 class="text-xl font-bold text-gray-800">Enterprise ERP</h1>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-4">
+                <!-- Search Bar -->
+                <div class="hidden md:flex items-center bg-gray-100 rounded-lg px-3 py-2">
+                    <i class="fas fa-search text-gray-400 mr-2"></i>
+                    <input type="text" placeholder="Search..." class="bg-transparent outline-none text-sm w-64">
+                </div>
+                
+                <!-- Notifications -->
+                <button class="relative text-gray-600 hover:text-gray-900">
+                    <i class="fas fa-bell text-xl"></i>
+                    <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">3</span>
+                </button>
+                
+                <!-- User Profile -->
+                <div class="flex items-center space-x-2 cursor-pointer hover:bg-gray-100 rounded-lg p-2">
+                    <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                        <i class="fas fa-user text-white text-sm"></i>
+                    </div>
+                    <span class="hidden md:block text-gray-700 font-medium">John Doe</span>
+                    <i class="fas fa-chevron-down text-gray-400 text-sm"></i>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex pt-16">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="sidebar-transition fixed md:static inset-y-0 left-0 z-20 w-64 bg-white shadow-lg border-r border-gray-200 mt-16 md:mt-0">
+            <div class="h-full overflow-y-auto">
+                <!-- User Info Section -->
+                <div class="p-4 border-b border-gray-200">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                            <i class="fas fa-user text-white"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-800">John Doe</h3>
+                            <p class="text-sm text-gray-500">Administrator</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation Menu -->
+                <nav class="mt-4">
+                    <div class="px-4 py-2">
+                        <h4 class="text-xs uppercase tracking-wider text-gray-400 font-semibold">Main Menu</h4>
+                    </div>
+                    
+                    <ul class="space-y-1 px-2">
+                        <li>
+                            <a href="#" class="flex items-center px-3 py-2 text-gray-700 hover-bg rounded-lg group">
+                                <i class="fas fa-home text-gray-400 mr-3 group-hover:text-blue-500"></i>
+                                <span class="font-medium">Dashboard</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="flex items-center px-3 py-2 text-gray-700 hover-bg rounded-lg group">
+                                <i class="fas fa-users text-gray-400 mr-3 group-hover:text-blue-500"></i>
+                                <span class="font-medium">Users Management</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a asp-controller="Role" asp-action="Role" class="flex items-center px-3 py-2 text-gray-700 hover-bg rounded-lg group">
+                                <i class="fas fa-user-shield text-gray-400 mr-3 group-hover:text-blue-500"></i>
+                                <span class="font-medium">Role Management</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a asp-controller="Company" asp-action="Company" class="flex items-center px-3 py-2 text-gray-700 hover-bg rounded-lg group">
+                                <i class="fas fa-user-shield text-gray-400 mr-3 group-hover:text-blue-500"></i>
+                                <span class="font-medium">Company</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="flex items-center px-3 py-2 text-gray-700 hover-bg rounded-lg group">
+                                <i class="fas fa-box text-gray-400 mr-3 group-hover:text-blue-500"></i>
+                                <span class="font-medium">Inventory</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="flex items-center px-3 py-2 text-gray-700 hover-bg rounded-lg group">
+                                <i class="fas fa-receipt text-gray-400 mr-3 group-hover:text-blue-500"></i>
+                                <span class="font-medium">Orders</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="flex items-center px-3 py-2 text-gray-700 hover-bg rounded-lg group">
+                                <i class="fas fa-dollar-sign text-gray-400 mr-3 group-hover:text-blue-500"></i>
+                                <span class="font-medium">Finance</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="flex items-center px-3 py-2 text-gray-700 hover-bg rounded-lg group">
+                                <i class="fas fa-chart-bar text-gray-400 mr-3 group-hover:text-blue-500"></i>
+                                <span class="font-medium">Reports</span>
+                            </a>
+                        </li>
+                    </ul>
+
+                    <div class="px-4 py-2 mt-6">
+                        <h4 class="text-xs uppercase tracking-wider text-gray-400 font-semibold">Support</h4>
+                    </div>
+                    
+                    <ul class="space-y-1 px-2">
+                        <li>
+                            <a href="#" class="flex items-center px-3 py-2 text-gray-700 hover-bg rounded-lg group">
+                                <i class="fas fa-cog text-gray-400 mr-3 group-hover:text-blue-500"></i>
+                                <span class="font-medium">Settings</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="flex items-center px-3 py-2 text-gray-700 hover-bg rounded-lg group">
+                                <i class="fas fa-question-circle text-gray-400 mr-3 group-hover:text-blue-500"></i>
+                                <span class="font-medium">Help Center</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="flex items-center px-3 py-2 text-gray-700 hover-bg rounded-lg group">
+                                <i class="fas fa-shield-alt text-gray-400 mr-3 group-hover:text-blue-500"></i>
+                                <span class="font-medium">Privacy</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+
+                <!-- Logout Button -->
+              <!--<div class="absolute bottom-4 left-4 right-4">
+                    <button class="w-full flex items-center justify-center px-4 py-2 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg transition-colors">
+                        <i class="fas fa-sign-out-alt mr-2"></i>
+                        <span class="font-medium">Logout</span>
+                    </button>
+                </div>
+                  -->
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 md:ml-0 min-h-screen">
+            <div class="p-6 bg-gray-50 min-h-screen">
+                <div class="">
+                    <div class="p-6">
+                        @RenderBody()
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Mobile Sidebar Overlay -->
+    <div id="sidebarOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-10 md:hidden hidden"></div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 mt-auto">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="text-sm text-gray-600">
+                    &copy; 2025 Enterprise ERP System. All rights reserved.
+                </div>
+                <div class="flex space-x-6 mt-2 md:mt-0">
+                    <a href="#" class="text-sm text-gray-600 hover:text-blue-600">Privacy Policy</a>
+                    <a href="#" class="text-sm text-gray-600 hover:text-blue-600">Terms of Service</a>
+                    <a href="#" class="text-sm text-gray-600 hover:text-blue-600">Support</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    
+    <script>
+        // Sidebar toggle functionality
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+        function toggleSidebar() {
+            sidebar.classList.toggle('sidebar-closed');
+            sidebarOverlay.classList.toggle('hidden');
+        }
+
+        sidebarToggle.addEventListener('click', toggleSidebar);
+        sidebarOverlay.addEventListener('click', toggleSidebar);
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function(e) {
+            if (window.innerWidth < 768 && !sidebar.contains(e.target) && !sidebarToggle.contains(e.target)) {
+                if (!sidebar.classList.contains('sidebar-closed')) {
+                    toggleSidebar();
+                }
+            }
+        });
+
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            if (window.innerWidth >= 768) {
+                sidebar.classList.remove('sidebar-closed');
+                sidebarOverlay.classList.add('hidden');
+            }
+        });
+    </script>
+    
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
