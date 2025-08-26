@@ -30,12 +30,24 @@ build_property._RazorSourceGeneratorDebug =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ29tcGFueVxDb21wYW55LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
+[D:/AspDotNet/Asp.Net Web Core MVC/ERP/ERP/Views/Component/Component.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ29tcG9uZW50XENvbXBvbmVudC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [D:/AspDotNet/Asp.Net Web Core MVC/ERP/ERP/Views/Home/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/AspDotNet/Asp.Net Web Core MVC/ERP/ERP/Views/Home/Privacy.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxQcml2YWN5LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/AspDotNet/Asp.Net Web Core MVC/ERP/ERP/Views/Module/Module.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTW9kdWxlXE1vZHVsZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/AspDotNet/Asp.Net Web Core MVC/ERP/ERP/Views/Permission/Permission.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUGVybWlzc2lvblxQZXJtaXNzaW9uLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/AspDotNet/Asp.Net Web Core MVC/ERP/ERP/Views/Role/Role.cshtml]
