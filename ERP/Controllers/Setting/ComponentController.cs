@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace ERP.Controllers
+namespace ERP.Controllers.Setting
 {
     public class ComponentController : Controller
     {
@@ -18,16 +18,16 @@ namespace ERP.Controllers
                 current_date = DateOnly.FromDateTime(DateTime.Now)
             };
             ViewBag.Component = await _context.Component.
-                Include(m=>m.Module).
+                Include(m => m.Module).
                 ToListAsync();
             ViewBag.Module = await _context.Module.ToListAsync();
-            return View("Component",model);
+            return View("~/Views/Setting/UserManagement/Component.cshtml", model);
         }
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
-            var component= await _context.Component.FindAsync(id);
-            if(component != null)
+            var component = await _context.Component.FindAsync(id);
+            if (component != null)
             {
                 _context.Component.Remove(component);
                 await _context.SaveChangesAsync();
@@ -38,13 +38,13 @@ namespace ERP.Controllers
         public async Task<IActionResult> Edit(int id)
         {
             var component = await _context.Component.FindAsync(id);
-            if(component == null )
+            if (component == null)
             {
                 return NotFound();
             }
             ViewBag.Module = await _context.Module.ToListAsync();
-            ViewBag.Component=await _context.Component.ToListAsync();
-            return View("Component",component);
+            ViewBag.Component = await _context.Component.ToListAsync();
+            return View("~/Views/Setting/UserManagement/Component.cshtml", component);
         }
         [HttpPost]
         public async Task<IActionResult> Create(Component component)
@@ -53,8 +53,8 @@ namespace ERP.Controllers
             {
                 if (component.Id > 0)
                 {
-                    var existingComponent= await _context.Component.FindAsync(component.Id);
-                    if(existingComponent != null)
+                    var existingComponent = await _context.Component.FindAsync(component.Id);
+                    if (existingComponent != null)
                     {
                         existingComponent.current_date = component.current_date;
                         existingComponent.component_name = component.component_name;
@@ -71,7 +71,7 @@ namespace ERP.Controllers
                 }
                 return RedirectToAction("Component");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }

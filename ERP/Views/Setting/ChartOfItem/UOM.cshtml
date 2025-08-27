@@ -1,21 +1,21 @@
-﻿@model ERP.Models.User
+﻿@model ERP.Models.UOM
 @{
-    ViewData["Title"] = "Users";
-    var userList = ViewBag.User as List<ERP.Models.User>;
+    ViewData["Title"] = "UOM";
+    var uomList = ViewBag.UOM as List<ERP.Models.UOM>;
 }
 
 <div class="space-y-8">
 
-    <!-- User Form -->
-    @using (Html.BeginForm("Create", "User", FormMethod.Post))
+    <!-- Role Form -->
+    @using (Html.BeginForm("Create", "UOM", FormMethod.Post))
     {
         @Html.AntiForgeryToken()
-        @Html.HiddenFor(m => m.Id, new { id = "userId" })
+        @Html.HiddenFor(m => m.Id, new { id = "uomId" })
 
         <div class="shadow-xl rounded-2xl bg-white p-6 border border-gray-200">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
-                    <i class="fa-solid fa-user-shield text-blue-600"></i> User Management
+                    <i class="fa-solid fas fa-ruler-combined text-blue-600"></i> Unit Of Measurement
                 </h2>
                 <div class="space-x-2">
                     <button type="submit"
@@ -29,7 +29,7 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
                     <label class="block font-semibold text-gray-700 mb-1">Current Date</label>
                     @Html.TextBoxFor(m => m.current_date, "{0:yyyy-MM-dd}", new
@@ -42,22 +42,18 @@
                 </div>
 
                 <div>
-                    <label class="block font-semibold text-gray-700 mb-1">User Name</label>
-                    @Html.TextBoxFor(m => m.name,
-                             new { @class = "w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none", required = "required", type = "text", placeholder = "Enter User name" })
+                    <label class="block font-semibold text-gray-700 mb-1">UOM Name</label>
+                    @Html.TextBoxFor(m => m.uom_name,
+                             new { @class = "w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none", required = "required", type = "text", placeholder = "Enter uom name" })
                 </div>
                 <div>
-                    <label class="block font-semibold text-gray-700 mb-1">Role Name</label>
-                    @Html.DropDownListFor(m => m.roleId, new SelectList(ViewBag.roleList, "Id", "role_name"),
-                             "Select Role",
-                             new
-                             {
-                                 @class = "w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none",
-                                 @id = "roleId",
-                                 required = "required"
-                             }
-                             )
+                    <label class="block font-semibold text-gray-700 mb-1">Status</label>
+                    <div class="flex items-center space-x-2 mt-1">
+                        @Html.CheckBoxFor(m => m.status, new { @class = "w-5 h-5 text-blue-600 rounded focus:ring-blue-500" })
+                        <span class="text-gray-600">Active</span>
+                    </div>
                 </div>
+
             </div>
         </div>
     }
@@ -65,7 +61,7 @@
     <!-- Roles Table -->
     <div class="shadow-xl rounded-2xl bg-white p-6 border border-gray-200">
         <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
-            <i class="fa-solid fa-list text-blue-600"></i> User List
+            <i class="fa-solid fa-list text-blue-600"></i> UOM List
         </h3>
 
         <div class="overflow-x-auto">
@@ -73,34 +69,37 @@
                 <thead class="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
                     <tr>
                         <th class="p-3 text-left">ID</th>
+                        <th class="p-3 text-left">UOM Name</th>
+                        <th class="p-3 text-left">Status</th>
                         <th class="p-3 text-left">Date</th>
-                        <th class="p-3 text-left">Name</th>
-                        <th class="p-3 text-left">Role Name</th>
-                        <th class="p-3 text-left">Company Name</th>
-                        <th class="p-3 text-left">Phone Number</th>
-                        <th class="p-3 text-left">Address</th>
-                        <th class="p-3 text-left">Email</th>
-                        <th class="p-3 text-left">Image</th>
                         <th class="p-3 text-center">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200">
-                    @if (userList != null && userList.Any())
+                    @if (uomList != null && uomList.Any())
                     {
-                        foreach (var item in userList)
+                        foreach (var item in uomList)
                         {
                             <tr class="hover:bg-gray-50 transition">
                                 <td class="p-3">@item.Id</td>
+                                <td class="p-3 font-medium">@item.uom_name</td>
+                                <td class="p-3">
+                                    @if (item.status)
+                                    {
+                                        <span class="px-3 py-1 text-xs font-medium text-green-700 bg-green-100 rounded-full">Active</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="px-3 py-1 text-xs font-medium text-red-700 bg-red-100 rounded-full">Inactive</span>
+                                    }
+                                </td>
                                 <td class="p-3">@item.current_date</td>
-                                <td class="p-3 font-medium">@item.Role.role_name</td>
-                                <td class="p-3">@item.Company.company_name</td>
-                              
                                 <td class="p-3 text-center space-x-2">
                                     <a asp-action="Edit" asp-route-id="@item.Id"
                                        class="px-3 py-1.5 rounded-lg text-xs font-medium bg-blue-100 text-blue-700 hover:bg-blue-200 transition">
                                         <i class="fa-solid fa-pen"></i> Edit
                                     </a>
-                                    @using (Html.BeginForm("Delete", "User", FormMethod.Post, new { onsubmit = "return confirm('Are you sure?');", @class = "inline" }))
+                                    @using (Html.BeginForm("Delete", "UOM", FormMethod.Post, new { onsubmit = "return confirm('Are you sure?');", @class = "inline" }))
                                     {
                                         @Html.AntiForgeryToken()
                                         @Html.Hidden("id", item.Id)
@@ -116,7 +115,7 @@
                     else
                     {
                         <tr>
-                            <td colspan="5" class="text-center p-4 text-gray-500">No Components found.</td>
+                            <td colspan="5" class="text-center p-4 text-gray-500">No UOM found.</td>
                         </tr>
                     }
                 </tbody>

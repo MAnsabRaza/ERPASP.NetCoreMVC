@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
 
-namespace ERP.Controllers
+namespace ERP.Controllers.Setting
 {
     public class CompanyController : Controller
     {
@@ -19,24 +19,24 @@ namespace ERP.Controllers
                 current_date = DateOnly.FromDateTime(DateTime.Now)
             };
             ViewBag.Company = await _context.Company.ToListAsync();
-            return View("Company", model);
+            return View("~/Views/Setting/UserManagement/Company.cshtml", model);
         }
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
             var company = await _context.Company.FindAsync(id);
-            if (company ==null)
+            if (company == null)
             {
                 return NotFound();
             }
             ViewBag.Company = _context.Company.ToListAsync();
-            return View("Company", company);
+            return View("~/Views/Setting/UserManagement/Company.cshtml", company);
         }
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
-            var company=await _context.Company.FindAsync(id);
-            if(company != null)
+            var company = await _context.Company.FindAsync(id);
+            if (company != null)
             {
                 _context.Company.Remove(company);
                 await _context.SaveChangesAsync();
@@ -48,9 +48,9 @@ namespace ERP.Controllers
         {
             try
             {
-                if(logoFile !=null && logoFile.Length > 0)
+                if (logoFile != null && logoFile.Length > 0)
                 {
-                    using(var ms=new MemoryStream())
+                    using (var ms = new MemoryStream())
                     {
                         await logoFile.CopyToAsync(ms);
                         byte[] fileBytes = ms.ToArray();
@@ -59,8 +59,8 @@ namespace ERP.Controllers
                 }
                 if (company.Id > 0)
                 {
-                    var existingCompany= await _context.Company.FindAsync(company.Id);
-                    if(existingCompany != null)
+                    var existingCompany = await _context.Company.FindAsync(company.Id);
+                    if (existingCompany != null)
                     {
                         existingCompany.current_date = company.current_date;
                         existingCompany.company_name = company.company_name;
@@ -69,7 +69,7 @@ namespace ERP.Controllers
                         existingCompany.website_path = company.website_path;
                         existingCompany.company_email = company.company_email;
                         existingCompany.city = company.city;
-                        existingCompany.country=company.country;
+                        existingCompany.country = company.country;
                         existingCompany.zipcode = company.zipcode;
                         existingCompany.phone = company.phone;
                         if (!string.IsNullOrEmpty(company.logo))
@@ -87,7 +87,7 @@ namespace ERP.Controllers
                 }
                 return RedirectToAction("Company");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }

@@ -1,10 +1,10 @@
-﻿using ERP.Models;
+﻿using BCrypt.Net;
+using ERP.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
-namespace ERP.Controllers
+namespace ERP.Controllers.Setting
 {
     public class UserController : Controller
     {
@@ -19,14 +19,14 @@ namespace ERP.Controllers
             {
                 current_date = DateOnly.FromDateTime(DateTime.Now)
             };
-            
+
             ViewBag.User = await _context.User.
-                Include(r=>r.Role).
-                Include(c=>c.companyId).
+                Include(r => r.Role).
+                Include(c => c.Company).
                 ToListAsync();
             ViewBag.companyList = await _context.Company.ToListAsync();
             ViewBag.roleList = await _context.Role.ToListAsync();
-            return View("User",model); 
+            return View("~/Views/Setting/UserManagement/User.cshtml", model);
         }
         [HttpPost]
         public async Task<IActionResult> Create(User user, IFormFile logoFile)
@@ -44,17 +44,20 @@ namespace ERP.Controllers
                 }
                 if (user.Id > 0)
                 {
-                    var existingUser=await _context.User.FindAsync(user.Id);
-                    if(existingUser != null)
+                    var existingUser = await _context.User.FindAsync(user.Id);
+                    if (existingUser != null)
                     {
                         existingUser.current_date = user.current_date;
                         existingUser.name = user.name;
                         existingUser.companyId = user.companyId;
                         existingUser.roleId = user.roleId;
                         existingUser.address = user.address;
-                        existingUser.phone_number=user.phone_number;
+                        existingUser.phone_number = user.phone_number;
                         existingUser.email = user.email;
-                        existingUser.password = user.password;
+                        if (!string.IsNullOrWhiteSpace(user.password))
+                        {
+                            existingUser.password = BCrypt.Net.BCrypt.HashPassword(user.password);
+                        }
                         if (!string.IsNullOrEmpty(user.image))
                         {
                             existingUser.image = user.image;
@@ -66,6 +69,7 @@ namespace ERP.Controllers
                 }
                 else
                 {
+                    user.password = BCrypt.Net.BCrypt.HashPassword(user.password);
                     _context.User.Add(user);
                     await _context.SaveChangesAsync();
                 }
@@ -79,25 +83,26 @@ namespace ERP.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
-            var user=await _context.User.FindAsync(id);
-            if(user == null)
+            var user = await _context.User.FindAsync(id);
+            if (user == null)
             {
                 return NotFound();
             }
             ViewBag.companyList = await _context.Company.ToListAsync();
             ViewBag.User = await _context.User.ToListAsync();
             ViewBag.roleList = await _context.Role.ToListAsync();
-            return View("User", user);
+            return View("~/Views/Setting/UserManagement/User.cshtml", user);
         }
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
             var user = await _context.User.FindAsync(id);
-            if(user != null){
+            if (user != null)
+            {
                 _context.User.Remove(user);
                 await _context.SaveChangesAsync();
             }
-            return RedirectToAction("User",user);
+            return RedirectToAction("User", user);
         }
     }
 }

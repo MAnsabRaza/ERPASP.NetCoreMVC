@@ -47,16 +47,16 @@
           }
         }
       },
-      "BCrypt.Net-Core/1.6.0": {
+      "BCrypt.Net-Next/4.0.3": {
         "type": "package",
         "compile": {
-          "lib/netstandard2.0/BCrypt.Net-Core.dll": {
-            "related": ".pdb"
+          "lib/net6.0/BCrypt.Net-Next.dll": {
+            "related": ".xml"
           }
         },
         "runtime": {
-          "lib/netstandard2.0/BCrypt.Net-Core.dll": {
-            "related": ".pdb"
+          "lib/net6.0/BCrypt.Net-Next.dll": {
+            "related": ".xml"
           }
         }
       },
@@ -1685,27 +1685,35 @@
         "lib/netstandard2.0/Azure.Identity.xml"
       ]
     },
-    "BCrypt.Net-Core/1.6.0": {
-      "sha512": "hsKiHGjrnlDW05MzuzzlD9gNP8YOW2KbZ+FbvISrilsKJJ76tXKhWey6psZX5sd7DczNpSU2U6ldjPoblk8BLw==",
+    "BCrypt.Net-Next/4.0.3": {
+      "sha512": "W+U9WvmZQgi5cX6FS5GDtDoPzUCV4LkBLkywq/kRZhuDwcbavOzcDAr3LXJFqHUi952Yj3LEYoWW0jbEUQChsA==",
       "type": "package",
-      "path": "bcrypt.net-core/1.6.0",
+      "path": "bcrypt.net-next/4.0.3",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
-        "bcrypt.net-core.1.6.0.nupkg.sha512",
-        "bcrypt.net-core.nuspec",
-        "lib/net40/BCrypt.Net-Core.dll",
-        "lib/net40/BCrypt.Net-Core.pdb",
-        "lib/net45/BCrypt.Net-Core.dll",
-        "lib/net45/BCrypt.Net-Core.pdb",
-        "lib/net451/BCrypt.Net-Core.dll",
-        "lib/net451/BCrypt.Net-Core.pdb",
-        "lib/net452/BCrypt.Net-Core.dll",
-        "lib/net452/BCrypt.Net-Core.pdb",
-        "lib/netstandard1.3/BCrypt.Net-Core.dll",
-        "lib/netstandard1.3/BCrypt.Net-Core.pdb",
-        "lib/netstandard2.0/BCrypt.Net-Core.dll",
-        "lib/netstandard2.0/BCrypt.Net-Core.pdb"
+        "bcrypt.net-next.4.0.3.nupkg.sha512",
+        "bcrypt.net-next.nuspec",
+        "ico.png",
+        "lib/net20/BCrypt.Net-Next.dll",
+        "lib/net20/BCrypt.Net-Next.xml",
+        "lib/net35/BCrypt.Net-Next.dll",
+        "lib/net35/BCrypt.Net-Next.xml",
+        "lib/net462/BCrypt.Net-Next.dll",
+        "lib/net462/BCrypt.Net-Next.xml",
+        "lib/net472/BCrypt.Net-Next.dll",
+        "lib/net472/BCrypt.Net-Next.xml",
+        "lib/net48/BCrypt.Net-Next.dll",
+        "lib/net48/BCrypt.Net-Next.xml",
+        "lib/net5.0/BCrypt.Net-Next.dll",
+        "lib/net5.0/BCrypt.Net-Next.xml",
+        "lib/net6.0/BCrypt.Net-Next.dll",
+        "lib/net6.0/BCrypt.Net-Next.xml",
+        "lib/netstandard2.0/BCrypt.Net-Next.dll",
+        "lib/netstandard2.0/BCrypt.Net-Next.xml",
+        "lib/netstandard2.1/BCrypt.Net-Next.dll",
+        "lib/netstandard2.1/BCrypt.Net-Next.xml",
+        "readme.md"
       ]
     },
     "Humanizer.Core/2.14.1": {
@@ -4844,7 +4852,7 @@
   },
   "projectFileDependencyGroups": {
     "net8.0": [
-      "BCrypt.Net-Core >= 1.6.0",
+      "BCrypt.Net-Next >= 4.0.3",
       "JWT >= 11.0.0",
       "Microsoft.EntityFrameworkCore.SqlServer >= 9.0.8",
       "Microsoft.EntityFrameworkCore.Tools >= 9.0.8",
@@ -4896,9 +4904,9 @@
       "net8.0": {
         "targetAlias": "net8.0",
         "dependencies": {
-          "BCrypt.Net-Core": {
+          "BCrypt.Net-Next": {
             "target": "Package",
-            "version": "[1.6.0, )"
+            "version": "[4.0.3, )"
           },
           "JWT": {
             "target": "Package",

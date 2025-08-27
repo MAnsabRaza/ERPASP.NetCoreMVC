@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
 
-namespace ERP.Controllers
+namespace ERP.Controllers.Setting
 {
     public class RoleController : Controller
     {
@@ -20,7 +20,7 @@ namespace ERP.Controllers
                 current_date = DateOnly.FromDateTime(DateTime.Now)
             };
             ViewBag.Role = await _context.Role.ToListAsync();
-            return View("Role", model);
+            return View("~/Views/Setting/UserManagement/Role.cshtml", model);
         }
 
         [HttpGet]
@@ -32,7 +32,7 @@ namespace ERP.Controllers
                 return NotFound();
             }
             ViewBag.Role = await _context.Role.ToListAsync();
-            return View("Role", role);
+            return View("~/Views/Setting/UserManagement/Role.cshtml", role);
         }
 
         [HttpPost]
@@ -48,7 +48,7 @@ namespace ERP.Controllers
                     {
                         existingRole.role_name = role.role_name;
                         existingRole.status = role.status;
-                        existingRole.current_date = role.current_date; 
+                        existingRole.current_date = role.current_date;
                         _context.Update(existingRole);
                         await _context.SaveChangesAsync();
                     }
@@ -71,7 +71,7 @@ namespace ERP.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             var roles = await _context.Role.FindAsync(id);
-            if(roles != null)
+            if (roles != null)
             {
                 _context.Role.Remove(roles);
                 await _context.SaveChangesAsync();

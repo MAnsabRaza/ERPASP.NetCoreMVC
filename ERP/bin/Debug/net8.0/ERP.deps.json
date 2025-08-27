@@ -8,7 +8,7 @@
     ".NETCoreApp,Version=v8.0": {
       "ERP/1.0.0": {
         "dependencies": {
-          "BCrypt.Net-Core": "1.6.0",
+          "BCrypt.Net-Next": "4.0.3",
           "JWT": "11.0.0",
           "Microsoft.EntityFrameworkCore.SqlServer": "9.0.8",
           "Microsoft.EntityFrameworkCore.Tools": "9.0.8",
@@ -53,11 +53,11 @@
           }
         }
       },
-      "BCrypt.Net-Core/1.6.0": {
+      "BCrypt.Net-Next/4.0.3": {
         "runtime": {
-          "lib/netstandard2.0/BCrypt.Net-Core.dll": {
-            "assemblyVersion": "1.6.0.0",
-            "fileVersion": "1.6.0.0"
+          "lib/net6.0/BCrypt.Net-Next.dll": {
+            "assemblyVersion": "4.0.3.0",
+            "fileVersion": "4.0.3.0"
           }
         }
       },
@@ -1089,12 +1089,12 @@
       "path": "azure.identity/1.11.4",
       "hashPath": "azure.identity.1.11.4.nupkg.sha512"
     },
-    "BCrypt.Net-Core/1.6.0": {
+    "BCrypt.Net-Next/4.0.3": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-hsKiHGjrnlDW05MzuzzlD9gNP8YOW2KbZ+FbvISrilsKJJ76tXKhWey6psZX5sd7DczNpSU2U6ldjPoblk8BLw==",
-      "path": "bcrypt.net-core/1.6.0",
-      "hashPath": "bcrypt.net-core.1.6.0.nupkg.sha512"
+      "sha512": "sha512-W+U9WvmZQgi5cX6FS5GDtDoPzUCV4LkBLkywq/kRZhuDwcbavOzcDAr3LXJFqHUi952Yj3LEYoWW0jbEUQChsA==",
+      "path": "bcrypt.net-next/4.0.3",
+      "hashPath": "bcrypt.net-next.4.0.3.nupkg.sha512"
     },
     "Humanizer.Core/2.14.1": {
       "type": "package",
