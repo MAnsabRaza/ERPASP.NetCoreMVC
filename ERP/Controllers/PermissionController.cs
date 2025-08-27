@@ -19,15 +19,15 @@ namespace ERP.Controllers
             {
                 current_date = DateOnly.FromDateTime(DateTime.Now)
             };
-            ViewBag.Module = await _context.Module.ToListAsync();
-            ViewBag.Module = await _context.Component.ToListAsync();
-            ViewBag.Role=await _context.Role.ToListAsync();
+            ViewBag.moduleList = await _context.Module.ToListAsync();
+            ViewBag.componentList = await _context.Component.ToListAsync();
+            ViewBag.roleList=await _context.Role.ToListAsync();
             ViewBag.Permission = await _context.Permission.
                 Include(m=>m.Module).
                 Include(c=>c.Component).
                 Include(r=>r.Role).
                 ToListAsync();
-            return View();
+            return View(model);
         }
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
@@ -48,10 +48,10 @@ namespace ERP.Controllers
             {
                 return NotFound();
             }
-            ViewBag.Module = await _context.Module.ToListAsync();
-            ViewBag.Component = await _context.Component.ToListAsync();
+            ViewBag.moduleList = await _context.Module.ToListAsync();
+            ViewBag.componentList = await _context.Component.ToListAsync();
             ViewBag.Permission = await _context.Permission.ToListAsync();
-            ViewBag.Role = await _context.Role.ToListAsync();
+            ViewBag.roleList = await _context.Role.ToListAsync();
             return View("Permission", permission);
         }
         [HttpPost]

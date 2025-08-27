@@ -10,12 +10,24 @@
         .sidebar-transition {
             transition: transform 0.3s ease-in-out;
         }
+
         .sidebar-closed {
             transform: translateX(-100%);
         }
-      
+
         .hover-bg:hover {
             background-color: rgba(59, 130, 246, 0.1);
+        }
+
+        .dropdown-enter {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+
+        .dropdown-enter-active {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 0.2s ease-out, transform 0.2s ease-out;
         }
     </style>
 </head>
@@ -34,20 +46,20 @@
                     <h1 class="text-xl font-bold text-gray-800">Enterprise ERP</h1>
                 </div>
             </div>
-            
+
             <div class="flex items-center space-x-4">
                 <!-- Search Bar -->
                 <div class="hidden md:flex items-center bg-gray-100 rounded-lg px-3 py-2">
                     <i class="fas fa-search text-gray-400 mr-2"></i>
                     <input type="text" placeholder="Search..." class="bg-transparent outline-none text-sm w-64">
                 </div>
-                
+
                 <!-- Notifications -->
                 <button class="relative text-gray-600 hover:text-gray-900">
                     <i class="fas fa-bell text-xl"></i>
                     <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">3</span>
                 </button>
-                
+
                 <!-- User Profile -->
                 <div class="flex items-center space-x-2 cursor-pointer hover:bg-gray-100 rounded-lg p-2">
                     <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
@@ -82,48 +94,12 @@
                     <div class="px-4 py-2">
                         <h4 class="text-xs uppercase tracking-wider text-gray-400 font-semibold">Main Menu</h4>
                     </div>
-                    
+
                     <ul class="space-y-1 px-2">
                         <li>
                             <a href="#" class="flex items-center px-3 py-2 text-gray-700 hover-bg rounded-lg group">
                                 <i class="fas fa-home text-gray-400 mr-3 group-hover:text-blue-500"></i>
                                 <span class="font-medium">Dashboard</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#" class="flex items-center px-3 py-2 text-gray-700 hover-bg rounded-lg group">
-                                <i class="fas fa-users text-gray-400 mr-3 group-hover:text-blue-500"></i>
-                                <span class="font-medium">Users Management</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a asp-controller="Role" asp-action="Role" class="flex items-center px-3 py-2 text-gray-700 hover-bg rounded-lg group">
-                                <i class="fas fa-user-shield text-gray-400 mr-3 group-hover:text-blue-500"></i>
-                                <span class="font-medium">Role</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a asp-controller="Module" asp-action="Module" class="flex items-center px-3 py-2 text-gray-700 hover-bg rounded-lg group">
-                                <i class="fas fa-user-shield text-gray-400 mr-3 group-hover:text-blue-500"></i>
-                                <span class="font-medium">Module</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a asp-controller="Company" asp-action="Company" class="flex items-center px-3 py-2 text-gray-700 hover-bg rounded-lg group">
-                                <i class="fas fa-user-shield text-gray-400 mr-3 group-hover:text-blue-500"></i>
-                                <span class="font-medium">Company</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a asp-controller="Component" asp-action="Component" class="flex items-center px-3 py-2 text-gray-700 hover-bg rounded-lg group">
-                                <i class="fas fa-user-shield text-gray-400 mr-3 group-hover:text-blue-500"></i>
-                                <span class="font-medium">Component</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a asp-controller="Permission" asp-action="Permission" class="flex items-center px-3 py-2 text-gray-700 hover-bg rounded-lg group">
-                                <i class="fas fa-user-shield text-gray-400 mr-3 group-hover:text-blue-500"></i>
-                                <span class="font-medium">Permission</span>
                             </a>
                         </li>
                         <li>
@@ -155,14 +131,60 @@
                     <div class="px-4 py-2 mt-6">
                         <h4 class="text-xs uppercase tracking-wider text-gray-400 font-semibold">Support</h4>
                     </div>
-                    
+
                     <ul class="space-y-1 px-2">
-                        <li>
-                            <a href="#" class="flex items-center px-3 py-2 text-gray-700 hover-bg rounded-lg group">
-                                <i class="fas fa-cog text-gray-400 mr-3 group-hover:text-blue-500"></i>
-                                <span class="font-medium">Settings</span>
-                            </a>
+                        <!-- Settings Dropdown -->
+                        <li class="relative">
+                            <!-- Settings main button -->
+                            <button id="settingsToggle" class="flex items-center justify-between w-full px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 focus:outline-none group">
+                                <div class="flex items-center">
+                                    <i class="fas fa-cog text-gray-400 mr-3 group-hover:text-blue-500"></i>
+                                    <span class="font-medium">Settings</span>
+                                </div>
+                                <i id="settingsChevron" class="fas fa-chevron-down text-gray-400 group-hover:text-blue-500 transition-transform duration-200"></i>
+                            </button>
+
+                            <!-- Dropdown menu -->
+                            <ul id="settingsDropdown" class="hidden mt-1 ml-6 space-y-1 bg-white border border-gray-200 rounded-lg shadow-lg p-2 z-50">
+                                <li>
+                                    <a asp-controller="User" asp-action="User" class="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
+                                        <i class="fas fa-users mr-2 text-gray-400"></i>
+                                        <span>User</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a asp-controller="Role" asp-action="Role" class="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
+                                        <i class="fas fa-user-shield mr-2 text-gray-400"></i>
+                                        <span>Role</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a asp-controller="Permission" asp-action="Permission" class="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
+                                        <i class="fas fa-key mr-2 text-gray-400"></i>
+                                        <span>Permission</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a asp-controller="Module" asp-action="Module" class="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
+                                        <i class="fas fa-cubes mr-2 text-gray-400"></i>
+                                        <span>Module</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a asp-controller="Component" asp-action="Component" class="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
+                                        <i class="fas fa-puzzle-piece mr-2 text-gray-400"></i>
+                                        <span>Component</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a asp-controller="Company" asp-action="Company" class="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
+                                        <i class="fas fa-building mr-2 text-gray-400"></i>
+                                        <span>Company</span>
+                                    </a>
+                                </li>
+                            </ul>
                         </li>
+
                         <li>
                             <a href="#" class="flex items-center px-3 py-2 text-gray-700 hover-bg rounded-lg group">
                                 <i class="fas fa-question-circle text-gray-400 mr-3 group-hover:text-blue-500"></i>
@@ -179,13 +201,13 @@
                 </nav>
 
                 <!-- Logout Button -->
-              <!--<div class="absolute bottom-4 left-4 right-4">
-                    <button class="w-full flex items-center justify-center px-4 py-2 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg transition-colors">
-                        <i class="fas fa-sign-out-alt mr-2"></i>
-                        <span class="font-medium">Logout</span>
-                    </button>
-                </div>
-                  -->
+                <!--<div class="absolute bottom-4 left-4 right-4">
+                      <button class="w-full flex items-center justify-center px-4 py-2 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg transition-colors">
+                          <i class="fas fa-sign-out-alt mr-2"></i>
+                          <span class="font-medium">Logout</span>
+                      </button>
+                  </div>
+                    -->
             </div>
         </aside>
 
@@ -223,8 +245,40 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
-    
+
     <script>
+        // Settings dropdown toggle functionality
+        document.addEventListener('DOMContentLoaded', function () {
+            const settingsToggle = document.getElementById('settingsToggle');
+            const settingsDropdown = document.getElementById('settingsDropdown');
+            const settingsChevron = document.getElementById('settingsChevron');
+
+            if (settingsToggle && settingsDropdown && settingsChevron) {
+                settingsToggle.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    // Toggle dropdown visibility
+                    settingsDropdown.classList.toggle('hidden');
+
+                    // Rotate chevron icon
+                    if (settingsDropdown.classList.contains('hidden')) {
+                        settingsChevron.style.transform = 'rotate(0deg)';
+                    } else {
+                        settingsChevron.style.transform = 'rotate(180deg)';
+                    }
+                });
+
+                // Close dropdown when clicking outside
+                document.addEventListener('click', function (e) {
+                    if (!settingsToggle.contains(e.target) && !settingsDropdown.contains(e.target)) {
+                        settingsDropdown.classList.add('hidden');
+                        settingsChevron.style.transform = 'rotate(0deg)';
+                    }
+                });
+            }
+        });
+
         // Sidebar toggle functionality
         const sidebarToggle = document.getElementById('sidebarToggle');
         const sidebar = document.getElementById('sidebar');
@@ -235,12 +289,18 @@
             sidebarOverlay.classList.toggle('hidden');
         }
 
-        sidebarToggle.addEventListener('click', toggleSidebar);
-        sidebarOverlay.addEventListener('click', toggleSidebar);
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', toggleSidebar);
+        }
+
+        if (sidebarOverlay) {
+            sidebarOverlay.addEventListener('click', toggleSidebar);
+        }
 
         // Close sidebar when clicking outside on mobile
-        document.addEventListener('click', function(e) {
-            if (window.innerWidth < 768 && !sidebar.contains(e.target) && !sidebarToggle.contains(e.target)) {
+        document.addEventListener('click', function (e) {
+            if (window.innerWidth < 768 && sidebar && sidebarToggle &&
+                !sidebar.contains(e.target) && !sidebarToggle.contains(e.target)) {
                 if (!sidebar.classList.contains('sidebar-closed')) {
                     toggleSidebar();
                 }
@@ -248,14 +308,14 @@
         });
 
         // Handle window resize
-        window.addEventListener('resize', function() {
-            if (window.innerWidth >= 768) {
+        window.addEventListener('resize', function () {
+            if (window.innerWidth >= 768 && sidebar && sidebarOverlay) {
                 sidebar.classList.remove('sidebar-closed');
                 sidebarOverlay.classList.add('hidden');
             }
         });
     </script>
-    
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
