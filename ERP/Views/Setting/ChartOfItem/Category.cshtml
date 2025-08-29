@@ -2,6 +2,11 @@
 @{
     ViewData["Title"] = "Category";
     var categoryList = ViewBag.Category as List<ERP.Models.Category>;
+    int totalItems = ViewBag.TotalItems;
+    int page = ViewBag.Page;
+    int pageSize = ViewBag.PageSize;
+    string searchString = ViewBag.SearchString ?? "";
+    int totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
 }
 
 <div class="space-y-8">
@@ -65,9 +70,20 @@
 
     <!-- Roles Table -->
     <div class="shadow-xl rounded-2xl bg-white p-6 border border-gray-200">
-        <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
-            <i class="fa-solid fa-list text-blue-600"></i> Category List
-        </h3>
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-semibold text-gray-800 flex items-center gap-2">
+                <i class="fa-solid fa-list text-blue-600"></i> Category List
+            </h3>
+            <form method="get" asp-action="Category" class="flex items-center space-x-2">
+                <input type="text" name="searchString" value="@searchString"
+                       placeholder="Search Category..."
+                       class="px-3 py-2 border rounded-lg focus:ring focus:ring-blue-300" />
+                <button type="submit"
+                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                    <i class="fa fa-search"></i>
+                </button>
+            </form>
+        </div>
 
         <div class="overflow-x-auto">
             <table class="table-auto w-full text-sm border border-gray-200 rounded-lg overflow-hidden">
@@ -128,6 +144,24 @@
                     }
                 </tbody>
             </table>
+        </div>
+        <div class="flex justify-between items-center mt-4">
+            <span class="text-sm text-gray-600">Page @(page) of  @totalPages</span>
+            <div class="space-x-2">
+                @if (page > 1)
+                {
+                    <a asp-action="Category" asp-route-page="@(page-1)" asp-route-searchString="@searchString"
+                       class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">Prev</a>
+
+                   
+
+                }
+                @if (page < totalPages)
+                {
+                    <a asp-action="Category" asp-route-page="@(page+1)" asp-route-searchString="@searchString"
+                       class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">Next</a>
+                }
+            </div>
         </div>
     </div>
 </div>

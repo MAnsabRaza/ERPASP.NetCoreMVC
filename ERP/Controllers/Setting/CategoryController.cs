@@ -11,15 +11,34 @@ namespace ERP.Controllers.Setting
         {
             _context = context;
         }
-        public async Task<IActionResult> Category()
+        public async Task<IActionResult> Category(string searchString,int page=1, int pageSize=5)
         {
+            var query=_context.Category.AsQueryable();
+            //search
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                query = query.Where(u => u.category_name.Contains(searchString));
+            }
+
+            //Pagination
+            var totalItems = await query.CountAsync();
+            var categoryList = await query.
+                        OrderBy(u => u.Id).
+                        Skip((page - 1) * pageSize).
+                        Take(pageSize).
+                        ToListAsync();
+            ViewBag.TotalItems = totalItems;
+            ViewBag.Page = page;
+            ViewBag.PageSize = pageSize;
+            ViewBag.SearchString = searchString;
             var model = new Category
             {
                 current_date = DateOnly.FromDateTime(DateTime.Now)
             };
-            ViewBag.Category = await _context.Category.ToListAsync();
-            //return View("Category",model);
+            ViewBag.Category = categoryList;
             return View("~/Views/Setting/ChartOfItem/Category.cshtml", model);
+            //return View("Category",model);
+            //return View("~/Views/Setting/ChartOfItem/Category.cshtml", model);
         }
         [HttpPost]
         public async Task<IActionResult> Create(Category category)
@@ -63,14 +82,32 @@ namespace ERP.Controllers.Setting
             return RedirectToAction("Category");
         }
         [HttpGet]
-        public async Task<IActionResult> Edit(int id)
+        public async Task<IActionResult> Edit(int id, string searchString, int page = 1, int pageSize = 5)
         {
             var category = await _context.Category.FindAsync(id);
             if (category == null)
             {
                 return NotFound();
             }
-            ViewBag.Category = await _context.Category.ToListAsync();
+            var query = _context.Category.AsQueryable();
+            //search
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                query = query.Where(u => u.category_name.Contains(searchString));
+            }
+
+            //Pagination
+            var totalItems = await query.CountAsync();
+            var categoryList = await query.
+                        OrderBy(u => u.Id).
+                        Skip((page - 1) * pageSize).
+                        Take(pageSize).
+                        ToListAsync();
+            ViewBag.TotalItems = totalItems;
+            ViewBag.Page = page;
+            ViewBag.PageSize = pageSize;
+            ViewBag.SearchString = searchString;
+            ViewBag.Category = categoryList;
             //return View("Category", category);
             return View("~/Views/Setting/ChartOfItem/Category.cshtml", category);
         }
