@@ -1,6 +1,7 @@
 ﻿using ERP.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Drawing.Printing;
 
 namespace ERP.Controllers.Setting
 {
@@ -11,16 +12,33 @@ namespace ERP.Controllers.Setting
         {
             _context = context;
         }
-        public async Task<IActionResult> SubCategory()
+        public async Task<IActionResult> SubCategory(string searchString,int page=1,int pageSize=5)
         {
+            var query=_context.SubCategory.AsQueryable();
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                query=query.Where(sb=>sb.sub_category_name.Contains(searchString));
+            }
+            var totalItems=await query.CountAsync();
+            var subCategoryList=await query.
+                Include(c=>c.Category).
+                OrderBy(sb=>sb.Id).
+                Skip((page-1)*pageSize).
+                Take(pageSize).ToListAsync();
+            ViewBag.TotalItems = totalItems;
+            ViewBag.Page = page;
+            ViewBag.PageSize = pageSize;
+            ViewBag.SearchString = searchString;
+
+
             var model = new SubCategory
             {
                 current_date = DateOnly.FromDateTime(DateTime.Now)
             };
-            ViewBag.categoryList = await _context.Category.ToListAsync();
-            ViewBag.SubCategory = await _context.SubCategory.
-                Include(c=>c.Category).
-                ToListAsync();
+            ViewBag.categoryList = await _context.Category
+                    .Where(c => c.status == true) 
+                    .ToListAsync();
+            ViewBag.SubCategory = subCategoryList;
             //return View("SubCategory",model);
             return View("~/Views/Setting/ChartOfItem/SubCategory.cshtml", model);
         }
@@ -67,15 +85,32 @@ namespace ERP.Controllers.Setting
             }
         }
         [HttpGet]
-        public async Task<IActionResult> Edit(int id)
+        public async Task<IActionResult> Edit(int id, string searchString, int page = 1,int pageSize=5)
         {
             var sub = await _context.SubCategory.FindAsync(id);
             if(sub == null)
             {
                 return NotFound();
             }
-            ViewBag.categoryList = await _context.Category.ToListAsync();
-            ViewBag.SubCategory = await _context.SubCategory.ToListAsync();
+            var query = _context.SubCategory.AsQueryable();
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                query = query.Where(sb => sb.sub_category_name.Contains(searchString));
+            }
+            var totalItems = await query.CountAsync();
+            var subCategoryList = await query.
+                Include(c => c.Category).
+            OrderBy(sb => sb.Id).
+                Skip((page - 1) * pageSize).
+                Take(pageSize).ToListAsync();
+            ViewBag.TotalItems = totalItems;
+            ViewBag.Page = page;
+            ViewBag.PageSize = pageSize;
+            ViewBag.SearchString = searchString;
+            ViewBag.categoryList = await _context.Category.
+                Where(c=>c.status==true).
+                ToListAsync();
+            ViewBag.SubCategory = subCategoryList;
             //return View("SubCategory", sub);
 
             return View("~/Views/Setting/ChartOfItem/SubCategory.cshtml", sub);

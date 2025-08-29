@@ -31,6 +31,10 @@
                             class="px-5 py-2.5 rounded-xl text-sm font-semibold text-gray-700 bg-yellow-300 hover:bg-yellow-400 shadow-md transition">
                         <i class="fa-solid fa-rotate-right mr-1"></i> Reset
                     </button>
+                    <button type="button" onclick="refreshPage()"
+                            class="px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-purple-500 hover:bg-purple-600 shadow-md transition">
+                        <i class="fa-solid fa-rotate-right mr-1"></i> Refresh
+                    </button>
                 </div>
             </div>
 
@@ -75,9 +79,16 @@
                 <i class="fa-solid fa-list text-blue-600"></i> Category List
             </h3>
             <form method="get" asp-action="Category" class="flex items-center space-x-2">
-                <input type="text" name="searchString" value="@searchString"
-                       placeholder="Search Category..."
-                       class="px-3 py-2 border rounded-lg focus:ring focus:ring-blue-300" />
+              <div class="relative w-full">
+                    <input type="text" id="searchInput" name="searchString" value="@searchString"
+                           placeholder="Search UOM..."
+                           class="w-full px-3 py-2 pr-10 border rounded-lg focus:ring focus:ring-blue-300" />
+
+                    <button type="button" id="clearSearch"
+                            class="absolute inset-y-0 right-2 flex items-center text-gray-400 hover:text-red-500 hidden">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
                 <button type="submit"
                         class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
                     <i class="fa fa-search"></i>
@@ -165,3 +176,21 @@
         </div>
     </div>
 </div>
+
+<script>
+    function refreshPage() {
+        window.location.href = '@Url.Action("Category", "Category")';
+    }
+
+    const searchInput = document.getElementById("searchInput");
+    const clearBtn = document.getElementById("clearSearch");
+    searchInput.addEventListener("input", () => {
+        clearBtn.style.display = searchInput.value ? "flex" : "none";
+    });
+    clearBtn.addEventListener("click", () => {
+        refreshPage();
+    });
+    if (searchInput.value) {
+        clearBtn.style.display = "flex";
+    }
+</script>

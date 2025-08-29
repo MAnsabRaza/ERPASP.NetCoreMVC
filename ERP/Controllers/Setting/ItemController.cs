@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Client;
+using System.Drawing.Printing;
 
 namespace ERP.Controllers.Setting
 {
@@ -12,22 +13,31 @@ namespace ERP.Controllers.Setting
         {
             _context = context;
         }
-        public async Task<IActionResult> Item()
+        public async Task<IActionResult> Item(string searchString,int page=1,int pageSize=5)
         {
+            var query=_context.Item.AsQueryable();
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                query=query.Where(it=>it.item_name.Contains(searchString));
+            }
+            var totalItems=await query.CountAsync();
+            var itemList=await query.
+                    Include(c => c.Category).Include(sc => sc.SubCategory).Include(b => b.Brand).Include(u => u.UOM).
+                OrderBy(u=>u.Id).Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+
+            ViewBag.TotalItems = totalItems;
+            ViewBag.Page = page;
+            ViewBag.PageSize = pageSize;
+            ViewBag.SearchString = searchString;
             var model = new Item
             {
                 current_date = DateOnly.FromDateTime(DateTime.Now)
             };
-            ViewBag.Item = await _context.Item.
-                Include(c => c.Category).
-                Include(sc => sc.SubCategory).
-                Include(b => b.Brand).
-                Include(u => u.UOM).
-                ToListAsync();
-            ViewBag.categoryList=await _context.Category.ToListAsync();
-            ViewBag.brandList=await _context.Brand.ToListAsync();
-            ViewBag.uomList=await _context.UOM.ToListAsync();
-            ViewBag.subCategoryList=await _context.SubCategory.ToListAsync();
+            ViewBag.Item = itemList;
+            ViewBag.categoryList = await _context.Category.Where(c => c.status == true).ToListAsync();
+            ViewBag.brandList = await _context.Brand.Where(b => b.status == true).ToListAsync();
+            ViewBag.uomList = await _context.UOM.Where(u => u.status == true).ToListAsync();
+            ViewBag.subCategoryList = await _context.SubCategory.Where(sb => sb.status == true).ToListAsync();
             //return View("Item",model);
             return View("~/Views/Setting/ChartOfItem/Item.cshtml", model);
         }
@@ -43,18 +53,34 @@ namespace ERP.Controllers.Setting
             return RedirectToAction("Item");
         }
         [HttpGet]
-        public async Task<IActionResult> Edit(int id)
+        public async Task<IActionResult> Edit(int id, string searchString, int page = 1,int pageSize=5)
         {
             var item = await _context.Item.FindAsync(id);
             if (item == null)
             {
                 return NotFound();
             }
-            ViewBag.item = await _context.Item.ToListAsync();
-            ViewBag.categoryList = await _context.Category.ToListAsync();
-            ViewBag.brandList = await _context.Brand.ToListAsync();
-            ViewBag.uomList = await _context.UOM.ToListAsync();
-            ViewBag.subCategoryList = await _context.SubCategory.ToListAsync();
+            var query = _context.Item.AsQueryable();
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                query = query.Where(it => it.item_name.Contains(searchString));
+            }
+            var totalItems = await query.CountAsync();
+
+            var itemList = await query.
+                     Include(c => c.Category).Include(sc => sc.SubCategory).Include(b => b.Brand).Include(u => u.UOM).
+                 OrderBy(u => u.Id).Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+
+            ViewBag.TotalItems = totalItems;
+            ViewBag.Page = page;
+            ViewBag.PageSize = pageSize;
+            ViewBag.SearchString = searchString;
+
+            ViewBag.item = itemList;
+            ViewBag.categoryList = await _context.Category.Where(c => c.status == true).ToListAsync();
+            ViewBag.brandList = await _context.Brand.Where(b => b.status == true).ToListAsync();
+            ViewBag.uomList = await _context.UOM.Where(u => u.status == true).ToListAsync();
+            ViewBag.subCategoryList = await _context.SubCategory.Where(sb => sb.status == true).ToListAsync();
             //return View("Item", item);
             return View("~/Views/Setting/ChartOfItem/Item.cshtml", item);
         }
