@@ -82,6 +82,8 @@ namespace ERP.Controllers.Setting
                         existingItem.rate = item.rate;
                         existingItem.discount_amount = item.discount_amount;
                         existingItem.total_amount = item.total_amount;
+                        existingItem.description = item.description;
+                        existingItem.remark = item.remark;
                         _context.Update(existingItem);
                         await _context.SaveChangesAsync();
                     }

@@ -18,5 +18,6 @@ namespace ERP.Models
         public string? email { get; set; }
         public string? password { get; set; }
         public string? image {  get; set; }
+        public bool status { get; set; }
     }
 }

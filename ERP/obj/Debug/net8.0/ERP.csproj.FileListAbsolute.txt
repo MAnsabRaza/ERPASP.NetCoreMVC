@@ -170,3 +170,6 @@ D:\AspDotNet\Asp.Net Web Core MVC\ERP\ERP\obj\Debug\net8.0\ERP.csproj.AssemblyRe
 D:\AspDotNet\Asp.Net Web Core MVC\ERP\ERP\obj\Debug\net8.0\ERP.csproj.Up2Date
 D:\AspDotNet\Asp.Net Web Core MVC\ERP\ERP\obj\Debug\net8.0\ERP.sourcelink.json
 D:\AspDotNet\Asp.Net Web Core MVC\ERP\ERP\bin\Debug\net8.0\BCrypt.Net-Next.dll
+D:\AspDotNet\Asp.Net Web Core MVC\ERP\ERP\bin\Debug\net8.0\X.PagedList.dll
+D:\AspDotNet\Asp.Net Web Core MVC\ERP\ERP\bin\Debug\net8.0\X.PagedList.Mvc.Core.dll
+D:\AspDotNet\Asp.Net Web Core MVC\ERP\ERP\obj\Debug\net8.0\ERP.MvcApplicationPartsAssemblyInfo.cs
