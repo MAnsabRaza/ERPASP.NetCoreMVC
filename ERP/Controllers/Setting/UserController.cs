@@ -2,6 +2,8 @@
 using ERP.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
+using System.Drawing.Printing;
 using System.Security;
 
 namespace ERP.Controllers.Setting
@@ -13,19 +15,38 @@ namespace ERP.Controllers.Setting
         {
             _context = context;
         }
-        public async Task<IActionResult> User()
+        public async Task<IActionResult> User(string searchString, int page = 1,int pageSize=5)
         {
+            var query = _context.User.AsQueryable();
+            if(!string.IsNullOrEmpty(searchString) )
+            {
+                query = query.Where(u => u.name.Contains(searchString));
+            }
+            var totalItems = await query.CountAsync();
+            var userList = await query.
+                Include(r => r.Role).
+                Include(c => c.Company).
+                OrderBy(u=>u.Id).
+                Skip((page-1)*pageSize).
+                Take(pageSize).
+                ToListAsync();
+
+            ViewBag.TotalItems = totalItems;
+            ViewBag.Page = page;
+            ViewBag.PageSize = pageSize;
+            ViewBag.SearchString = searchString;
+
             var model = new User
             {
                 current_date = DateOnly.FromDateTime(DateTime.Now)
             };
 
-            ViewBag.User = await _context.User.
-                Include(r => r.Role).
-                Include(c => c.Company).
+            ViewBag.User = userList;
+            ViewBag.companyList = await _context.Company.
+                Where(c=>c.status==true).
                 ToListAsync();
-            ViewBag.companyList = await _context.Company.ToListAsync();
-            ViewBag.roleList = await _context.Role.ToListAsync();
+            ViewBag.roleList = await _context.Role.
+                Where(c => c.status == true).ToListAsync();
             return View("~/Views/Setting/UserManagement/User.cshtml", model);
         }
         [HttpPost]
@@ -81,16 +102,35 @@ namespace ERP.Controllers.Setting
             }
         }
         [HttpGet]
-        public async Task<IActionResult> Edit(int id)
+        public async Task<IActionResult> Edit(int id,string searchString,int page=1,int pageSize=5)
         {
             var user = await _context.User.FindAsync(id);
             if (user == null)
             {
                 return NotFound();
             }
-            ViewBag.companyList = await _context.Company.ToListAsync();
-            ViewBag.User = await _context.User.ToListAsync();
-            ViewBag.roleList = await _context.Role.ToListAsync();
+            var query = _context.User.AsQueryable();
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                query = query.Where(u => u.name.Contains(searchString));
+            }
+            var totalItems = await query.CountAsync();
+            var userList = await query.
+                Include(r => r.Role).
+                Include(c => c.Company).
+            OrderBy(u => u.Id).
+                Skip((page - 1) * pageSize).
+                Take(pageSize).
+                ToListAsync();
+
+            ViewBag.TotalItems = totalItems;
+            ViewBag.Page = page;
+            ViewBag.PageSize = pageSize;
+            ViewBag.SearchString = searchString;
+
+            ViewBag.User = userList;
+            ViewBag.companyList = await _context.Company.Where(c => c.status == true).ToListAsync();
+            ViewBag.roleList = await _context.Role.Where(c => c.status == true).ToListAsync();
             return View("~/Views/Setting/UserManagement/User.cshtml", user);
         }
         [HttpPost]

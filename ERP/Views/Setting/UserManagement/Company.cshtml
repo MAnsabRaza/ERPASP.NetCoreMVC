@@ -2,6 +2,12 @@
 @{
     ViewData["Title"] = "Companies";
     var companyList = ViewBag.Company as List<ERP.Models.Company>;
+
+    int totalItems = ViewBag.TotalItems;
+    int page = ViewBag.Page;
+    int pageSize = ViewBag.PageSize;
+    string searchString = ViewBag.SearchString ?? "";
+    int totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
 }
 
 <div class="space-y-8">
@@ -11,22 +17,36 @@
         @Html.AntiForgeryToken()
         @Html.HiddenFor(m => m.Id)
 
-        <div class="shadow-xl rounded-2xl bg-white p-6 border border-gray-200">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
-                    <i class="fa-solid fa-building text-blue-600"></i> Company
-                </h2>
+        <div class="shadow-lg rounded-2xl bg-gradient-to-r from-blue-50 to-blue-100 p-6 border border-gray-200">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
+                        <i class="fa-solid fa-building text-blue-600"></i> Company
+                    </h2>
+                    <p class="text-gray-600 mt-1 text-sm">Add and manage your User efficiently</p>
+                </div>
+
                 <div class="space-x-2">
                     <button type="submit"
                             class="px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-green-600 hover:bg-green-700 shadow-md transition">
-                        <i class="fa-solid fa-save mr-1"></i> Save
+                        <i class="fa-solid fa-save mr-2"></i> Save
                     </button>
                     <button type="reset"
                             class="px-5 py-2.5 rounded-xl text-sm font-semibold text-gray-700 bg-yellow-300 hover:bg-yellow-400 shadow-md transition">
-                        <i class="fa-solid fa-rotate-right mr-1"></i> Reset
+                        <i class="fa-solid fa-rotate-right mr-2"></i> Reset
+                    </button>
+                    <button type="button" onclick="refreshPage()"
+                            class="px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-purple-500 hover:bg-purple-600 shadow-md transition">
+                        <i class="fa-solid fa-arrows-rotate mr-2"></i> Refresh
                     </button>
                 </div>
             </div>
+        </div>
+
+
+
+        <div class="shadow-xl rounded-2xl bg-white p-6 border border-gray-200 mt-5">
+          
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
@@ -96,10 +116,31 @@
     }
 
     <!-- Companies Table -->
-    <div class="shadow-xl rounded-2xl bg-white p-6 border border-gray-200 mt-8">
-        <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
-            <i class="fa-solid fa-list text-blue-600"></i> Company List
-        </h3>
+    <div class="shadow-xl rounded-2xl bg-white p-6 border border-gray-200 mt-5">
+
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-semibold text-gray-800 flex items-center gap-2">
+                <i class="fa-solid fa-list text-blue-600"></i> Company List
+            </h3>
+            <form method="get" asp-action="Company" class="flex items-center space-x-2 relative w-full max-w-xs">
+                <div class="relative w-full">
+                    <input type="text" id="searchInput" name="searchString" value="@searchString"
+                           placeholder="Search Role..."
+                           class="w-full px-3 py-2 pr-10 border rounded-lg focus:ring focus:ring-blue-300" />
+
+                    <button type="button" id="clearSearch"
+                            class="absolute inset-y-0 right-2 flex items-center text-gray-400 hover:text-red-500 hidden">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <button type="submit"
+                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                    <i class="fa fa-search"></i>
+                </button>
+            </form>
+
+        </div>
 
         <div class="overflow-x-auto">
             <table class="table-auto w-full text-sm border border-gray-200 rounded-lg overflow-hidden">
@@ -164,5 +205,37 @@
                 </tbody>
             </table>
         </div>
+        <div class="flex justify-between items-center mt-4">
+            <span class="text-sm text-gray-600">Page @(page) of  @totalPages</span>
+            <div class="space-x-2">
+                @if (page > 1)
+                {
+                    <a asp-action="Company" asp-route-page="@(page-1)" asp-route-searchString="@searchString"
+                       class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">Prev</a>
+                }
+                @if (page < totalPages)
+                {
+                    <a asp-action="Company" asp-route-page="@(page+1)" asp-route-searchString="@searchString"
+                       class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">Next</a>
+                }
+            </div>
+        </div>
     </div>
 </div>
+<script>
+    function refreshPage() {
+        window.location.href = '@Url.Action("Company", "Company")';
+    }
+
+    const searchInput = document.getElementById("searchInput");
+    const clearBtn = document.getElementById("clearSearch");
+    searchInput.addEventListener("input", () => {
+        clearBtn.style.display = searchInput.value ? "flex" : "none";
+    });
+    clearBtn.addEventListener("click", () => {
+        refreshPage();
+    });
+    if (searchInput.value) {
+        clearBtn.style.display = "flex";
+    }
+</script>

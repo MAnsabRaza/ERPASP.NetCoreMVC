@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
+using System.Drawing.Printing;
 
 namespace ERP.Controllers.Setting
 {
@@ -12,24 +13,51 @@ namespace ERP.Controllers.Setting
         {
             _context = context;
         }
-        public async Task<IActionResult> Company()
+        public async Task<IActionResult> Company(string searchString, int page = 1,int pageSize=5)
         {
+            var query = _context.Company.AsQueryable();
+            if(!string.IsNullOrEmpty(searchString) )
+            {
+                query=query.Where(c=>c.company_name.Contains(searchString));
+            }
+            var totalItems=await query.CountAsync();
+            var companyList=await query.
+                OrderBy(c=>c.Id).Skip((page-1)*pageSize).Take(pageSize).
+                ToListAsync();
+            ViewBag.TotalItems = totalItems;
+            ViewBag.Page = page;
+            ViewBag.PageSize = pageSize;
+            ViewBag.SearchString = searchString;
+
             var model = new Company
             {
                 current_date = DateOnly.FromDateTime(DateTime.Now)
             };
-            ViewBag.Company = await _context.Company.ToListAsync();
+            ViewBag.Company = companyList;
             return View("~/Views/Setting/UserManagement/Company.cshtml", model);
         }
         [HttpGet]
-        public async Task<IActionResult> Edit(int id)
+        public async Task<IActionResult> Edit(int id,string searchString,int page=1,int pageSize=5)
         {
             var company = await _context.Company.FindAsync(id);
             if (company == null)
             {
                 return NotFound();
             }
-            ViewBag.Company = _context.Company.ToListAsync();
+            var query = _context.Company.AsQueryable();
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                query = query.Where(c => c.company_name.Contains(searchString));
+            }
+            var totalItems = await query.CountAsync();
+            var companyList = await query.
+            OrderBy(c => c.Id).Skip((page - 1) * pageSize).Take(pageSize).
+                ToListAsync();
+            ViewBag.TotalItems = totalItems;
+            ViewBag.Page = page;
+            ViewBag.PageSize = pageSize;
+            ViewBag.SearchString = searchString;
+            ViewBag.Company = companyList;
             return View("~/Views/Setting/UserManagement/Company.cshtml", company);
         }
         [HttpPost]
