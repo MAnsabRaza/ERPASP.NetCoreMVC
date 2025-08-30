@@ -3,12 +3,44 @@
   "WorkspaceRootPath": "D:\\AspDotNet\\Asp.Net Web Core MVC\\ERP\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{35523C83-58B4-405C-AB96-507C020CE084}|ERP\\ERP.csproj|d:\\aspdotnet\\asp.net web core mvc\\erp\\erp\\controllers\\setting\\subcategorycontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{35523C83-58B4-405C-AB96-507C020CE084}|ERP\\ERP.csproj|solutionrelative:erp\\controllers\\setting\\subcategorycontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{35523C83-58B4-405C-AB96-507C020CE084}|ERP\\ERP.csproj|d:\\aspdotnet\\asp.net web core mvc\\erp\\erp\\views\\setting\\usermanagement\\role.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{35523C83-58B4-405C-AB96-507C020CE084}|ERP\\ERP.csproj|solutionrelative:erp\\views\\setting\\usermanagement\\role.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{35523C83-58B4-405C-AB96-507C020CE084}|ERP\\ERP.csproj|d:\\aspdotnet\\asp.net web core mvc\\erp\\erp\\views\\setting\\usermanagement\\module.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{35523C83-58B4-405C-AB96-507C020CE084}|ERP\\ERP.csproj|solutionrelative:erp\\views\\setting\\usermanagement\\module.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{35523C83-58B4-405C-AB96-507C020CE084}|ERP\\ERP.csproj|d:\\aspdotnet\\asp.net web core mvc\\erp\\erp\\views\\setting\\usermanagement\\permission.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{35523C83-58B4-405C-AB96-507C020CE084}|ERP\\ERP.csproj|solutionrelative:erp\\views\\setting\\usermanagement\\permission.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{35523C83-58B4-405C-AB96-507C020CE084}|ERP\\ERP.csproj|d:\\aspdotnet\\asp.net web core mvc\\erp\\erp\\views\\setting\\usermanagement\\component.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{35523C83-58B4-405C-AB96-507C020CE084}|ERP\\ERP.csproj|solutionrelative:erp\\views\\setting\\usermanagement\\component.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{35523C83-58B4-405C-AB96-507C020CE084}|ERP\\ERP.csproj|d:\\aspdotnet\\asp.net web core mvc\\erp\\erp\\views\\setting\\chartofitem\\subcategory.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
       "RelativeMoniker": "D:0:0:{35523C83-58B4-405C-AB96-507C020CE084}|ERP\\ERP.csproj|solutionrelative:erp\\views\\setting\\chartofitem\\subcategory.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{35523C83-58B4-405C-AB96-507C020CE084}|ERP\\ERP.csproj|d:\\aspdotnet\\asp.net web core mvc\\erp\\erp\\views\\setting\\chartofitem\\brand.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{35523C83-58B4-405C-AB96-507C020CE084}|ERP\\ERP.csproj|solutionrelative:erp\\views\\setting\\chartofitem\\brand.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{35523C83-58B4-405C-AB96-507C020CE084}|ERP\\ERP.csproj|d:\\aspdotnet\\asp.net web core mvc\\erp\\erp\\views\\setting\\chartofitem\\uom.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{35523C83-58B4-405C-AB96-507C020CE084}|ERP\\ERP.csproj|solutionrelative:erp\\views\\setting\\chartofitem\\uom.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{35523C83-58B4-405C-AB96-507C020CE084}|ERP\\ERP.csproj|d:\\aspdotnet\\asp.net web core mvc\\erp\\erp\\views\\setting\\chartofitem\\category.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{35523C83-58B4-405C-AB96-507C020CE084}|ERP\\ERP.csproj|solutionrelative:erp\\views\\setting\\chartofitem\\category.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{35523C83-58B4-405C-AB96-507C020CE084}|ERP\\ERP.csproj|d:\\aspdotnet\\asp.net web core mvc\\erp\\erp\\views\\setting\\chartofitem\\item.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{35523C83-58B4-405C-AB96-507C020CE084}|ERP\\ERP.csproj|solutionrelative:erp\\views\\setting\\chartofitem\\item.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{35523C83-58B4-405C-AB96-507C020CE084}|ERP\\ERP.csproj|d:\\aspdotnet\\asp.net web core mvc\\erp\\erp\\controllers\\setting\\itemcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{35523C83-58B4-405C-AB96-507C020CE084}|ERP\\ERP.csproj|solutionrelative:erp\\controllers\\setting\\itemcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{35523C83-58B4-405C-AB96-507C020CE084}|ERP\\ERP.csproj|d:\\aspdotnet\\asp.net web core mvc\\erp\\erp\\controllers\\setting\\categorycontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -19,28 +51,8 @@
       "RelativeMoniker": "D:0:0:{35523C83-58B4-405C-AB96-507C020CE084}|ERP\\ERP.csproj|solutionrelative:erp\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{35523C83-58B4-405C-AB96-507C020CE084}|ERP\\ERP.csproj|d:\\aspdotnet\\asp.net web core mvc\\erp\\erp\\views\\setting\\usermanagement\\user.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{35523C83-58B4-405C-AB96-507C020CE084}|ERP\\ERP.csproj|solutionrelative:erp\\views\\setting\\usermanagement\\user.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{35523C83-58B4-405C-AB96-507C020CE084}|ERP\\ERP.csproj|d:\\aspdotnet\\asp.net web core mvc\\erp\\erp\\views\\setting\\chartofitem\\category.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{35523C83-58B4-405C-AB96-507C020CE084}|ERP\\ERP.csproj|solutionrelative:erp\\views\\setting\\chartofitem\\category.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{35523C83-58B4-405C-AB96-507C020CE084}|ERP\\ERP.csproj|d:\\aspdotnet\\asp.net web core mvc\\erp\\erp\\views\\setting\\chartofitem\\brand.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{35523C83-58B4-405C-AB96-507C020CE084}|ERP\\ERP.csproj|solutionrelative:erp\\views\\setting\\chartofitem\\brand.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{35523C83-58B4-405C-AB96-507C020CE084}|ERP\\ERP.csproj|d:\\aspdotnet\\asp.net web core mvc\\erp\\erp\\controllers\\setting\\brandcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{35523C83-58B4-405C-AB96-507C020CE084}|ERP\\ERP.csproj|solutionrelative:erp\\controllers\\setting\\brandcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{35523C83-58B4-405C-AB96-507C020CE084}|ERP\\ERP.csproj|d:\\aspdotnet\\asp.net web core mvc\\erp\\erp\\controllers\\setting\\uomcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{35523C83-58B4-405C-AB96-507C020CE084}|ERP\\ERP.csproj|solutionrelative:erp\\controllers\\setting\\uomcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{35523C83-58B4-405C-AB96-507C020CE084}|ERP\\ERP.csproj|d:\\aspdotnet\\asp.net web core mvc\\erp\\erp\\views\\setting\\chartofitem\\uom.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{35523C83-58B4-405C-AB96-507C020CE084}|ERP\\ERP.csproj|solutionrelative:erp\\views\\setting\\chartofitem\\uom.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+      "AbsoluteMoniker": "D:0:0:{35523C83-58B4-405C-AB96-507C020CE084}|ERP\\ERP.csproj|d:\\aspdotnet\\asp.net web core mvc\\erp\\erp\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{35523C83-58B4-405C-AB96-507C020CE084}|ERP\\ERP.csproj|solutionrelative:erp\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -50,7 +62,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 4,
+          "SelectedChildIndex": 2,
           "Children": [
             {
               "$type": "Bookmark",
@@ -62,132 +74,171 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "User.cshtml",
-              "DocumentMoniker": "D:\\AspDotNet\\Asp.Net Web Core MVC\\ERP\\ERP\\Views\\Setting\\UserManagement\\User.cshtml",
-              "RelativeDocumentMoniker": "ERP\\Views\\Setting\\UserManagement\\User.cshtml",
-              "ToolTip": "D:\\AspDotNet\\Asp.Net Web Core MVC\\ERP\\ERP\\Views\\Setting\\UserManagement\\User.cshtml",
-              "RelativeToolTip": "ERP\\Views\\Setting\\UserManagement\\User.cshtml",
-              "ViewState": "AQIAADYAAAAAAAAAAAAAAEcAAAAWAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-08-28T11:40:05.88Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "SubCategory.cshtml",
-              "DocumentMoniker": "D:\\AspDotNet\\Asp.Net Web Core MVC\\ERP\\ERP\\Views\\Setting\\ChartOfItem\\SubCategory.cshtml",
-              "RelativeDocumentMoniker": "ERP\\Views\\Setting\\ChartOfItem\\SubCategory.cshtml",
-              "ToolTip": "D:\\AspDotNet\\Asp.Net Web Core MVC\\ERP\\ERP\\Views\\Setting\\ChartOfItem\\SubCategory.cshtml",
-              "RelativeToolTip": "ERP\\Views\\Setting\\ChartOfItem\\SubCategory.cshtml",
-              "ViewState": "AQIAAHIAAAAAAAAAAAAAAH8AAABDAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-08-28T11:33:04.225Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "SubCategoryController.cs",
-              "DocumentMoniker": "D:\\AspDotNet\\Asp.Net Web Core MVC\\ERP\\ERP\\Controllers\\Setting\\SubCategoryController.cs",
-              "RelativeDocumentMoniker": "ERP\\Controllers\\Setting\\SubCategoryController.cs",
-              "ToolTip": "D:\\AspDotNet\\Asp.Net Web Core MVC\\ERP\\ERP\\Controllers\\Setting\\SubCategoryController.cs",
-              "RelativeToolTip": "ERP\\Controllers\\Setting\\SubCategoryController.cs",
-              "ViewState": "AQIAABUAAAAAAAAAAAAowB4AAAAkAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-28T11:23:17.934Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "Category.cshtml",
-              "DocumentMoniker": "D:\\AspDotNet\\Asp.Net Web Core MVC\\ERP\\ERP\\Views\\Setting\\ChartOfItem\\Category.cshtml",
-              "RelativeDocumentMoniker": "ERP\\Views\\Setting\\ChartOfItem\\Category.cshtml",
-              "ToolTip": "D:\\AspDotNet\\Asp.Net Web Core MVC\\ERP\\ERP\\Views\\Setting\\ChartOfItem\\Category.cshtml",
-              "RelativeToolTip": "ERP\\Views\\Setting\\ChartOfItem\\Category.cshtml",
-              "ViewState": "AQIAAG8AAAAAAAAAAAAgwHkAAAAVAAAA",
+              "Title": "Role.cshtml",
+              "DocumentMoniker": "D:\\AspDotNet\\Asp.Net Web Core MVC\\ERP\\ERP\\Views\\Setting\\UserManagement\\Role.cshtml",
+              "RelativeDocumentMoniker": "ERP\\Views\\Setting\\UserManagement\\Role.cshtml",
+              "ToolTip": "D:\\AspDotNet\\Asp.Net Web Core MVC\\ERP\\ERP\\Views\\Setting\\UserManagement\\Role.cshtml",
+              "RelativeToolTip": "ERP\\Views\\Setting\\UserManagement\\Role.cshtml",
+              "ViewState": "AQIAAA0AAAAAAAAAAAAAABkAAABjAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-08-28T11:13:39.358Z",
+              "WhenOpened": "2025-08-30T08:10:14.531Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 2,
-              "Title": "CategoryController.cs",
-              "DocumentMoniker": "D:\\AspDotNet\\Asp.Net Web Core MVC\\ERP\\ERP\\Controllers\\Setting\\CategoryController.cs",
-              "RelativeDocumentMoniker": "ERP\\Controllers\\Setting\\CategoryController.cs",
-              "ToolTip": "D:\\AspDotNet\\Asp.Net Web Core MVC\\ERP\\ERP\\Controllers\\Setting\\CategoryController.cs",
-              "RelativeToolTip": "ERP\\Controllers\\Setting\\CategoryController.cs",
-              "ViewState": "AQIAADIAAAAAAAAAAAAwwD0AAAANAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-28T11:08:16.702Z",
+              "Title": "Permission.cshtml",
+              "DocumentMoniker": "D:\\AspDotNet\\Asp.Net Web Core MVC\\ERP\\ERP\\Views\\Setting\\UserManagement\\Permission.cshtml",
+              "RelativeDocumentMoniker": "ERP\\Views\\Setting\\UserManagement\\Permission.cshtml",
+              "ToolTip": "D:\\AspDotNet\\Asp.Net Web Core MVC\\ERP\\ERP\\Views\\Setting\\UserManagement\\Permission.cshtml",
+              "RelativeToolTip": "ERP\\Views\\Setting\\UserManagement\\Permission.cshtml",
+              "ViewState": "AQIAABwAAAAAAAAAAAAUwC8AAABSAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-08-30T08:09:20.026Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "Brand.cshtml",
-              "DocumentMoniker": "D:\\AspDotNet\\Asp.Net Web Core MVC\\ERP\\ERP\\Views\\Setting\\ChartOfItem\\Brand.cshtml",
-              "RelativeDocumentMoniker": "ERP\\Views\\Setting\\ChartOfItem\\Brand.cshtml",
-              "ToolTip": "D:\\AspDotNet\\Asp.Net Web Core MVC\\ERP\\ERP\\Views\\Setting\\ChartOfItem\\Brand.cshtml",
-              "RelativeToolTip": "ERP\\Views\\Setting\\ChartOfItem\\Brand.cshtml",
-              "ViewState": "AQIAAG8AAAAAAAAAAAAgwHgAAAAZAAAA",
+              "DocumentIndex": 1,
+              "Title": "Module.cshtml",
+              "DocumentMoniker": "D:\\AspDotNet\\Asp.Net Web Core MVC\\ERP\\ERP\\Views\\Setting\\UserManagement\\Module.cshtml",
+              "RelativeDocumentMoniker": "ERP\\Views\\Setting\\UserManagement\\Module.cshtml",
+              "ToolTip": "D:\\AspDotNet\\Asp.Net Web Core MVC\\ERP\\ERP\\Views\\Setting\\UserManagement\\Module.cshtml",
+              "RelativeToolTip": "ERP\\Views\\Setting\\UserManagement\\Module.cshtml",
+              "ViewState": "AQIAAAsAAAAAAAAAAAAIwCsAAAAOAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-08-28T11:01:18.881Z",
+              "WhenOpened": "2025-08-30T08:08:32.338Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 3,
-              "Title": "_Layout.cshtml",
-              "DocumentMoniker": "D:\\AspDotNet\\Asp.Net Web Core MVC\\ERP\\ERP\\Views\\Shared\\_Layout.cshtml",
-              "RelativeDocumentMoniker": "ERP\\Views\\Shared\\_Layout.cshtml",
-              "ToolTip": "D:\\AspDotNet\\Asp.Net Web Core MVC\\ERP\\ERP\\Views\\Shared\\_Layout.cshtml",
-              "RelativeToolTip": "ERP\\Views\\Shared\\_Layout.cshtml",
-              "ViewState": "AQIAAG8AAAAAAAAAAAAAAHsAAAA6AAAA",
+              "Title": "Component.cshtml",
+              "DocumentMoniker": "D:\\AspDotNet\\Asp.Net Web Core MVC\\ERP\\ERP\\Views\\Setting\\UserManagement\\Component.cshtml",
+              "RelativeDocumentMoniker": "ERP\\Views\\Setting\\UserManagement\\Component.cshtml",
+              "ToolTip": "D:\\AspDotNet\\Asp.Net Web Core MVC\\ERP\\ERP\\Views\\Setting\\UserManagement\\Component.cshtml",
+              "RelativeToolTip": "ERP\\Views\\Setting\\UserManagement\\Component.cshtml",
+              "ViewState": "AQIAAAsAAAAAAAAAAAAUwC8AAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-08-28T10:48:35.042Z",
+              "WhenOpened": "2025-08-30T08:07:41.112Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
-              "Title": "UOMController.cs",
-              "DocumentMoniker": "D:\\AspDotNet\\Asp.Net Web Core MVC\\ERP\\ERP\\Controllers\\Setting\\UOMController.cs",
-              "RelativeDocumentMoniker": "ERP\\Controllers\\Setting\\UOMController.cs",
-              "ToolTip": "D:\\AspDotNet\\Asp.Net Web Core MVC\\ERP\\ERP\\Controllers\\Setting\\UOMController.cs",
-              "RelativeToolTip": "ERP\\Controllers\\Setting\\UOMController.cs",
-              "ViewState": "AQIAACkAAAAAAAAAAAAIwBQAAAAXAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-28T10:39:03.976Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 7,
-              "Title": "BrandController.cs",
-              "DocumentMoniker": "D:\\AspDotNet\\Asp.Net Web Core MVC\\ERP\\ERP\\Controllers\\Setting\\BrandController.cs",
-              "RelativeDocumentMoniker": "ERP\\Controllers\\Setting\\BrandController.cs",
-              "ToolTip": "D:\\AspDotNet\\Asp.Net Web Core MVC\\ERP\\ERP\\Controllers\\Setting\\BrandController.cs",
-              "RelativeToolTip": "ERP\\Controllers\\Setting\\BrandController.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAQAAAAhAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-28T10:37:50.557Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 6,
               "Title": "UOM.cshtml",
               "DocumentMoniker": "D:\\AspDotNet\\Asp.Net Web Core MVC\\ERP\\ERP\\Views\\Setting\\ChartOfItem\\UOM.cshtml",
               "RelativeDocumentMoniker": "ERP\\Views\\Setting\\ChartOfItem\\UOM.cshtml",
               "ToolTip": "D:\\AspDotNet\\Asp.Net Web Core MVC\\ERP\\ERP\\Views\\Setting\\ChartOfItem\\UOM.cshtml",
               "RelativeToolTip": "ERP\\Views\\Setting\\ChartOfItem\\UOM.cshtml",
-              "ViewState": "AQIAAGYAAAAAAAAAAADwv20AAAAlAAAA",
+              "ViewState": "AQIAACQAAAAAAAAAAAAIwC4AAABSAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-08-28T10:37:26.083Z",
+              "WhenOpened": "2025-08-30T08:07:19.097Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "Brand.cshtml",
+              "DocumentMoniker": "D:\\AspDotNet\\Asp.Net Web Core MVC\\ERP\\ERP\\Views\\Setting\\ChartOfItem\\Brand.cshtml",
+              "RelativeDocumentMoniker": "ERP\\Views\\Setting\\ChartOfItem\\Brand.cshtml",
+              "ToolTip": "D:\\AspDotNet\\Asp.Net Web Core MVC\\ERP\\ERP\\Views\\Setting\\ChartOfItem\\Brand.cshtml",
+              "RelativeToolTip": "ERP\\Views\\Setting\\ChartOfItem\\Brand.cshtml",
+              "ViewState": "AQIAAAwAAAAAAAAAAAAIwC8AAABSAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-08-30T08:06:50.639Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "SubCategory.cshtml",
+              "DocumentMoniker": "D:\\AspDotNet\\Asp.Net Web Core MVC\\ERP\\ERP\\Views\\Setting\\ChartOfItem\\SubCategory.cshtml",
+              "RelativeDocumentMoniker": "ERP\\Views\\Setting\\ChartOfItem\\SubCategory.cshtml",
+              "ToolTip": "D:\\AspDotNet\\Asp.Net Web Core MVC\\ERP\\ERP\\Views\\Setting\\ChartOfItem\\SubCategory.cshtml",
+              "RelativeToolTip": "ERP\\Views\\Setting\\ChartOfItem\\SubCategory.cshtml",
+              "ViewState": "AQIAAB4AAAAAAAAAAAAUwCgAAAAdAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-08-30T08:03:34.702Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "Category.cshtml",
+              "DocumentMoniker": "D:\\AspDotNet\\Asp.Net Web Core MVC\\ERP\\ERP\\Views\\Setting\\ChartOfItem\\Category.cshtml",
+              "RelativeDocumentMoniker": "ERP\\Views\\Setting\\ChartOfItem\\Category.cshtml",
+              "ToolTip": "D:\\AspDotNet\\Asp.Net Web Core MVC\\ERP\\ERP\\Views\\Setting\\ChartOfItem\\Category.cshtml",
+              "RelativeToolTip": "ERP\\Views\\Setting\\ChartOfItem\\Category.cshtml",
+              "ViewState": "AQIAAAwAAAAAAAAAAAAAACsAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-08-30T08:00:38.695Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "Program.cs",
+              "DocumentMoniker": "D:\\AspDotNet\\Asp.Net Web Core MVC\\ERP\\ERP\\Program.cs",
+              "RelativeDocumentMoniker": "ERP\\Program.cs",
+              "ToolTip": "D:\\AspDotNet\\Asp.Net Web Core MVC\\ERP\\ERP\\Program.cs",
+              "RelativeToolTip": "ERP\\Program.cs",
+              "ViewState": "AQIAABkAAAAAAAAAAAAqwDIAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-08-30T07:47:35.571Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "CategoryController.cs",
+              "DocumentMoniker": "D:\\AspDotNet\\Asp.Net Web Core MVC\\ERP\\ERP\\Controllers\\Setting\\CategoryController.cs",
+              "RelativeDocumentMoniker": "ERP\\Controllers\\Setting\\CategoryController.cs",
+              "ToolTip": "D:\\AspDotNet\\Asp.Net Web Core MVC\\ERP\\ERP\\Controllers\\Setting\\CategoryController.cs",
+              "RelativeToolTip": "ERP\\Controllers\\Setting\\CategoryController.cs",
+              "ViewState": "AQIAACcAAAAAAAAAAAAowDIAAAAkAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-08-30T07:29:06.169Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "ItemController.cs",
+              "DocumentMoniker": "D:\\AspDotNet\\Asp.Net Web Core MVC\\ERP\\ERP\\Controllers\\Setting\\ItemController.cs",
+              "RelativeDocumentMoniker": "ERP\\Controllers\\Setting\\ItemController.cs",
+              "ToolTip": "D:\\AspDotNet\\Asp.Net Web Core MVC\\ERP\\ERP\\Controllers\\Setting\\ItemController.cs",
+              "RelativeToolTip": "ERP\\Controllers\\Setting\\ItemController.cs",
+              "ViewState": "AQIAABgAAAAAAAAAAAAowAgAAAAsAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-08-30T07:29:03.901Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "_Layout.cshtml",
+              "DocumentMoniker": "D:\\AspDotNet\\Asp.Net Web Core MVC\\ERP\\ERP\\Views\\Shared\\_Layout.cshtml",
+              "RelativeDocumentMoniker": "ERP\\Views\\Shared\\_Layout.cshtml",
+              "ToolTip": "D:\\AspDotNet\\Asp.Net Web Core MVC\\ERP\\ERP\\Views\\Shared\\_Layout.cshtml",
+              "RelativeToolTip": "ERP\\Views\\Shared\\_Layout.cshtml",
+              "ViewState": "AQIAAPEAAAAAAAAAAAAAAPoAAAANAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-08-30T07:04:39.887Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "Item.cshtml",
+              "DocumentMoniker": "D:\\AspDotNet\\Asp.Net Web Core MVC\\ERP\\ERP\\Views\\Setting\\ChartOfItem\\Item.cshtml",
+              "RelativeDocumentMoniker": "ERP\\Views\\Setting\\ChartOfItem\\Item.cshtml",
+              "ToolTip": "D:\\AspDotNet\\Asp.Net Web Core MVC\\ERP\\ERP\\Views\\Setting\\ChartOfItem\\Item.cshtml",
+              "RelativeToolTip": "ERP\\Views\\Setting\\ChartOfItem\\Item.cshtml",
+              "ViewState": "AQIAABwAAAAAAAAAAAAqwD4AAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-08-30T06:55:07.583Z",
               "EditorCaption": ""
             }
           ]

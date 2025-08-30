@@ -1,4 +1,5 @@
-﻿using ERP.Models;
+﻿using AspNetCoreHero.ToastNotification.Abstractions;
+using ERP.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,9 +8,11 @@ namespace ERP.Controllers.Setting
     public class CategoryController : Controller
     {
         private readonly AppDbContext _context;
-        public CategoryController(AppDbContext context)
+        private readonly INotyfService _notyf;
+        public CategoryController(AppDbContext context, INotyfService notyf)
         {
             _context = context;
+            _notyf = notyf;
         }
         public async Task<IActionResult> Category(string searchString,int page=1, int pageSize=5)
         {
@@ -56,12 +59,14 @@ namespace ERP.Controllers.Setting
                         exisitngCategory.category_description = category.category_description;
                         _context.Update(exisitngCategory);
                         await _context.SaveChangesAsync();
+                        _notyf.Success("Category Update successfully!");
                     }
                 }
                 else
                 {
                     _context.Category.Add(category);
                     await _context.SaveChangesAsync();
+                    _notyf.Success("Record saved successfully!");
                 }
                 return RedirectToAction("Category");
             }

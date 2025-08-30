@@ -202,8 +202,12 @@
         </div>
     </footer>
 
+
     <script>
+
+          
         // SETTINGS dropdown
+     
         const settingsToggle = document.getElementById('settingsToggle');
         const settingsDropdown = document.getElementById('settingsDropdown');
         const settingsChevron = document.getElementById('settingsChevron');
@@ -245,5 +249,6 @@
         sidebarToggle.addEventListener('click', toggleSidebar);
         sidebarOverlay.addEventListener('click', toggleSidebar);
     </script>
+    @await Component.InvokeAsync("Notyf")
 </body>
 </html>
