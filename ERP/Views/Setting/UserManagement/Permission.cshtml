@@ -2,6 +2,11 @@
 @{
     ViewData["Title"] = "Permission";
     var permissionList = ViewBag.Permission as List<ERP.Models.Permission>;
+    int totalItems = ViewBag.TotalItems;
+    int page = ViewBag.Page;
+    int pageSize = ViewBag.PageSize;
+    string searchString = ViewBag.SearchString ?? "";
+    int totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
 }
 
 
@@ -123,9 +128,13 @@
 
     <!-- Roles Table -->
     <div class="shadow-xl rounded-2xl bg-white p-6 border border-gray-200">
-        <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
-            <i class="fa-solid fa-list text-blue-600"></i> Permission List
-        </h3>
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-semibold text-gray-800 flex items-center gap-2">
+                <i class="fa-solid fa-list text-blue-600"></i> Permission List
+            </h3>
+
+        </div>
+
 
         <div class="overflow-x-auto">
             <table class="table-auto w-full text-sm border border-gray-200 rounded-lg overflow-hidden">
@@ -221,5 +230,37 @@
                 </tbody>
             </table>
         </div>
+        <div class="flex justify-between items-center mt-4">
+            <span class="text-sm text-gray-600">Page @(page) of  @totalPages</span>
+            <div class="space-x-2">
+                @if (page > 1)
+                {
+                    <a asp-action="Permission" asp-route-page="@(page-1)" asp-route-searchString="@searchString"
+                       class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">Prev</a>
+                }
+                @if (page < totalPages)
+                {
+                    <a asp-action="Permission" asp-route-page="@(page+1)" asp-route-searchString="@searchString"
+                       class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">Next</a>
+                }
+            </div>
+        </div>
     </div>
 </div>
+<script>
+    function refreshPage() {
+        window.location.href = '@Url.Action("Permission", "Permission")';
+    }
+
+    const searchInput = document.getElementById("searchInput");
+    const clearBtn = document.getElementById("clearSearch");
+    searchInput.addEventListener("input", () => {
+        clearBtn.style.display = searchInput.value ? "flex" : "none";
+    });
+    clearBtn.addEventListener("click", () => {
+        refreshPage();
+    });
+    if (searchInput.value) {
+        clearBtn.style.display = "flex";
+    }
+</script>

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
+using System.Drawing.Printing;
 
 namespace ERP.Controllers.Setting
 {
@@ -13,25 +14,51 @@ namespace ERP.Controllers.Setting
             _context = context;
         }
 
-        public async Task<IActionResult> Role()
+        public async Task<IActionResult> Role(string searchString,int page=1,int pageSize=5)
         {
+            var query = _context.Role.AsQueryable();
+            if(!string.IsNullOrEmpty(searchString) )
+            {
+                query=query.Where(r=>r.role_name.Contains(searchString));
+            }
+            var totalItems = await query.CountAsync();
+            var roleList=await query.
+                OrderBy(r=>r.Id).Skip((page-1)*pageSize).Take(pageSize).
+                ToListAsync();
+            ViewBag.TotalItems = totalItems;
+            ViewBag.Page = page;
+            ViewBag.PageSize = pageSize;
+            ViewBag.SearchString = searchString;
             var model = new Role
             {
                 current_date = DateOnly.FromDateTime(DateTime.Now)
             };
-            ViewBag.Role = await _context.Role.ToListAsync();
+            ViewBag.Role = roleList;
             return View("~/Views/Setting/UserManagement/Role.cshtml", model);
         }
 
         [HttpGet]
-        public async Task<IActionResult> Edit(int id)
+        public async Task<IActionResult> Edit(int id,string searchString,int page=1,int pageSize=5)
         {
             var role = await _context.Role.FindAsync(id);
             if (role == null)
             {
                 return NotFound();
             }
-            ViewBag.Role = await _context.Role.ToListAsync();
+            var query = _context.Role.AsQueryable();
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                query = query.Where(r => r.role_name.Contains(searchString));
+            }
+            var totalItems = await query.CountAsync();
+            var roleList = await query.
+            OrderBy(r => r.Id).Skip((page - 1) * pageSize).Take(pageSize).
+                ToListAsync();
+            ViewBag.TotalItems = totalItems;
+            ViewBag.Page = page;
+            ViewBag.PageSize = pageSize;
+            ViewBag.SearchString = searchString;
+            ViewBag.Role = roleList;
             return View("~/Views/Setting/UserManagement/Role.cshtml", role);
         }
 

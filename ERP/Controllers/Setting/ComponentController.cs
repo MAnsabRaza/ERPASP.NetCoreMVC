@@ -1,6 +1,7 @@
 ﻿using ERP.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Drawing.Printing;
 
 namespace ERP.Controllers.Setting
 {
@@ -11,16 +12,31 @@ namespace ERP.Controllers.Setting
         {
             _context = context;
         }
-        public async Task<IActionResult> Component()
+        public async Task<IActionResult> Component(string searchString, int page = 1,int pageSize=5)
         {
+            var query=_context.Component.AsQueryable();
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                query = query.Where(c => c.component_name.Contains(searchString));
+            }
+            var totalItems=await query.CountAsync();
+            var componetList= await query.
+                Include(m=>m.Module).
+                OrderBy(c=>c.Id).
+                Skip((page-1)* pageSize).
+                Take(pageSize).
+                ToListAsync();
+            ViewBag.TotalItems = totalItems;
+            ViewBag.Page = page;
+            ViewBag.PageSize = pageSize;
+            ViewBag.SearchString = searchString;
+
             var model = new Component
             {
                 current_date = DateOnly.FromDateTime(DateTime.Now)
             };
-            ViewBag.Component = await _context.Component.
-                Include(m => m.Module).
-                ToListAsync();
-            ViewBag.Module = await _context.Module.ToListAsync();
+            ViewBag.Component = componetList;
+            ViewBag.Module = await _context.Module.Where(m=>m.status==true).ToListAsync();
             return View("~/Views/Setting/UserManagement/Component.cshtml", model);
         }
         [HttpPost]
@@ -35,15 +51,33 @@ namespace ERP.Controllers.Setting
             return RedirectToAction("Component");
         }
         [HttpGet]
-        public async Task<IActionResult> Edit(int id)
+        public async Task<IActionResult> Edit(int id, string searchString,int page=1,int pageSize=5)
         {
             var component = await _context.Component.FindAsync(id);
             if (component == null)
             {
                 return NotFound();
             }
-            ViewBag.Module = await _context.Module.ToListAsync();
-            ViewBag.Component = await _context.Component.ToListAsync();
+
+            var query = _context.Component.AsQueryable();
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                query = query.Where(c => c.component_name.Contains(searchString));
+            }
+            var totalItems = await query.CountAsync();
+            var componetList = await query.
+                Include(m => m.Module).
+            OrderBy(c => c.Id).
+                Skip((page - 1) * pageSize).
+                Take(pageSize).
+                ToListAsync();
+            ViewBag.TotalItems = totalItems;
+            ViewBag.Page = page;
+            ViewBag.PageSize = pageSize;
+            ViewBag.SearchString = searchString;
+
+            ViewBag.Component = componetList;
+            ViewBag.Module = await _context.Module.Where(m => m.status == true).ToListAsync();
             return View("~/Views/Setting/UserManagement/Component.cshtml", component);
         }
         [HttpPost]

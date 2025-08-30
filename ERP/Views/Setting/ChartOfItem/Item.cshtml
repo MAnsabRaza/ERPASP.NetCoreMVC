@@ -9,20 +9,20 @@
     int totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
 }
 
-<div class="space-y-8 overflow-hidden">
+<div class="space-y-8">
 
     <!-- Tabs -->
-    <div class="border-b border-gray-200">
-        <nav class="flex space-x-4" aria-label="Tabs">
+    <div class="border-b border-gray-300 bg-white shadow-sm rounded-xl p-2">
+        <nav class="flex space-x-6" aria-label="Tabs">
             <button id="tab-form"
-                    class="px-4 py-2 text-sm font-medium text-blue-600 border-b-2 border-blue-600 focus:outline-none"
+                    class="px-4 py-2 text-sm font-semibold text-blue-600 border-b-2 border-blue-600 focus:outline-none transition"
                     type="button">
-                <i class="fa-solid fa-plus-circle mr-1"></i> Item Entry
+                <i class="fa-solid fa-plus-circle mr-2"></i> Item Entry
             </button>
             <button id="tab-list"
-                    class="px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300 border-b-2 border-transparent focus:outline-none"
+                    class="px-4 py-2 text-sm font-semibold text-gray-500 hover:text-blue-600 hover:border-blue-400 border-b-2 border-transparent focus:outline-none transition"
                     type="button">
-                <i class="fa-solid fa-list mr-1"></i> Item List
+                <i class="fa-solid fa-list mr-2"></i> Item List
             </button>
         </nav>
     </div>
@@ -34,56 +34,46 @@
             @Html.AntiForgeryToken()
             @Html.HiddenFor(m => m.Id, new { id = "itemId" })
 
-            <div class="shadow-xl rounded-2xl bg-white p-6 border border-gray-200">
-                <div class="flex justify-between items-center mb-6">
+            <!-- Header Card -->
+            <div class="shadow-lg rounded-2xl bg-gradient-to-r from-blue-50 to-blue-100 p-6 border border-gray-200">
+                <div class="flex justify-between items-center">
                     <div>
-                        <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
+                        <h2 class="text-2xl font-bold text-blue-800 flex items-center gap-2">
                             <i class="fa-solid fas fa-boxes text-blue-600"></i> Item Management
                         </h2>
-                        <p class="text-gray-600 mt-2">Manage your inventory items with ease</p>
+                        <p class="text-gray-600 mt-1 text-sm">Add and manage your inventory items efficiently</p>
                     </div>
 
                     <div class="space-x-2">
                         <button type="submit"
                                 class="px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-green-600 hover:bg-green-700 shadow-md transition">
-                            <i class="fa-solid fa-save mr-1"></i> Save
+                            <i class="fa-solid fa-save mr-2"></i> Save
                         </button>
                         <button type="reset"
                                 class="px-5 py-2.5 rounded-xl text-sm font-semibold text-gray-700 bg-yellow-300 hover:bg-yellow-400 shadow-md transition">
-                            <i class="fa-solid fa-rotate-right mr-1"></i> Reset
+                            <i class="fa-solid fa-rotate-right mr-2"></i> Reset
                         </button>
                         <button type="button" onclick="refreshPage()"
                                 class="px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-purple-500 hover:bg-purple-600 shadow-md transition">
-                            <i class="fa-solid fa-rotate-right mr-1"></i> Refresh
+                            <i class="fa-solid fa-arrows-rotate mr-2"></i> Refresh
                         </button>
                     </div>
                 </div>
+            </div>
 
-                <!-- Form Fields -->
+            <!-- Section 1 -->
+            <div class="shadow-md rounded-2xl bg-white p-6 border border-gray-200 mt-4">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div>
                         <label class="block font-semibold text-gray-700 mb-1">Current Date</label>
                         @Html.TextBoxFor(m => m.current_date, "{0:yyyy-MM-dd}",
-                                 new
-                                 {
-                                     @class = "w-full mt-1 p-2 border border-gray-300 rounded",
-                                     @id = "current_date",
-                                     required = "required",
-                                     type = "date"
-                                 })
+                                 new { @class = "w-full mt-1 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400", type = "date", required = "required" })
                     </div>
                     <div>
-                        <label class="block font-semibold text-gray-700 mb-1">Remark
+                        <label class="block font-semibold text-gray-700 mb-1">Remark</label>
                         @Html.TextBoxFor(m => m.remark,
-                                 new
-                                 {
-                                     @class = "w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400",
-                                     required = "required",
-                                     type = "text",
-                                     placeholder = "Enter Remark"
-                                 })
+                                 new { @class = "w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400", type = "text", required = "required", placeholder = "Enter Remark" })
                     </div>
-
                     <div>
                         <label class="block font-semibold text-gray-700 mb-1">Status</label>
                         <div class="flex items-center space-x-2 mt-1">
@@ -91,171 +81,96 @@
                             <span class="text-gray-600">Active</span>
                         </div>
                     </div>
-
-                   
                 </div>
+            </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
+            <!-- Section 2 -->
+            <div class="shadow-md rounded-2xl bg-white p-6 border border-gray-200 mt-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div>
                         <label class="block font-semibold text-gray-700 mb-1">Item Barcode</label>
                         @Html.TextBoxFor(m => m.item_barcode,
-                                 new
-                                 {
-                                     @class = "w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400",
-                                     required = "required",
-                                     type = "text",
-                                     placeholder = "Enter item barcode"
-                                 })
+                                 new { @class = "w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400", type = "text", required = "required", placeholder = "Enter barcode" })
                     </div>
                     <div>
                         <label class="block font-semibold text-gray-700 mb-1">Item Name</label>
                         @Html.TextBoxFor(m => m.item_name,
-                                 new
-                                 {
-                                     @class = "w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400",
-                                     required = "required",
-                                     type = "text",
-                                     placeholder = "Enter item name"
-                                 })
+                                 new { @class = "w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400", type = "text", required = "required", placeholder = "Enter item name" })
                     </div>
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">Description</label>
+                        @Html.TextAreaFor(m => m.description,
+                                 new { @class = "w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400", required = "required", placeholder = "Enter Description" })
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 3 -->
+            <div class="shadow-md rounded-2xl bg-white p-6 border border-gray-200 mt-4">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                     <div>
                         <label class="block font-semibold text-gray-700 mb-1">Brand</label>
                         @Html.DropDownListFor(m => m.brandId,
-                                 new SelectList(ViewBag.brandList, "Id", "brand_name"),
-                                 "Select Brand",
-                                 new
-                                 {
-                                     @class = "w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400",
-                                     @id = "brandId",
-                                     required = "required"
-                                 })
-                    </div>                 
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mt-4">
+                            new SelectList(ViewBag.brandList, "Id", "brand_name"),
+                            "Select Brand",
+                            new { @class = "w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400", required = "required" })
+                    </div>
                     <div>
                         <label class="block font-semibold text-gray-700 mb-1">Category</label>
                         @Html.DropDownListFor(m => m.categoryId,
-                                 new SelectList(ViewBag.categoryList, "Id", "category_name"),
-                                 "Select Category",
-                                 new
-                                 {
-                                     @class = "w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400",
-                                     @id = "categoryId",
-                                     required = "required"
-                                 })
+                            new SelectList(ViewBag.categoryList, "Id", "category_name"),
+                            "Select Category",
+                            new { @class = "w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400", required = "required" })
                     </div>
                     <div>
                         <label class="block font-semibold text-gray-700 mb-1">Sub Category</label>
                         @Html.DropDownListFor(m => m.subCategoryId,
-                                 new SelectList(ViewBag.subCategoryList, "Id", "sub_category_name"),
-                                 "Select SubCategory",
-                                 new
-                                 {
-                                     @class = "w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400",
-                                     @id = "subCategoryId",
-                                     required = "required"
-                                 })
+                            new SelectList(ViewBag.subCategoryList, "Id", "sub_category_name"),
+                            "Select Sub Category",
+                            new { @class = "w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400", required = "required" })
                     </div>
-                  
                     <div>
                         <label class="block font-semibold text-gray-700 mb-1">UOM</label>
                         @Html.DropDownListFor(m => m.uomId,
-                                 new SelectList(ViewBag.uomList, "Id", "uom_name"),
-                                 "Select UOM",
-                                 new
-                                 {
-                                     @class = "w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400",
-                                     @id = "uomId",
-                                     required = "required"
-                                 })
+                            new SelectList(ViewBag.uomList, "Id", "uom_name"),
+                            "Select UOM",
+                            new { @class = "w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400", required = "required" })
                     </div>
+                </div>
+            </div>
 
+            <!-- Section 4 -->
+            <div class="shadow-md rounded-2xl bg-white p-6 border border-gray-200 mt-4">
+                <div class="grid grid-cols-1 md:grid-cols-6 gap-6">
                     <div>
                         <label class="block font-semibold text-gray-700 mb-1">Quantity</label>
                         @Html.TextBoxFor(m => m.qty,
-                                 new
-                                 {
-                                     @class = "w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400",
-                                     required = "required",
-                                     type = "number",
-                                     placeholder = "Enter Quantity"
-                                 })
+                                 new { @class = "w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400", type = "number", required = "required", placeholder = "Enter Quantity" })
                     </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
                     <div>
                         <label class="block font-semibold text-gray-700 mb-1">Purchase Rate</label>
                         @Html.TextBoxFor(m => m.purchase_rate,
-                                 new
-                                 {
-                                     @class = "w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400",
-                                     required = "required",
-                                     type = "number",
-                                     placeholder = "Enter Purchase Rate"
-                                 })
+                                 new { @class = "w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400", type = "number", required = "required", placeholder = "Enter Purchase Rate" })
                     </div>
-
                     <div>
                         <label class="block font-semibold text-gray-700 mb-1">Sales Rate</label>
                         @Html.TextBoxFor(m => m.sale_rate,
-                                 new
-                                 {
-                                     @class = "w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400",
-                                     required = "required",
-                                     type = "number",
-                                     placeholder = "Enter Sales Rate"
-                                 })
+                                 new { @class = "w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400", type = "number", required = "required", placeholder = "Enter Sales Rate" })
                     </div>
-
                     <div>
                         <label class="block font-semibold text-gray-700 mb-1">Rate</label>
                         @Html.TextBoxFor(m => m.rate,
-                                 new
-                                 {
-                                     @class = "w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400",
-                                     required = "required",
-                                     type = "number",
-                                     placeholder = "Enter Rate"
-                                 })
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
-                    <div>
-                        <label class="block font-semibold text-gray-700 mb-1">Description</label>
-                        @Html.TextAreaFor(m => m.description,
-                                 new
-                                 {
-                                     @class = "w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400",
-                                     required = "required",
-                                     type = "text",
-                                     placeholder = "Enter Description"
-                                 })
+                                 new { @class = "w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400", type = "number", required = "required", placeholder = "Enter Rate" })
                     </div>
                     <div>
-                        <label class="block font-semibold text-gray-700 mb-1">Discount Amount</label>
+                        <label class="block font-semibold text-gray-700 mb-1">Discount</label>
                         @Html.TextBoxFor(m => m.discount_amount,
-                                 new
-                                 {
-                                     @class = "w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400",
-                                     required = "required",
-                                     type = "number",
-                                     placeholder = "Enter Discount Amount"
-                                 })
+                                 new { @class = "w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400", type = "number", required = "required", placeholder = "Enter Discount" })
                     </div>
-
                     <div>
                         <label class="block font-semibold text-gray-700 mb-1">Total Amount</label>
                         @Html.TextBoxFor(m => m.total_amount,
-                                 new
-                                 {
-                                     @class = "w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400",
-                                     required = "required",
-                                     type = "number",
-                                     placeholder = "Total Amount"
-                                 })
+                                 new { @class = "w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400", type = "number", required = "required", placeholder = "Total Amount" })
                     </div>
                 </div>
             </div>
@@ -263,65 +178,57 @@
     </div>
 
     <!-- List Tab -->
-    <div id="content-list" class="tab-content hidden">
+    <div id="content-list" class="tab-content hidden shadow-lg rounded-2xl bg-white p-6 border border-gray-200">
         <div class="flex justify-between items-center">
             <div>
-                <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
+                <h2 class="text-2xl font-bold text-blue-800 flex items-center gap-2">
                     <i class="fa-solid fa-list-ul text-blue-600"></i> Items Inventory
                 </h2>
-                <p class="text-gray-600 mt-1">View and manage all your inventory items</p>
+                <p class="text-gray-600 text-sm mt-1">View and manage all your items</p>
             </div>
             <div class="flex items-center space-x-4">
-                <div class="px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 shadow-md transition">
-                    <span class="text-sm font-semibold">Total Items: @(itemList?.Count() ?? 0)</span>
+                <div class="px-5 py-2 rounded-xl text-sm font-semibold text-white bg-blue-600 shadow-md">
+                    Total Items: @(itemList?.Count() ?? 0)
                 </div>
-                <!-- Switch to form tab -->
                 <button type="button" id="btn-add-new"
-                        class="px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-green-600 hover:bg-green-700 shadow-md transition">
-                    <i class="fa-solid fa-plus mr-2"></i>Add New Item
+                        class="px-5 py-2 rounded-xl text-sm font-semibold text-white bg-green-600 hover:bg-green-700 shadow-md transition">
+                    <i class="fa-solid fa-plus mr-2"></i>Add New
                 </button>
             </div>
         </div>
 
-        <div class="flex justify-between items-center mb-4">
-           <div>
-
-           </div>
-            <div>
-                <form method="get" asp-action="Item" class="flex items-center space-x-2 relative w-full max-w-xs">
-                    <input type="hidden" name="activeTab" value="list" /> <!-- 👈 hidden field added -->
-
-                    <div class="relative w-full mt-2">
-                        <input type="text" id="searchInput" name="searchString" value="@searchString"
-                               placeholder="Search Item....."
-                               class="w-full px-3 py-2 pr-10 border rounded-lg focus:ring focus:ring-blue-300" />
-
-                        <button type="button" id="clearSearch"
-                                class="absolute inset-y-0 right-2 flex items-center text-gray-400 hover:text-red-500 hidden">
-                            <i class="fa-solid fa-xmark"></i>
-                        </button>
-                    </div>
-
-                    <button type="submit"
-                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                        <i class="fa fa-search"></i>
+        <!-- Search -->
+        <div class="flex justify-between items-center mt-6">
+            <div></div>
+            <form method="get" asp-action="Item" class="flex items-center space-x-2 w-full max-w-md">
+                <input type="hidden" name="activeTab" value="list" />
+                <div class="relative w-full">
+                    <input type="text" id="searchInput" name="searchString" value="@searchString"
+                           placeholder="Search Item..."
+                           class="w-full px-4 py-2 pr-10 border rounded-lg focus:ring focus:ring-blue-300" />
+                    <button type="button" id="clearSearch"
+                            class="absolute inset-y-0 right-2 flex items-center text-gray-400 hover:text-red-500 hidden">
+                        <i class="fa-solid fa-xmark"></i>
                     </button>
-                </form>
-
-            </div>
-          
+                </div>
+                <button type="submit"
+                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                    <i class="fa fa-search"></i>
+                </button>
+            </form>
+            
         </div>
-        <!-- Fixed header + scrollable body -->
-        <div class="overflow-hidden border border-gray-200 rounded-lg mt-4">
-            <!-- Set table body height here -->
+
+        <!-- Table -->
+        <div class="overflow-hidden border border-gray-200 rounded-lg mt-6">
             <div class="max-h-96 overflow-y-auto">
-                <table class="table-auto w-full text-sm border-collapse">
-                    <thead class="bg-gradient-to-r from-blue-500 to-blue-600 text-white sticky top-0 z-20">
+                <table class="table-auto w-full text-sm">
+                    <thead class="bg-gradient-to-r from-blue-500 to-blue-600 text-white sticky top-0">
                         <tr>
                             <th class="p-3 text-left">ID</th>
                             <th class="p-3 text-left">Date</th>
-                            <th class="p-3 text-left">Item Barcode</th>
-                            <th class="p-3 text-left">Item Name</th>
+                            <th class="p-3 text-left">Barcode</th>
+                            <th class="p-3 text-left">Name</th>
                             <th class="p-3 text-left">Status</th>
                             <th class="p-3 text-left">Category</th>
                             <th class="p-3 text-left">Sub Category</th>
@@ -331,7 +238,7 @@
                             <th class="p-3 text-left">Purchase Rate</th>
                             <th class="p-3 text-left">Sales Rate</th>
                             <th class="p-3 text-left">Discount</th>
-                            <th class="p-3 text-left">Total Amount</th>
+                            <th class="p-3 text-left">Total</th>
                             <th class="p-3 text-center">Actions</th>
                         </tr>
                     </thead>
@@ -385,29 +292,31 @@
                         else
                         {
                             <tr>
-                                <td colspan="16" class="text-center p-4 text-gray-500">No Items found.</td>
+                                <td colspan="16" class="text-center p-4 text-gray-500">No items found.</td>
                             </tr>
                         }
                     </tbody>
                 </table>
             </div>
-            <div class="flex justify-between items-center mt-4">
-                <span class="text-sm text-gray-600">Page @(page) of  @totalPages</span>
-                <div class="space-x-2">
-                    @if (page > 1)
-                    {
-                        <a asp-action="Item" asp-route-page="@(page-1)" asp-route-searchString="@searchString" asp-route-activeTab="list"
-                           class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">Prev</a>
-                    }
-                    @if (page < totalPages)
-                    {
-                        <a asp-action="Item" asp-route-page="@(page+1)" asp-route-searchString="@searchString" asp-route-activeTab="list"
-                           class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">Next</a>
-                    }
+        </div>
 
-                </div>
+        <!-- Pagination -->
+        <div class="flex justify-between items-center mt-4">
+            <span class="text-sm text-gray-600">Page @(page) of @totalPages</span>
+            <div class="space-x-2">
+                @if (page > 1)
+                {
+                    <a asp-action="Item" asp-route-page="@(page-1)" asp-route-searchString="@searchString" asp-route-activeTab="list"
+                       class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">Prev</a>
+                }
+                @if (page < totalPages)
+                {
+                    <a asp-action="Item" asp-route-page="@(page+1)" asp-route-searchString="@searchString" asp-route-activeTab="list"
+                       class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">Next</a>
+                }
             </div>
         </div>
+    </div>
     </div>
 </div>
 

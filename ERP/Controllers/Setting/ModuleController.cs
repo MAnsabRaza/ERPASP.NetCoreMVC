@@ -1,6 +1,7 @@
 ﻿using ERP.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Drawing.Printing;
 
 namespace ERP.Controllers.Setting
 {
@@ -11,24 +12,56 @@ namespace ERP.Controllers.Setting
         {
             _content = content;
         }
-        public async Task<IActionResult> Module()
+        public async Task<IActionResult> Module(string searchString,int page=1,int pageSize=5)
         {
+            var query=_content.Module.AsQueryable();
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                query=query.Where(m=>m.module_name.Contains(searchString));
+            }
+            var totalItems=await query.CountAsync();
+            var moduleList = await query.
+                OrderBy(m=>m.Id).
+                Skip((page-1)*pageSize).
+                Take(pageSize).
+                ToListAsync();
+            ViewBag.TotalItems = totalItems;
+            ViewBag.Page = page;
+            ViewBag.PageSize = pageSize;
+            ViewBag.SearchString = searchString;
+
             var model = new Module
             {
                 current_date = DateOnly.FromDateTime(DateTime.Now)
             };
-            ViewBag.Module = await _content.Module.ToListAsync();
+            ViewBag.Module = moduleList;
             return View("~/Views/Setting/UserManagement/Module.cshtml", model);
         }
         [HttpGet]
-        public async Task<IActionResult> Edit(int id)
+        public async Task<IActionResult> Edit(int id,string searchString,int page=1,int pageSize=5)
         {
             var module = await _content.Module.FindAsync(id);
             if (module == null)
             {
                 return NotFound();
             }
-            ViewBag.Module = await _content.Module.ToListAsync();
+            var query = _content.Module.AsQueryable();
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                query = query.Where(m => m.module_name.Contains(searchString));
+            }
+            var totalItems = await query.CountAsync();
+            var moduleList = await query.
+            OrderBy(m => m.Id).
+                Skip((page - 1) * pageSize).
+                Take(pageSize).
+                ToListAsync();
+            ViewBag.TotalItems = totalItems;
+            ViewBag.Page = page;
+            ViewBag.PageSize = pageSize;
+            ViewBag.SearchString = searchString;
+
+            ViewBag.Module = moduleList;
             return View("~/Views/Setting/UserManagement/Module.cshtml", module);
         }
         [HttpPost]

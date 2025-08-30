@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Client;
 using System.ComponentModel;
+using System.Drawing.Printing;
 
 namespace ERP.Controllers.Setting
 {
@@ -13,20 +14,29 @@ namespace ERP.Controllers.Setting
         {
             _context = context;
         }
-        public async Task<IActionResult> Permission()
+        public async Task<IActionResult> Permission(int page = 1,int pageSize=5)
         {
+            var query = _context.Permission.AsQueryable();
+            var totalItems = await query.CountAsync();
+            var permissionList = await query.
+                   Include(m => m.Module).
+                Include(c => c.Component).
+                Include(r => r.Role).
+                OrderBy(p=>p.Id).
+                Skip((page-1)*pageSize).
+                Take(pageSize).
+                ToListAsync();
+            ViewBag.TotalItems = totalItems;
+            ViewBag.Page = page;
+            ViewBag.PageSize = pageSize;
             var model = new Permission
             {
                 current_date = DateOnly.FromDateTime(DateTime.Now)
             };
-            ViewBag.moduleList = await _context.Module.ToListAsync();
-            ViewBag.componentList = await _context.Component.ToListAsync();
-            ViewBag.roleList = await _context.Role.ToListAsync();
-            ViewBag.Permission = await _context.Permission.
-                Include(m => m.Module).
-                Include(c => c.Component).
-                Include(r => r.Role).
-                ToListAsync();
+            ViewBag.moduleList = await _context.Module.Where(m=>m.status==true).ToListAsync();
+            ViewBag.componentList = await _context.Component.Where(c => c.status == true).ToListAsync();
+            ViewBag.roleList = await _context.Role.Where(r => r.status == true).ToListAsync();
+            ViewBag.Permission = permissionList;
             return View("~/Views/Setting/UserManagement/Permission.cshtml", model);
         }
         [HttpPost]
@@ -41,17 +51,31 @@ namespace ERP.Controllers.Setting
             return RedirectToAction("Permission");
         }
         [HttpGet]
-        public async Task<IActionResult> Edit(int id)
+        public async Task<IActionResult> Edit(int id,int page=1,int pageSize=5)
         {
+
             var permission = await _context.Permission.FindAsync(id);
             if (permission == null)
             {
                 return NotFound();
             }
-            ViewBag.moduleList = await _context.Module.ToListAsync();
-            ViewBag.componentList = await _context.Component.ToListAsync();
-            ViewBag.Permission = await _context.Permission.ToListAsync();
-            ViewBag.roleList = await _context.Role.ToListAsync();
+            var query = _context.Permission.AsQueryable();
+            var totalItems = await query.CountAsync();
+            var permissionList = await query.
+                   Include(m => m.Module).
+                Include(c => c.Component).
+                Include(r => r.Role).
+            OrderBy(p => p.Id).
+                Skip((page - 1) * pageSize).
+                Take(pageSize).
+                ToListAsync();
+            ViewBag.TotalItems = totalItems;
+            ViewBag.Page = page;
+            ViewBag.PageSize = pageSize;
+            ViewBag.moduleList = await _context.Module.Where(m => m.status == true).ToListAsync();
+            ViewBag.componentList = await _context.Component.Where(c => c.status == true).ToListAsync();
+            ViewBag.roleList = await _context.Role.Where(r => r.status == true).ToListAsync();
+            ViewBag.Permission = permissionList;
             return View("~/Views/Setting/UserManagement/Permission.cshtml", permission);
         }
         [HttpPost]
