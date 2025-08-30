@@ -104,6 +104,35 @@
                             <!-- First Level Dropdown -->
                             <ul id="settingsDropdown" class="hidden mt-1 ml-6 space-y-1 bg-white border border-gray-200 rounded-lg shadow-lg p-2">
                                 <li>
+                                    <button id="masterToggle" class="flex items-center justify-between w-full px-3 py-2 text-gray-600 rounded-md hover:bg-gray-100">
+                                        <span class="flex items-center"><i class="fas fa-cogs mr-2"></i>Master</span>
+                                        <i id="masterChevron" class="fas fa-chevron-down text-gray-400 transition-transform duration-200"></i>
+                                    </button>
+                                    <ul id="masterDropdown" class="hidden mt-1 ml-6 space-y-1 bg-white border border-gray-200 rounded-lg shadow-lg p-2">
+                                        <li>
+                                            <a asp-controller="Customer" asp-action="Customer" class="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
+                                                <i class="fas fa-users mr-2 text-gray-400"></i><span>Customer</span>
+                                            </a>
+                                        </li>
+                                         <li>
+                                            <a asp-controller="Vender" asp-action="Vender" class="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
+                                                <i class="fas fa-box-open mr-2 text-gray-400"></i><span>Vender</span>
+                                            </a>
+                                        </li>
+                                         <li>
+                                            <a asp-controller="Warehouse" asp-action="Warehouse" class="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
+                                                <i class="fas fa-warehouse mr-2 text-gray-400"></i><span>Warehouse</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a asp-controller="Transporter" asp-action="Transporter" class="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
+                                                <i class="fas fa-truck mr-2 text-gray-400"></i><span>Transporter</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+
+                                </li>
+                                <li>
                                     <button id="itemToggle" class="flex items-center justify-between w-full px-3 py-2 text-gray-600 rounded-md hover:bg-gray-100">
                                         <span class="flex items-center"><i class="fas fa-box-open mr-2"></i> Chat Of Item</span>
                                         <i id="itemChevron" class="fas fa-chevron-down text-gray-400 transition-transform duration-200"></i>
@@ -235,6 +264,17 @@
         itemToggle.addEventListener('click', function () {
             itemDropdown.classList.toggle('hidden');
             itemChevron.style.transform = itemDropdown.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
+        });
+
+        //Master
+
+        const masterToggle = document.getElementById('masterToggle');
+        const masterDropdown = document.getElementById('masterDropdown');
+        const masterChevron = document.getElementById('masterChevron');
+
+        masterToggle.addEventListener('click', function () {
+            masterDropdown.classList.toggle('hidden');
+            masterChevron.style.transform = masterDropdown.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
         });
 
         // SIDEBAR toggle

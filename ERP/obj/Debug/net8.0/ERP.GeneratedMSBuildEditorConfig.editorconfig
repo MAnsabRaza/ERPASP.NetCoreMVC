@@ -54,6 +54,10 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2V0dGluZ1xDaGFydE9mSXRlbVxVT00uY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
+[D:/AspDotNet/Asp.Net Web Core MVC/ERP/ERP/Views/Setting/Master/Customer.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2V0dGluZ1xNYXN0ZXJcQ3VzdG9tZXIuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [D:/AspDotNet/Asp.Net Web Core MVC/ERP/ERP/Views/Setting/UserManagement/Company.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2V0dGluZ1xVc2VyTWFuYWdlbWVudFxDb21wYW55LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
