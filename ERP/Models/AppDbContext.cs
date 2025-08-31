@@ -1,4 +1,5 @@
 ﻿using ERP.Models;
+using ERP.Models.Account;
 using Microsoft.Build.ObjectModelRemoting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -23,9 +24,20 @@ public class AppDbContext : DbContext
     
     public DbSet<Transporter> Transporter { get; set; }
     public DbSet<Warehouse> Warehouse { get; set; }
+        
+    public DbSet<PaymentVoucher> PaymentVoucher { get; set; }
+    public DbSet<Bank> Bank { get; set; }
+    public DbSet<AccountType> AccountType { get; set; }
+    public DbSet<ChartOfAccount> ChartOfAccount { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<PaymentVoucher>()
+    .Property(p => p.amount)
+    .HasPrecision(18, 2);
+        modelBuilder.Entity<Bank>()
+   .Property(p => p.opening_balance)
+   .HasPrecision(18, 2);
         modelBuilder.Entity<Customer>()
             .Property(c => c.credit_limit)
             .HasPrecision(18, 2);
