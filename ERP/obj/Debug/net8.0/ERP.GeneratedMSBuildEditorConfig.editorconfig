@@ -26,16 +26,20 @@ build_property.GenerateRazorMetadataSourceChecksumAttributes =
 build_property.MSBuildProjectDirectory = D:\AspDotNet\Asp.Net Web Core MVC\ERP\ERP
 build_property._RazorSourceGeneratorDebug = 
 
-[D:/AspDotNet/Asp.Net Web Core MVC/ERP/ERP/Views/AccountType/AccountType.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFR5cGVcQWNjb3VudFR5cGUuY3NodG1s
-build_metadata.AdditionalFiles.CssScope = 
-
 [D:/AspDotNet/Asp.Net Web Core MVC/ERP/ERP/Views/Home/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/AspDotNet/Asp.Net Web Core MVC/ERP/ERP/Views/Home/Privacy.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxQcml2YWN5LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/AspDotNet/Asp.Net Web Core MVC/ERP/ERP/Views/Setting/Account/AccountType.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2V0dGluZ1xBY2NvdW50XEFjY291bnRUeXBlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/AspDotNet/Asp.Net Web Core MVC/ERP/ERP/Views/Setting/Account/Bank.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2V0dGluZ1xBY2NvdW50XEJhbmsuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/AspDotNet/Asp.Net Web Core MVC/ERP/ERP/Views/Setting/ChartOfItem/Brand.cshtml]

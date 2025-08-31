@@ -6,11 +6,26 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ERP.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class CreateInital : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateTable(
+                name: "AccountType",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    current_date = table.Column<DateOnly>(type: "date", nullable: false),
+                    status = table.Column<bool>(type: "bit", nullable: false),
+                    account_name = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AccountType", x => x.Id);
+                });
+
             migrationBuilder.CreateTable(
                 name: "Brand",
                 columns: table => new
@@ -99,6 +114,25 @@ namespace ERP.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Transporter",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    current_date = table.Column<DateOnly>(type: "date", nullable: false),
+                    name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    transporter_no = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    phone = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    status = table.Column<bool>(type: "bit", nullable: false),
+                    address = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    description = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Transporter", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "UOM",
                 columns: table => new
                 {
@@ -132,6 +166,65 @@ namespace ERP.Migrations
                         name: "FK_SubCategory_Category_categoryId",
                         column: x => x.categoryId,
                         principalTable: "Category",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Bank",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    current_date = table.Column<DateOnly>(type: "date", nullable: false),
+                    bank_name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    account_no = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    opening_balance = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    status = table.Column<bool>(type: "bit", nullable: false),
+                    companyId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Bank", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Bank_Company_companyId",
+                        column: x => x.companyId,
+                        principalTable: "Company",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ChartOfAccount",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    current_date = table.Column<DateOnly>(type: "date", nullable: false),
+                    name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    companyId = table.Column<int>(type: "int", nullable: false),
+                    accountTypeId = table.Column<int>(type: "int", nullable: false),
+                    parentAccountId = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ChartOfAccount", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ChartOfAccount_AccountType_accountTypeId",
+                        column: x => x.accountTypeId,
+                        principalTable: "AccountType",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ChartOfAccount_ChartOfAccount_parentAccountId",
+                        column: x => x.parentAccountId,
+                        principalTable: "ChartOfAccount",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_ChartOfAccount_Company_companyId",
+                        column: x => x.companyId,
+                        principalTable: "Company",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -194,6 +287,33 @@ namespace ERP.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Warehouse",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    current_date = table.Column<DateOnly>(type: "date", nullable: false),
+                    warehouse_name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    warehouse_description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    address = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    city = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    country = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    status = table.Column<bool>(type: "bit", nullable: false),
+                    type = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    companyId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Warehouse", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Warehouse_Company_companyId",
+                        column: x => x.companyId,
+                        principalTable: "Company",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Component",
                 columns: table => new
                 {
@@ -229,7 +349,8 @@ namespace ERP.Migrations
                     phone_number = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     email = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     password = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    image = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    image = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    status = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -254,6 +375,7 @@ namespace ERP.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     current_date = table.Column<DateOnly>(type: "date", nullable: false),
+                    remark = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     item_name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     item_barcode = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     status = table.Column<bool>(type: "bit", nullable: false),
@@ -266,7 +388,8 @@ namespace ERP.Migrations
                     sale_rate = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     rate = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     discount_amount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
-                    total_amount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false)
+                    total_amount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    description = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -294,6 +417,41 @@ namespace ERP.Migrations
                         principalTable: "UOM",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PaymentVoucher",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    current_date = table.Column<DateOnly>(type: "date", nullable: false),
+                    voucher_date = table.Column<DateOnly>(type: "date", nullable: false),
+                    amount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    method = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    status = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    companyId = table.Column<int>(type: "int", nullable: false),
+                    venderId = table.Column<int>(type: "int", nullable: false),
+                    bankAccountId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PaymentVoucher", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PaymentVoucher_Bank_bankAccountId",
+                        column: x => x.bankAccountId,
+                        principalTable: "Bank",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_PaymentVoucher_Company_companyId",
+                        column: x => x.companyId,
+                        principalTable: "Company",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_PaymentVoucher_Vender_venderId",
+                        column: x => x.venderId,
+                        principalTable: "Vender",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -334,6 +492,26 @@ namespace ERP.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_Bank_companyId",
+                table: "Bank",
+                column: "companyId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ChartOfAccount_accountTypeId",
+                table: "ChartOfAccount",
+                column: "accountTypeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ChartOfAccount_companyId",
+                table: "ChartOfAccount",
+                column: "companyId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ChartOfAccount_parentAccountId",
+                table: "ChartOfAccount",
+                column: "parentAccountId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Component_moduleId",
                 table: "Component",
                 column: "moduleId");
@@ -362,6 +540,21 @@ namespace ERP.Migrations
                 name: "IX_Item_uomId",
                 table: "Item",
                 column: "uomId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PaymentVoucher_bankAccountId",
+                table: "PaymentVoucher",
+                column: "bankAccountId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PaymentVoucher_companyId",
+                table: "PaymentVoucher",
+                column: "companyId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PaymentVoucher_venderId",
+                table: "PaymentVoucher",
+                column: "venderId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Permission_componentId",
@@ -397,11 +590,19 @@ namespace ERP.Migrations
                 name: "IX_Vender_companyId",
                 table: "Vender",
                 column: "companyId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Warehouse_companyId",
+                table: "Warehouse",
+                column: "companyId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "ChartOfAccount");
+
             migrationBuilder.DropTable(
                 name: "Customer");
 
@@ -409,13 +610,22 @@ namespace ERP.Migrations
                 name: "Item");
 
             migrationBuilder.DropTable(
+                name: "PaymentVoucher");
+
+            migrationBuilder.DropTable(
                 name: "Permission");
+
+            migrationBuilder.DropTable(
+                name: "Transporter");
 
             migrationBuilder.DropTable(
                 name: "User");
 
             migrationBuilder.DropTable(
-                name: "Vender");
+                name: "Warehouse");
+
+            migrationBuilder.DropTable(
+                name: "AccountType");
 
             migrationBuilder.DropTable(
                 name: "Brand");
@@ -427,16 +637,22 @@ namespace ERP.Migrations
                 name: "UOM");
 
             migrationBuilder.DropTable(
+                name: "Bank");
+
+            migrationBuilder.DropTable(
+                name: "Vender");
+
+            migrationBuilder.DropTable(
                 name: "Component");
 
             migrationBuilder.DropTable(
                 name: "Role");
 
             migrationBuilder.DropTable(
-                name: "Company");
+                name: "Category");
 
             migrationBuilder.DropTable(
-                name: "Category");
+                name: "Company");
 
             migrationBuilder.DropTable(
                 name: "Module");

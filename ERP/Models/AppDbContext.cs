@@ -129,6 +129,24 @@ public class AppDbContext : DbContext
             .HasForeignKey(u => u.roleId)
             .OnDelete(DeleteBehavior.NoAction);
 
+        modelBuilder.Entity<PaymentVoucher>()
+    .HasOne(p => p.Company)
+    .WithMany()
+    .HasForeignKey(p => p.companyId)
+    .OnDelete(DeleteBehavior.NoAction);   
+
+        modelBuilder.Entity<PaymentVoucher>()
+            .HasOne(p => p.Vender)
+            .WithMany()
+            .HasForeignKey(p => p.venderId)
+            .OnDelete(DeleteBehavior.NoAction);  
+
+        modelBuilder.Entity<PaymentVoucher>()
+            .HasOne(p => p.Bank)
+            .WithMany()
+            .HasForeignKey(p => p.bankAccountId)
+            .OnDelete(DeleteBehavior.NoAction);  
+
         base.OnModelCreating(modelBuilder);
     }
 }

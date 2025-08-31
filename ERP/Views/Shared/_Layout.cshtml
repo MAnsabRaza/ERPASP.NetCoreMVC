@@ -104,6 +104,53 @@
                             <!-- First Level Dropdown -->
                             <ul id="settingsDropdown" class="hidden mt-1 ml-6 space-y-1 bg-white border border-gray-200 rounded-lg shadow-lg p-2">
                                 <li>
+                                    <button id="accountToggle"
+                                            class="flex items-center justify-between w-full px-3 py-2 text-gray-600 rounded-md hover:bg-gray-100">
+                                        <span class="flex items-center">
+                                            <i class="fas fa-wallet mr-2"></i> Account
+                                        </span>
+                                        <i id="accountChevron" class="fas fa-chevron-down text-gray-400 transition-transform duration-200"></i>
+                                    </button>
+
+                                    <ul id="accountDropdown"
+                                        class="hidden mt-1 ml-6 space-y-1 bg-white border border-gray-200 rounded-lg shadow-lg p-2">
+
+                                        <li>
+                                            <a asp-controller="AccountType" asp-action="AccountType"
+                                               class="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
+                                                <i class="fas fa-sitemap mr-2 text-gray-400"></i>
+                                                <span>Account Type</span>
+                                            </a>
+                                        </li>
+
+                                        <li>
+                                            <a asp-controller="Bank" asp-action="Bank"
+                                               class="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
+                                                <i class="fas fa-university mr-2 text-gray-400"></i>
+                                                <span>Bank</span>
+                                            </a>
+                                        </li>
+
+                                        <li>
+                                            <a asp-controller="PaymentVoucher" asp-action="PaymentVoucher"
+                                               class="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
+                                                <i class="fas fa-file-invoice-dollar mr-2 text-gray-400"></i>
+                                                <span>Payment Voucher</span>
+                                            </a>
+                                        </li>
+
+                                        <li>
+                                            <a asp-controller="ChartOfAccount" asp-action="ChartOfAccount"
+                                               class="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
+                                                <i class="fas fa-book mr-2 text-gray-400"></i>
+                                                <span>Chart of Account</span>
+                                            </a>
+                                        </li>
+
+                                    </ul>
+                                </li>
+
+                                <li>
                                     <button id="masterToggle" class="flex items-center justify-between w-full px-3 py-2 text-gray-600 rounded-md hover:bg-gray-100">
                                         <span class="flex items-center"><i class="fas fa-cogs mr-2"></i>Master</span>
                                         <i id="masterChevron" class="fas fa-chevron-down text-gray-400 transition-transform duration-200"></i>
@@ -276,6 +323,17 @@
             masterDropdown.classList.toggle('hidden');
             masterChevron.style.transform = masterDropdown.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
         });
+        
+        //Account
+        const accountToggle = document.getElementById('accountToggle');
+        const accountDropdown = document.getElementById('accountDropdown');
+        const accountChevron = document.getElementById('accountChevron');
+
+        accountToggle.addEventListener('click', function () {
+            accountDropdown.classList.toggle('hidden');
+            accountChevron.style.transform = accountDropdown.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
+        });
+
 
         // SIDEBAR toggle
         const sidebarToggle = document.getElementById('sidebarToggle');

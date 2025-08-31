@@ -21,7 +21,7 @@ namespace ERP.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("ERP.Models.Account.AccountType", b =>
+            modelBuilder.Entity("ERP.Models.AccountType", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -44,7 +44,7 @@ namespace ERP.Migrations
                     b.ToTable("AccountType");
                 });
 
-            modelBuilder.Entity("ERP.Models.Account.Bank", b =>
+            modelBuilder.Entity("ERP.Models.Bank", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -82,87 +82,6 @@ namespace ERP.Migrations
                     b.HasIndex("companyId");
 
                     b.ToTable("Bank");
-                });
-
-            modelBuilder.Entity("ERP.Models.Account.ChartOfAccount", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("accountTypeId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("companyId")
-                        .HasColumnType("int");
-
-                    b.Property<DateOnly>("current_date")
-                        .HasColumnType("date");
-
-                    b.Property<string>("name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("parentAccountId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("accountTypeId");
-
-                    b.HasIndex("companyId");
-
-                    b.HasIndex("parentAccountId");
-
-                    b.ToTable("ChartOfAccount");
-                });
-
-            modelBuilder.Entity("ERP.Models.Account.PaymentVoucher", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("amount")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("bankAccountId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("companyId")
-                        .HasColumnType("int");
-
-                    b.Property<DateOnly>("current_date")
-                        .HasColumnType("date");
-
-                    b.Property<string>("method")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("venderId")
-                        .HasColumnType("int");
-
-                    b.Property<DateOnly>("voucher_date")
-                        .HasColumnType("date");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("bankAccountId");
-
-                    b.HasIndex("companyId");
-
-                    b.HasIndex("venderId");
-
-                    b.ToTable("PaymentVoucher");
                 });
 
             modelBuilder.Entity("ERP.Models.Brand", b =>
@@ -216,6 +135,41 @@ namespace ERP.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Category");
+                });
+
+            modelBuilder.Entity("ERP.Models.ChartOfAccount", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("accountTypeId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("companyId")
+                        .HasColumnType("int");
+
+                    b.Property<DateOnly>("current_date")
+                        .HasColumnType("date");
+
+                    b.Property<string>("name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("parentAccountId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("accountTypeId");
+
+                    b.HasIndex("companyId");
+
+                    b.HasIndex("parentAccountId");
+
+                    b.ToTable("ChartOfAccount");
                 });
 
             modelBuilder.Entity("ERP.Models.Company", b =>
@@ -460,6 +414,52 @@ namespace ERP.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Module");
+                });
+
+            modelBuilder.Entity("ERP.Models.PaymentVoucher", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("amount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("bankAccountId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("companyId")
+                        .HasColumnType("int");
+
+                    b.Property<DateOnly>("current_date")
+                        .HasColumnType("date");
+
+                    b.Property<string>("method")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("venderId")
+                        .HasColumnType("int");
+
+                    b.Property<DateOnly>("voucher_date")
+                        .HasColumnType("date");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("bankAccountId");
+
+                    b.HasIndex("companyId");
+
+                    b.HasIndex("venderId");
+
+                    b.ToTable("PaymentVoucher");
                 });
 
             modelBuilder.Entity("ERP.Models.Permission", b =>
@@ -756,7 +756,7 @@ namespace ERP.Migrations
                     b.ToTable("Warehouse");
                 });
 
-            modelBuilder.Entity("ERP.Models.Account.Bank", b =>
+            modelBuilder.Entity("ERP.Models.Bank", b =>
                 {
                     b.HasOne("ERP.Models.Company", "Company")
                         .WithMany()
@@ -767,9 +767,9 @@ namespace ERP.Migrations
                     b.Navigation("Company");
                 });
 
-            modelBuilder.Entity("ERP.Models.Account.ChartOfAccount", b =>
+            modelBuilder.Entity("ERP.Models.ChartOfAccount", b =>
                 {
-                    b.HasOne("ERP.Models.Account.AccountType", "AccountType")
+                    b.HasOne("ERP.Models.AccountType", "AccountType")
                         .WithMany()
                         .HasForeignKey("accountTypeId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -781,7 +781,7 @@ namespace ERP.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ERP.Models.Account.ChartOfAccount", "ParentAccount")
+                    b.HasOne("ERP.Models.ChartOfAccount", "ParentAccount")
                         .WithMany()
                         .HasForeignKey("parentAccountId");
 
@@ -790,33 +790,6 @@ namespace ERP.Migrations
                     b.Navigation("Company");
 
                     b.Navigation("ParentAccount");
-                });
-
-            modelBuilder.Entity("ERP.Models.Account.PaymentVoucher", b =>
-                {
-                    b.HasOne("ERP.Models.Account.Bank", "Bank")
-                        .WithMany()
-                        .HasForeignKey("bankAccountId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ERP.Models.Company", "Company")
-                        .WithMany()
-                        .HasForeignKey("companyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ERP.Models.Vender", "Vender")
-                        .WithMany()
-                        .HasForeignKey("venderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Bank");
-
-                    b.Navigation("Company");
-
-                    b.Navigation("Vender");
                 });
 
             modelBuilder.Entity("ERP.Models.Component", b =>
@@ -874,6 +847,33 @@ namespace ERP.Migrations
                     b.Navigation("SubCategory");
 
                     b.Navigation("UOM");
+                });
+
+            modelBuilder.Entity("ERP.Models.PaymentVoucher", b =>
+                {
+                    b.HasOne("ERP.Models.Bank", "Bank")
+                        .WithMany()
+                        .HasForeignKey("bankAccountId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("ERP.Models.Company", "Company")
+                        .WithMany()
+                        .HasForeignKey("companyId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("ERP.Models.Vender", "Vender")
+                        .WithMany()
+                        .HasForeignKey("venderId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Bank");
+
+                    b.Navigation("Company");
+
+                    b.Navigation("Vender");
                 });
 
             modelBuilder.Entity("ERP.Models.Permission", b =>

@@ -19,19 +19,20 @@ namespace ERP.Controllers.Setting.Account
             var bankList = await query.
                 Include(c => c.Company).
                 OrderBy(at => at.Id).
-                Skip((page - 1) * pageSize).Take(totalItems).
+                Skip((page - 1) * pageSize).Take(pageSize).
                 ToListAsync();
             ViewBag.TotalItems = totalItems;
             ViewBag.Page = page;
             ViewBag.PageSize = pageSize;
             ViewBag.SearchString = searchString;
-            var model = new AccountType
+            var model = new Bank
             {
                 current_date = DateOnly.FromDateTime(DateTime.Now)
             };
-            ViewBag.Company = await _context.Company.ToListAsync();
+            ViewBag.companyList = await _context.Company.ToListAsync();
             ViewBag.Bank = bankList;
-            return View("Bank", model);
+            //return View("Bank", model);
+            return View("~/Views/Setting/Account/Bank.cshtml", model);
         }
         [HttpGet]
         public async Task<IActionResult> Edit(int id, string searchString, int page = 1, int pageSize = 5)
@@ -50,17 +51,18 @@ namespace ERP.Controllers.Setting.Account
             var bankList = await query.
                 Include(c=>c.Company).
                 OrderBy(at => at.Id).
-                Skip((page - 1) * pageSize).Take(totalItems).
+                Skip((page - 1) * pageSize).Take(pageSize).
                 ToListAsync();
             ViewBag.TotalItems = totalItems;
             ViewBag.Page = page;
             ViewBag.PageSize = pageSize;
             ViewBag.SearchString = searchString;
             ViewBag.Bank = bankList;
-            ViewBag.Company = await _context.Company.ToListAsync();
-            return View("Bank", bank);
+            ViewBag.companyList = await _context.Company.ToListAsync();
+            //return View("Bank", bank);
+            return View("~/Views/Setting/Account/Bank.cshtml", bank);
         }
-        [HttpDelete]
+        [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
             var bank = await _context.Bank.FindAsync(id);

@@ -1,5 +1,4 @@
-﻿using ERP.Models;
-using ERP.Models.Account;
+﻿using ERP.Models.Account;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,7 +18,7 @@ namespace ERP.Controllers.Setting.Account
             var totalItems = await query.CountAsync();
             var accountTypeList = await query.
                 OrderBy(at=>at.Id).
-                Skip((page-1)*pageSize).Take(totalItems).
+                Skip((page-1)*pageSize).Take(pageSize).
                 ToListAsync();
             ViewBag.TotalItems = totalItems;
             ViewBag.Page = page;
@@ -30,7 +29,8 @@ namespace ERP.Controllers.Setting.Account
                 current_date = DateOnly.FromDateTime(DateTime.Now)
             };
             ViewBag.AccountType = accountTypeList;
-            return View("AccountType",model);
+            //return View("AccountType",model);
+            return View("~/Views/Setting/Account/AccountType.cshtml", model);
         }
         [HttpGet]
         public async Task<IActionResult> Edit(int id, string searchString, int page = 1, int pageSize = 5)
@@ -48,16 +48,17 @@ namespace ERP.Controllers.Setting.Account
             var totalItems = await query.CountAsync();
             var accountTypeList = await query.
                 OrderBy(at => at.Id).
-                Skip((page - 1) * pageSize).Take(totalItems).
+                Skip((page - 1) * pageSize).Take(pageSize).
                 ToListAsync();
             ViewBag.TotalItems = totalItems;
             ViewBag.Page = page;
             ViewBag.PageSize = pageSize;
             ViewBag.SearchString = searchString;
             ViewBag.AccountType = accountTypeList;
-            return View("AccountType", accountType);
+            // return View("AccountType", accountType);
+            return View("~/Views/Setting/Account/AccountType.cshtml", accountType);
         }
-        [HttpDelete]
+        [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
             var accountType = await _context.AccountType.FindAsync(id);
@@ -81,7 +82,7 @@ namespace ERP.Controllers.Setting.Account
                         exisitngAccount.current_date=accountType.current_date;
                         exisitngAccount.status = accountType.status;
                         exisitngAccount.account_name = accountType.account_name;
-                        _context.Update(accountType);
+                        _context.Update(exisitngAccount);
                         await _context.SaveChangesAsync();
                     }
                 }
