@@ -1,4 +1,5 @@
 ﻿using ERP.Models;
+using Microsoft.Build.ObjectModelRemoting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
@@ -19,6 +20,9 @@ public class AppDbContext : DbContext
     public DbSet<Item> Item { get; set; }
     public DbSet<Customer> Customer { get; set; }
     public DbSet<Vender> Vender { get; set; }
+    
+    public DbSet<Transporter> Transporter { get; set; }
+    public DbSet<Warehouse> Warehouse { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
