@@ -39,7 +39,7 @@ namespace ERP.Controllers.Setting.Account
             ViewBag.companyList = await _context.Company.ToListAsync();
             ViewBag.venderList = await _context.Vender.ToListAsync();
             ViewBag.bankList=await _context.Bank.ToListAsync();
-            return View("~/Views/Setting/ChartOfItem/PaymentVoucher.cshtml", model);
+            return View("~/Views/Setting/Account/PaymentVoucher.cshtml", model);
             //return View("PaymentVoucher",model);
         }
         [HttpGet]
@@ -77,7 +77,7 @@ namespace ERP.Controllers.Setting.Account
                 Where(b => b.status == true).
                 ToListAsync();
             //return View("PaymentVoucher",paymentVoucher);
-            return View("~/Views/Setting/ChartOfItem/PaymentVoucher.cshtml", paymentVoucher);
+            return View("~/Views/Setting/Account/PaymentVoucher.cshtml", paymentVoucher);
         }
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
