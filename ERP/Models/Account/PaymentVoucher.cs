@@ -9,7 +9,7 @@ namespace ERP.Models.Account
         public DateOnly voucher_date { get; set; }
         public decimal amount { get; set; }
         public string method { get; set; }
-        public string status { get; set; }
+        public bool status { get; set; }
         public int companyId { get; set; }
         [ForeignKey("companyId")]
         public virtual Company? Company { get; set; }
