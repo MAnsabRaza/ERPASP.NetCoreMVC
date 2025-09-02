@@ -14,10 +14,11 @@ namespace ERP.Controllers.Setting.Account
         public async Task<IActionResult> PaymentVoucher(string searchString,int page=1,int pageSize=5)
         {
             var query=_context.PaymentVoucher.AsQueryable();
-            if (string.IsNullOrEmpty(searchString))
+            if (!string.IsNullOrEmpty(searchString))
             {
                 query = query.Where(pv => pv.method.Contains(searchString));
             }
+
             var totalItems = await query.CountAsync();
             var paymentVoucherList=await query.
                 Include(c=>c.Company).
@@ -38,7 +39,8 @@ namespace ERP.Controllers.Setting.Account
             ViewBag.companyList = await _context.Company.ToListAsync();
             ViewBag.venderList = await _context.Vender.ToListAsync();
             ViewBag.bankList=await _context.Bank.ToListAsync();
-            return View("PaymentVoucher",model);
+            return View("~/Views/Setting/ChartOfItem/PaymentVoucher.cshtml", model);
+            //return View("PaymentVoucher",model);
         }
         [HttpGet]
         public async Task<IActionResult> Edit(int id, string searchString, int page = 1,int pageSize = 5)
@@ -49,7 +51,7 @@ namespace ERP.Controllers.Setting.Account
                 return NotFound();
             }
             var query = _context.PaymentVoucher.AsQueryable();
-            if (string.IsNullOrEmpty(searchString))
+            if (!string.IsNullOrEmpty(searchString))
             {
                 query = query.Where(pv => pv.method.Contains(searchString));
             }
@@ -74,7 +76,8 @@ namespace ERP.Controllers.Setting.Account
             ViewBag.bankList = await _context.Bank.
                 Where(b => b.status == true).
                 ToListAsync();
-            return View("PaymentVoucher",paymentVoucher);
+            //return View("PaymentVoucher",paymentVoucher);
+            return View("~/Views/Setting/ChartOfItem/PaymentVoucher.cshtml", paymentVoucher);
         }
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
