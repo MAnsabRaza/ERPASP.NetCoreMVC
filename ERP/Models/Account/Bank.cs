@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using ERP.Models.UserManagement;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ERP.Models.Account
 {

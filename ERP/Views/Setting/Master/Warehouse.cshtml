@@ -1,7 +1,7 @@
-﻿@model ERP.Models.Warehouse
+﻿@model ERP.Models.Master.Warehouse
 @{
     ViewData["Title"] = "Warehouse";
-    var warehouseList = ViewBag.Warehouse as List<ERP.Models.Warehouse>;
+    var warehouseList = ViewBag.Warehouse as List<ERP.Models.Master.Warehouse>;
     int totalItems = ViewBag.TotalItems;
     int page = ViewBag.Page;
     int pageSize = ViewBag.PageSize;

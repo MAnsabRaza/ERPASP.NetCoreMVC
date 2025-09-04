@@ -1,7 +1,7 @@
-﻿@model ERP.Models.User
+﻿@model ERP.Models.UserManagement.User
 @{
     ViewData["Title"] = "Users";
-    var userList = ViewBag.User as List<ERP.Models.User>;
+    var userList = ViewBag.User as List<ERP.Models.UserManagement.User>;
     int totalItems = ViewBag.TotalItems;
     int page = ViewBag.Page;
     int pageSize = ViewBag.PageSize;

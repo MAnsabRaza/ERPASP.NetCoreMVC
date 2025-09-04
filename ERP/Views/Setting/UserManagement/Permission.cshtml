@@ -1,7 +1,7 @@
-﻿@model ERP.Models.Permission
+﻿@model ERP.Models.UserManagement.Permission
 @{
     ViewData["Title"] = "Permission";
-    var permissionList = ViewBag.Permission as List<ERP.Models.Permission>;
+    var permissionList = ViewBag.Permission as List<ERP.Models.UserManagement.Permission>;
     int totalItems = ViewBag.TotalItems;
     int page = ViewBag.Page;
     int pageSize = ViewBag.PageSize;

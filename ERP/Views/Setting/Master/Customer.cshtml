@@ -1,7 +1,7 @@
-﻿@model ERP.Models.Customer
+﻿@model ERP.Models.Master.Customer
 @{
     ViewData["Title"] = "Customer";
-    var customerList = ViewBag.Customer as List<ERP.Models.Customer>;
+    var customerList = ViewBag.Customer as List<ERP.Models.Master.Customer>;
     int totalItems = ViewBag.TotalItems;
     int page = ViewBag.Page;
     int pageSize = ViewBag.PageSize;

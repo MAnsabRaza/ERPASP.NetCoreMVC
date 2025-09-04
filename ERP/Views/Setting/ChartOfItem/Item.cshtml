@@ -1,7 +1,7 @@
-﻿@model ERP.Models.Item
+﻿@model ERP.Models.ChartOfItem.Item
 @{
     ViewData["Title"] = "Item";
-    var itemList = ViewBag.Item as List<ERP.Models.Item>;
+    var itemList = ViewBag.Item as List<ERP.Models.ChartOfItem.Item>;
     int totalItems = ViewBag.TotalItems;
     int page = ViewBag.Page;
     int pageSize = ViewBag.PageSize;

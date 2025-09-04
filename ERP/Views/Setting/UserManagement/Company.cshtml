@@ -1,7 +1,7 @@
-﻿@model ERP.Models.Company
+﻿@model ERP.Models.UserManagement.Company
 @{
     ViewData["Title"] = "Companies";
-    var companyList = ViewBag.Company as List<ERP.Models.Company>;
+    var companyList = ViewBag.Company as List<ERP.Models.UserManagement.Company>;
 
     int totalItems = ViewBag.TotalItems;
     int page = ViewBag.Page;

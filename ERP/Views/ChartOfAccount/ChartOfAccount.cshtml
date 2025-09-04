@@ -1,0 +1,422 @@
+﻿@model ERP.Models.Account.ChartOfAccount
+@{
+    ViewData["Title"] = "ChartOfAccount";
+    var level1List = ViewBag.Level1 as List<ERP.Models.Account.ChartOfAccount>;
+    var level2List = ViewBag.Level2 as List<ERP.Models.Account.ChartOfAccount>;
+    int page1 = ViewBag.Page1;
+    int page2 = ViewBag.Page2;
+    int pageSize = ViewBag.PageSize;
+    string searchString = ViewBag.SearchString ?? "";
+    int totalItemsLevel1 = ViewBag.TotalItemsLevel1;
+    int totalItemsLevel2 = ViewBag.TotalItemsLevel2;
+    int totalPagesLevel1 = (int)Math.Ceiling((double)totalItemsLevel1 / pageSize);
+    int totalPagesLevel2 = (int)Math.Ceiling((double)totalItemsLevel2 / pageSize);
+
+}
+
+<div class="space-y-8">
+
+    <!-- Tabs -->
+    <div class="border-b border-gray-300 bg-white shadow-sm rounded-xl p-2">
+        <nav class="flex space-x-6" aria-label="Tabs">
+            <button id="tab-level1"
+                    class="px-4 py-2 text-sm font-semibold text-blue-600 border-b-2 border-blue-600 focus:outline-none transition"
+                    type="button">
+                <i class="fa-solid fa-plus-circle mr-2"></i> Level1 Entry
+            </button>
+            <button id="tab-level2"
+                    class="px-4 py-2 text-sm font-semibold text-gray-500 hover:text-blue-600 hover:border-blue-400 border-b-2 border-transparent focus:outline-none transition"
+                    type="button">
+                <i class="fa-solid fa-plus-circle mr-2"></i> Level2 Entry
+            </button>
+        </nav>
+    </div>
+
+    <!-- Level -->
+    <div id="content-level1" class="tab-content">
+        @using (Html.BeginForm("CreateLevel1", "ChartOfAccount", FormMethod.Post))
+        {
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(m => m.Id, new { id = "level1Id" })
+
+            <!-- Header Card -->
+            <div class="shadow-lg rounded-2xl bg-gradient-to-r from-blue-50 to-blue-100 p-6 border border-gray-200">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h2 class="text-2xl font-bold text-blue-800 flex items-center gap-2">
+                            <i class="fa-solid fas fa-boxes text-blue-600"></i> Level 1
+                        </h2>
+                        <p class="text-gray-600 mt-1 text-sm">Add and manage your inventory items efficiently</p>
+                    </div>
+
+                    <div class="space-x-2">
+                        <button type="submit"
+                                class="px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-green-600 hover:bg-green-700 shadow-md transition">
+                            <i class="fa-solid fa-save mr-2"></i> Save
+                        </button>
+                        <button type="reset"
+                                class="px-5 py-2.5 rounded-xl text-sm font-semibold text-gray-700 bg-yellow-300 hover:bg-yellow-400 shadow-md transition">
+                            <i class="fa-solid fa-rotate-right mr-2"></i> Reset
+                        </button>
+                        <button type="button" onclick="refreshPage()"
+                                class="px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-purple-500 hover:bg-purple-600 shadow-md transition">
+                            <i class="fa-solid fa-arrows-rotate mr-2"></i> Refresh
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 1 -->
+            <div class="shadow-md rounded-2xl bg-white p-6 border border-gray-200 mt-4">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">Current Date</label>
+                        @Html.TextBoxFor(m => m.current_date, "{0:yyyy-MM-dd}",
+                                 new { @class = "w-full mt-1 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400", type = "date", required = "required" })
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">Name</label>
+                        @Html.TextBoxFor(m => m.name,
+                                 new { @class = "w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400", type = "text", required = "required", placeholder = "Enter Name" })
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">Company</label>
+                        @Html.DropDownListFor(m => m.companyId,
+                                 new SelectList(ViewBag.compantList, "Id", "company_name"),
+                                 "Select Company",
+                                 new { @class = "w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400", required = "required" })
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">Account Type</label>
+                        @Html.DropDownListFor(m => m.accountTypeId,
+                                 new SelectList(ViewBag.accountTypeList, "Id", "account_name"),
+                                 "Select Account Type",
+                                 new { @class = "w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400", required = "required" })
+                    </div>
+                </div>
+            </div>
+        }
+        <div class="overflow-hidden border border-gray-200 rounded-lg mt-6 p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-semibold text-gray-800 flex items-center gap-2">
+                    <i class="fa-solid fa-list text-blue-600"></i> Level1 List
+                </h3>
+                <form method="get" asp-action="ChartOfAccount" class="flex items-center space-x-2 w-full max-w-md">
+                    <input type="hidden" name="activeTab" value="list" />
+                    <div class="relative w-full">
+                        <input type="text" id="searchInput" name="searchString" value="@searchString"
+                               placeholder="Search Item..."
+                               class="w-full px-4 py-2 pr-10 border rounded-lg focus:ring focus:ring-blue-300" />
+                        <button type="button" id="clearSearch"
+                                class="absolute inset-y-0 right-2 flex items-center text-gray-400 hover:text-red-500 hidden">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                    <button type="submit"
+                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        <i class="fa fa-search"></i>
+                    </button>
+                </form>
+
+            </div>
+            <div class="max-h-96 overflow-y-auto">
+                <table class="table-auto w-full text-sm">
+                    <thead class="bg-gradient-to-r from-blue-500 to-blue-600 text-white sticky top-0">
+                        <tr>
+                            <th class="p-3 text-left">ID</th>
+                            <th class="p-3 text-left">Date</th>
+                            <th class="p-3 text-left">Name</th>
+                            <th class="p-3 text-left">Company</th>
+                            <th class="p-3 text-left">Account Type</th>
+                            <th class="p-3 text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200 bg-white">
+                        @if (level1List != null && level1List.Any())
+                        {
+                            foreach (var item in level1List)
+                            {
+                                <tr class="hover:bg-gray-50 transition">
+                                    <td class="p-3">@item.Id</td>
+                                    <td class="p-3">@item.current_date</td>
+                                    <td class="p-3 font-medium">@item.name</td>
+                                    <td class="p-3 font-medium">@item.Company.company_name</td>
+                                    <td class="p-3">@item.AccountType.account_name</td>
+                                    <td class="p-3 text-center space-x-2">
+                                        <a asp-action="Edit" asp-route-id="@item.Id"
+                                           class="px-3 py-1.5 rounded-lg text-xs font-medium bg-blue-100 text-blue-700 hover:bg-blue-200 transition">
+                                            <i class="fa-solid fa-pen"></i> Edit
+                                        </a>
+                                        @using (Html.BeginForm("Delete", "ChartOfAccount", FormMethod.Post, new { onsubmit = "return confirm('Are you sure?');", @class = "inline" }))
+                                        {
+                                            @Html.AntiForgeryToken()
+                                            @Html.Hidden("id", item.Id)
+                                            <button type="submit"
+                                                    class="px-3 py-1.5 rounded-lg text-xs font-medium bg-red-100 text-red-700 hover:bg-red-200 transition">
+                                                <i class="fa-solid fa-trash"></i> Delete
+                                            </button>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="16" class="text-center p-4 text-gray-500">No items found.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="flex justify-between items-center mt-4">
+            <span class="text-sm text-gray-600">Page @(page1) of @totalPagesLevel1</span>
+            <div class="space-x-2">
+                @if (page1 > 1)
+                {
+                    <a asp-action="ChartOfAccount" asp-route-page1="@(page1-1)" asp-route-page2="@page2" asp-route-searchString="@searchString" asp-route-activeTab="form"
+                       class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">Prev</a>
+                }
+                @if (page1 < totalPagesLevel1)
+                {
+                    <a asp-action="ChartOfAccount" asp-route-page1="@(page1+1)" asp-route-page2="@page2" asp-route-searchString="@searchString" asp-route-activeTab="form"
+                       class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">Next</a>
+                }
+            </div>
+        </div>
+    </div>
+    
+
+    <!-- Level 2 -->
+    <div id="content-level2" class="tab-content">
+        @using (Html.BeginForm("CreateLevel2", "ChartOfAccount", FormMethod.Post))
+        {
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(m => m.Id, new { id = "level1Id" })
+
+            <!-- Header Card -->
+            <div class="shadow-lg rounded-2xl bg-gradient-to-r from-blue-50 to-blue-100 p-6 border border-gray-200">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h2 class="text-2xl font-bold text-blue-800 flex items-center gap-2">
+                            <i class="fa-solid fas fa-boxes text-blue-600"></i> Level 2
+                        </h2>
+                        <p class="text-gray-600 mt-1 text-sm">Add and manage your inventory items efficiently</p>
+                    </div>
+
+                    <div class="space-x-2">
+                        <button type="submit"
+                                class="px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-green-600 hover:bg-green-700 shadow-md transition">
+                            <i class="fa-solid fa-save mr-2"></i> Save
+                        </button>
+                        <button type="reset"
+                                class="px-5 py-2.5 rounded-xl text-sm font-semibold text-gray-700 bg-yellow-300 hover:bg-yellow-400 shadow-md transition">
+                            <i class="fa-solid fa-rotate-right mr-2"></i> Reset
+                        </button>
+                        <button type="button" onclick="refreshPage()"
+                                class="px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-purple-500 hover:bg-purple-600 shadow-md transition">
+                            <i class="fa-solid fa-arrows-rotate mr-2"></i> Refresh
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 1 -->
+            <div class="shadow-md rounded-2xl bg-white p-6 border border-gray-200 mt-4">
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-6">
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">Current Date</label>
+                        @Html.TextBoxFor(m => m.current_date, "{0:yyyy-MM-dd}",
+                                 new { @class = "w-full mt-1 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400", type = "date", required = "required" })
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">Name</label>
+                        @Html.TextBoxFor(m => m.name,
+                                 new { @class = "w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400", type = "text", required = "required", placeholder = "Enter Name" })
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">Company</label>
+                        @Html.DropDownListFor(m => m.companyId,
+                                 new SelectList(ViewBag.compantList, "Id", "company_name"),
+                                 "Select Company",
+                                 new { @class = "w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400", required = "required" })
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">Account Type</label>
+                        @Html.DropDownListFor(m => m.accountTypeId,
+                                 new SelectList(ViewBag.accountTypeList, "Id", "account_name"),
+                                 "Select Account Type",
+                                 new { @class = "w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400", required = "required" })
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">Level 1</label>
+                        @Html.DropDownListFor(m => m.parentAccountId,
+                                 new SelectList(ViewBag.parentAccount, "Id", "name"),
+                                 "Select Level 1",
+                                 new { @class = "w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400", required = "required" })
+                    </div>
+
+                </div>
+            </div>
+        }
+        <div class="overflow-hidden border border-gray-200 rounded-lg mt-6 p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-semibold text-gray-800 flex items-center gap-2">
+                    <i class="fa-solid fa-list text-blue-600"></i> Level2 List
+                </h3>
+                <form method="get" asp-action="ChartOfAccount" class="flex items-center space-x-2 w-full max-w-md">
+                    <input type="hidden" name="activeTab" value="list" />
+                    <div class="relative w-full">
+                        <input type="text" id="searchInput" name="searchString" value="@searchString"
+                               placeholder="Search Item..."
+                               class="w-full px-4 py-2 pr-10 border rounded-lg focus:ring focus:ring-blue-300" />
+                        <button type="button" id="clearSearch"
+                                class="absolute inset-y-0 right-2 flex items-center text-gray-400 hover:text-red-500 hidden">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                    <button type="submit"
+                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        <i class="fa fa-search"></i>
+                    </button>
+                </form>
+
+            </div>
+            <div class="max-h-96 overflow-y-auto">
+                <table class="table-auto w-full text-sm">
+                    <thead class="bg-gradient-to-r from-blue-500 to-blue-600 text-white sticky top-0">
+                        <tr>
+                            <th class="p-3 text-left">ID</th>
+                            <th class="p-3 text-left">Date</th>
+                            <th class="p-3 text-left">Name</th>
+                            <th class="p-3 text-left">Company</th>
+                            <th class="p-3 text-left">Account Type</th>
+                            <th class="p-3 text-left">Level 1</th>
+                            <th class="p-3 text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200 bg-white">
+                        @if (level2List != null && level2List.Any())
+                        {
+                            foreach (var item in level2List)
+                            {
+                                <tr class="hover:bg-gray-50 transition">
+                                    <td class="p-3">@item.Id</td>
+                                    <td class="p-3">@item.current_date</td>
+                                    <td class="p-3 font-medium">@item.name</td>
+                                    <td class="p-3 font-medium">@item.Company.company_name</td>
+                                    <td class="p-3">@item.AccountType.account_name</td>
+
+                                    <td class="p-3">@item.parentAccountId</td>
+
+                                    <td class="p-3 text-center space-x-2">
+                                        <a asp-action="Edit" asp-route-id="@item.Id"
+                                           class="px-3 py-1.5 rounded-lg text-xs font-medium bg-blue-100 text-blue-700 hover:bg-blue-200 transition">
+                                            <i class="fa-solid fa-pen"></i> Edit
+                                        </a>
+                                        @using (Html.BeginForm("Delete", "ChartOfAccount", FormMethod.Post, new { onsubmit = "return confirm('Are you sure?');", @class = "inline" }))
+                                        {
+                                            @Html.AntiForgeryToken()
+                                            @Html.Hidden("id", item.Id)
+                                            <button type="submit"
+                                                    class="px-3 py-1.5 rounded-lg text-xs font-medium bg-red-100 text-red-700 hover:bg-red-200 transition">
+                                                <i class="fa-solid fa-trash"></i> Delete
+                                            </button>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="16" class="text-center p-4 text-gray-500">No items found.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="flex justify-between items-center mt-4">
+            <span class="text-sm text-gray-600">Page @(page2) of @totalPagesLevel2</span>
+            <div class="space-x-2">
+                @if (page2 > 1)
+                {
+                    <a asp-action="ChartOfAccount" asp-route-page2="@(page2-1)" asp-route-page1="@page1" asp-route-searchString="@searchString" asp-route-activeTab="list"
+                       class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">Prev</a>
+                }
+                @if (page2 < totalPagesLevel2)
+                {
+                    <a asp-action="ChartOfAccount" asp-route-page2="@(page2+1)" asp-route-page1="@page1" asp-route-searchString="@searchString" asp-route-activeTab="list"
+                       class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">Next</a>
+                }
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+<!-- Tabs + helpers -->
+<script>
+    const tabLevel1 = document.getElementById("tab-level1");
+    const tabLevel2 = document.getElementById("tab-level2");
+    const contentForm = document.getElementById("content-level1");
+    const contentList = document.getElementById("content-level2");
+    const btnAddNew = document.getElementById("btn-add-new");
+    const searchInput = document.getElementById("searchInput");
+    const clearBtn = document.getElementById("clearSearch");
+
+    function showFormTab() {
+        tabLevel1.classList.add("text-blue-600", "border-blue-600");
+        tabLevel1.classList.remove("text-gray-500", "border-transparent");
+
+        tabLevel2.classList.remove("text-blue-600", "border-blue-600");
+        tabLevel2.classList.add("text-gray-500", "border-transparent");
+
+        contentForm.classList.remove("hidden");
+        contentList.classList.add("hidden");
+    }
+
+    function showListTab() {
+        tabLevel2.classList.add("text-blue-600", "border-blue-600");
+        tabLevel2.classList.remove("text-gray-500", "border-transparent");
+
+        tabLevel1.classList.remove("text-blue-600", "border-blue-600");
+        tabLevel1.classList.add("text-gray-500", "border-transparent");
+
+        contentList.classList.remove("hidden");
+        contentForm.classList.add("hidden");
+    }
+
+    tabLevel1.addEventListener("click", showFormTab);
+    tabLevel2.addEventListener("click", showListTab);
+    if (btnAddNew) btnAddNew.addEventListener("click", showFormTab);
+
+    // Refresh button → always go to Form tab
+    function refreshPage() {
+        window.location.href = '@Url.Action("ChartOfAccount", "ChartOfAccount")?activeTab=form';
+    }
+
+    // Search clear → reload but keep list tab
+    searchInput.addEventListener("input", () => {
+        clearBtn.style.display = searchInput.value ? "flex" : "none";
+    });
+    clearBtn.addEventListener("click", () => {
+        window.location.href = '@Url.Action("ChartOfAccount", "ChartOfAccount")?activeTab=list';
+    });
+    if (searchInput.value) {
+        clearBtn.style.display = "flex";
+    }
+
+    // Check query string for active tab
+    const params = new URLSearchParams(window.location.search);
+    const activeTab = params.get("activeTab");
+    if (activeTab === "list") {
+        showListTab();
+    } else {
+        showFormTab(); // default
+    }
+</script>
+
