@@ -1,8 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
-using ERP.Models.Master;
-using ERP.Models.UserManagement;
 
-namespace ERP.Models.Account
+namespace ERP.Models
 {
     public class PaymentVoucher
     {

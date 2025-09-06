@@ -1,5 +1,4 @@
 ﻿using ERP.Models;
-using ERP.Models.UserManagement;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Data;

@@ -1,4 +1,4 @@
-﻿using ERP.Models.Account;
+﻿using ERP.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 

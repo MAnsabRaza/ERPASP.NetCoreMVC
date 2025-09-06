@@ -1,4 +1,4 @@
-﻿using ERP.Models.Account;
+﻿using ERP.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -54,8 +54,8 @@ namespace ERP.Controllers.Setting.Account
             ViewBag.PageSize = pageSize;
             ViewBag.TotalItemsLevel1 = totalItemsLevel1;
             ViewBag.TotalItemsLevel2 = totalItemsLevel2;
-
-            return View("ChartOfAccount", model);
+            return View("~/Views/Setting/Account/ChartOfAccount.cshtml", model);
+            //return View("ChartOfAccount", model);
         }
 
         [HttpGet]
@@ -104,7 +104,8 @@ namespace ERP.Controllers.Setting.Account
             ViewBag.TotalItemsLevel2 = totalItemsLevel2;
             ViewBag.SearchString = searchString;
 
-            return View("ChartOfAccount", chartOfAccount);
+            //return View("ChartOfAccount", chartOfAccount);
+            return View("~/Views/Setting/Account/ChartOfAccount.cshtml", chartOfAccount);
         }
 
         [HttpPost]

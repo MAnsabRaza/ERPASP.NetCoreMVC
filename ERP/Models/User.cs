@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 
-namespace ERP.Models.UserManagement
+namespace ERP.Models
 {
     public class User
     {

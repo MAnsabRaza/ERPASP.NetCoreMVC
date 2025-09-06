@@ -1,4 +1,4 @@
-﻿namespace ERP.Models.ChartOfItem
+﻿namespace ERP.Models
 {
     public class Category
     {

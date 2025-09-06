@@ -1,5 +1,5 @@
 ﻿using BCrypt.Net;
-using ERP.Models.UserManagement;
+using ERP.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;

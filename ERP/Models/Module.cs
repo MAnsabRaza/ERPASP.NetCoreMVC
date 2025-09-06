@@ -1,4 +1,4 @@
-﻿namespace ERP.Models.UserManagement
+﻿namespace ERP.Models
 {
     public class Module
     {

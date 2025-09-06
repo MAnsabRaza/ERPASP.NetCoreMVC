@@ -1,10 +1,10 @@
-﻿namespace ERP.Models.Account
+﻿namespace ERP.Models
 {
-    public class AccountType
+    public class UOM
     {
         public int Id { get; set; }
         public DateOnly current_date { get; set; }
+        public string uom_name { get; set; }
         public bool status { get; set; }
-        public string account_name { get; set; }
     }
 }

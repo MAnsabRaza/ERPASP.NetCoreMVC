@@ -1,5 +1,5 @@
 ﻿using AspNetCoreHero.ToastNotification.Abstractions;
-using ERP.Models.ChartOfItem;
+using ERP.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 

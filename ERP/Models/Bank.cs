@@ -1,7 +1,6 @@
-﻿using ERP.Models.UserManagement;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
-namespace ERP.Models.Account
+namespace ERP.Models
 {
     public class Bank
     {

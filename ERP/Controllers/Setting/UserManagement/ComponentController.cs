@@ -1,7 +1,6 @@
-﻿using ERP.Models.UserManagement;
+﻿using ERP.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Drawing.Printing;
 
 namespace ERP.Controllers.Setting.UserManagement
 {

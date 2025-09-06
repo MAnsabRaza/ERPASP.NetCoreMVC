@@ -1,4 +1,4 @@
-﻿namespace ERP.Models.Master
+﻿namespace ERP.Models
 {
     public class Transporter
     {

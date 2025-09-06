@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 
-namespace ERP.Models.ChartOfItem
+namespace ERP.Models
 {
     public class SubCategory
     {
