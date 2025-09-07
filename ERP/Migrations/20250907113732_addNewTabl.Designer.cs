@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ERP.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250831154938_CreateInital")]
-    partial class CreateInital
+    [Migration("20250907113732_addNewTabl")]
+    partial class addNewTabl
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -36,8 +36,8 @@ namespace ERP.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateOnly>("current_date")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("current_date")
+                        .HasColumnType("datetime2");
 
                     b.Property<bool>("status")
                         .HasColumnType("bit");
@@ -66,8 +66,8 @@ namespace ERP.Migrations
                     b.Property<int>("companyId")
                         .HasColumnType("int");
 
-                    b.Property<DateOnly>("current_date")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("current_date")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("name")
                         .IsRequired()
@@ -103,8 +103,8 @@ namespace ERP.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateOnly>("current_date")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("current_date")
+                        .HasColumnType("datetime2");
 
                     b.Property<bool>("status")
                         .HasColumnType("bit");
@@ -129,8 +129,8 @@ namespace ERP.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateOnly>("current_date")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("current_date")
+                        .HasColumnType("datetime2");
 
                     b.Property<bool>("status")
                         .HasColumnType("bit");
@@ -154,8 +154,8 @@ namespace ERP.Migrations
                     b.Property<int>("companyId")
                         .HasColumnType("int");
 
-                    b.Property<DateOnly>("current_date")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("current_date")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("name")
                         .IsRequired()
@@ -203,8 +203,8 @@ namespace ERP.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateOnly>("current_date")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("current_date")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("logo")
                         .IsRequired()
@@ -242,8 +242,8 @@ namespace ERP.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateOnly>("current_date")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("current_date")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("moduleId")
                         .HasColumnType("int");
@@ -286,8 +286,8 @@ namespace ERP.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<DateOnly>("current_date")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("current_date")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("email")
                         .IsRequired()
@@ -324,8 +324,8 @@ namespace ERP.Migrations
                     b.Property<int>("categoryId")
                         .HasColumnType("int");
 
-                    b.Property<DateOnly>("current_date")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("current_date")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("description")
                         .IsRequired()
@@ -388,6 +388,132 @@ namespace ERP.Migrations
                     b.ToTable("Item");
                 });
 
+            modelBuilder.Entity("ERP.Models.JournalDetail", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("chartOfAccountId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("credit_amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("current_date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("debit_amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("journalEntryId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("chartOfAccountId");
+
+                    b.HasIndex("journalEntryId");
+
+                    b.ToTable("JournalDetail");
+                });
+
+            modelBuilder.Entity("ERP.Models.JournalEntry", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("companyId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("current_date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("due_date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("etype")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("posted_date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("total_credit")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("total_debit")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("companyId");
+
+                    b.ToTable("JournalEntry");
+                });
+
+            modelBuilder.Entity("ERP.Models.Ledger", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("chartOfAccountId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("companyId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("credit_amount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("current_date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("debit_amount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("journalEntryId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("running_balance")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("chartOfAccountId");
+
+                    b.HasIndex("companyId");
+
+                    b.HasIndex("journalEntryId");
+
+                    b.ToTable("Ledger");
+                });
+
             modelBuilder.Entity("ERP.Models.Module", b =>
                 {
                     b.Property<int>("Id")
@@ -396,8 +522,8 @@ namespace ERP.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateOnly>("current_date")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("current_date")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("moduel_href")
                         .IsRequired()
@@ -437,22 +563,21 @@ namespace ERP.Migrations
                     b.Property<int>("companyId")
                         .HasColumnType("int");
 
-                    b.Property<DateOnly>("current_date")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("current_date")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("method")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<bool>("status")
+                        .HasColumnType("bit");
 
                     b.Property<int>("venderId")
                         .HasColumnType("int");
 
-                    b.Property<DateOnly>("voucher_date")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("voucher_date")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
@@ -479,8 +604,8 @@ namespace ERP.Migrations
                     b.Property<bool>("create")
                         .HasColumnType("bit");
 
-                    b.Property<DateOnly>("current_date")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("current_date")
+                        .HasColumnType("datetime2");
 
                     b.Property<bool>("delete")
                         .HasColumnType("bit");
@@ -516,8 +641,8 @@ namespace ERP.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateOnly>("current_date")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("current_date")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("role_name")
                         .HasColumnType("nvarchar(max)");
@@ -528,6 +653,126 @@ namespace ERP.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Role");
+                });
+
+            modelBuilder.Entity("ERP.Models.StockDetail", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("amount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("current_date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("discount_amount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("discount_percentage")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("itemId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("net_amount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("qty")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("rate")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("stockMasterId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("warehouseId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("itemId");
+
+                    b.HasIndex("stockMasterId");
+
+                    b.HasIndex("warehouseId");
+
+                    b.ToTable("StockDetail");
+                });
+
+            modelBuilder.Entity("ERP.Models.StockMaster", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("companyId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("current_date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("customerId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("discount_amount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("due_date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("etype")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("net_amount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("posted_date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("remarks")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("tax_amount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("total_amount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("transporterId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("venderId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("companyId");
+
+                    b.HasIndex("customerId");
+
+                    b.HasIndex("transporterId");
+
+                    b.HasIndex("venderId");
+
+                    b.ToTable("StockMaster");
                 });
 
             modelBuilder.Entity("ERP.Models.SubCategory", b =>
@@ -541,8 +786,8 @@ namespace ERP.Migrations
                     b.Property<int>("categoryId")
                         .HasColumnType("int");
 
-                    b.Property<DateOnly>("current_date")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("current_date")
+                        .HasColumnType("datetime2");
 
                     b.Property<bool>("status")
                         .HasColumnType("bit");
@@ -572,8 +817,8 @@ namespace ERP.Migrations
                     b.Property<string>("address")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateOnly>("current_date")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("current_date")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("description")
                         .HasColumnType("nvarchar(max)");
@@ -605,8 +850,8 @@ namespace ERP.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateOnly>("current_date")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("current_date")
+                        .HasColumnType("datetime2");
 
                     b.Property<bool>("status")
                         .HasColumnType("bit");
@@ -634,8 +879,8 @@ namespace ERP.Migrations
                     b.Property<int>("companyId")
                         .HasColumnType("int");
 
-                    b.Property<DateOnly>("current_date")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("current_date")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("email")
                         .HasColumnType("nvarchar(max)");
@@ -691,8 +936,8 @@ namespace ERP.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<DateOnly>("current_date")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("current_date")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("email")
                         .HasColumnType("nvarchar(max)");
@@ -735,8 +980,8 @@ namespace ERP.Migrations
                     b.Property<string>("country")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateOnly>("current_date")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("current_date")
+                        .HasColumnType("datetime2");
 
                     b.Property<bool>("status")
                         .HasColumnType("bit");
@@ -852,6 +1097,63 @@ namespace ERP.Migrations
                     b.Navigation("UOM");
                 });
 
+            modelBuilder.Entity("ERP.Models.JournalDetail", b =>
+                {
+                    b.HasOne("ERP.Models.ChartOfAccount", "ChartOfAccount")
+                        .WithMany()
+                        .HasForeignKey("chartOfAccountId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("ERP.Models.JournalEntry", "JournalEntry")
+                        .WithMany()
+                        .HasForeignKey("journalEntryId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("ChartOfAccount");
+
+                    b.Navigation("JournalEntry");
+                });
+
+            modelBuilder.Entity("ERP.Models.JournalEntry", b =>
+                {
+                    b.HasOne("ERP.Models.Company", "Company")
+                        .WithMany()
+                        .HasForeignKey("companyId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Company");
+                });
+
+            modelBuilder.Entity("ERP.Models.Ledger", b =>
+                {
+                    b.HasOne("ERP.Models.ChartOfAccount", "ChartOfAccount")
+                        .WithMany()
+                        .HasForeignKey("chartOfAccountId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ERP.Models.Company", "Company")
+                        .WithMany()
+                        .HasForeignKey("companyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ERP.Models.JournalEntry", "JournalEntry")
+                        .WithMany()
+                        .HasForeignKey("journalEntryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ChartOfAccount");
+
+                    b.Navigation("Company");
+
+                    b.Navigation("JournalEntry");
+                });
+
             modelBuilder.Entity("ERP.Models.PaymentVoucher", b =>
                 {
                     b.HasOne("ERP.Models.Bank", "Bank")
@@ -904,6 +1206,68 @@ namespace ERP.Migrations
                     b.Navigation("Module");
 
                     b.Navigation("Role");
+                });
+
+            modelBuilder.Entity("ERP.Models.StockDetail", b =>
+                {
+                    b.HasOne("ERP.Models.Item", "Item")
+                        .WithMany()
+                        .HasForeignKey("itemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ERP.Models.StockMaster", "StockMaster")
+                        .WithMany()
+                        .HasForeignKey("stockMasterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ERP.Models.Warehouse", "Warehouse")
+                        .WithMany()
+                        .HasForeignKey("warehouseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Item");
+
+                    b.Navigation("StockMaster");
+
+                    b.Navigation("Warehouse");
+                });
+
+            modelBuilder.Entity("ERP.Models.StockMaster", b =>
+                {
+                    b.HasOne("ERP.Models.Company", "Company")
+                        .WithMany()
+                        .HasForeignKey("companyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ERP.Models.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("customerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ERP.Models.Transporter", "Transporter")
+                        .WithMany()
+                        .HasForeignKey("transporterId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ERP.Models.Vender", "Vender")
+                        .WithMany()
+                        .HasForeignKey("venderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Company");
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("Transporter");
+
+                    b.Navigation("Vender");
                 });
 
             modelBuilder.Entity("ERP.Models.SubCategory", b =>

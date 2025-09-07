@@ -26,6 +26,5 @@ namespace ERP.Models
         public decimal tax_amount { get; set; }
         public decimal net_amount {  get; set; }
         public string remarks { get;set; }
-
     }
 }

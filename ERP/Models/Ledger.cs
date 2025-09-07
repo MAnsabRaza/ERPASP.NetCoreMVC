@@ -13,7 +13,7 @@ namespace ERP.Models
         [ForeignKey("chartOfAccountId")]
         public virtual ChartOfAccount? ChartOfAccount { get; set; }
         public int journalEntryId { get; set; }
-        [ForeignKey("journalEntryId ")]
+        [ForeignKey("journalEntryId")]
         public virtual JournalEntry? JournalEntry { get; set; }
 
         public decimal debit_amount { get; set; }

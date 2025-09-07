@@ -1,5 +1,8 @@
 ﻿using ERP.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using System;
+using System.Linq;
 
 public class AppDbContext : DbContext
 {
@@ -39,86 +42,51 @@ public class AppDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        // Decimal precision adjustments
-        modelBuilder.Entity<PaymentVoucher>()
-            .Property(p => p.amount).HasPrecision(18, 2);
+        // ✅ DateOnly Converter (important)
+        var dateOnlyConverter = new ValueConverter<DateOnly, DateTime>(
+            d => d.ToDateTime(TimeOnly.MinValue),
+            d => DateOnly.FromDateTime(d));
 
-        modelBuilder.Entity<Bank>()
-            .Property(p => p.opening_balance).HasPrecision(18, 2);
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            foreach (var property in entityType.GetProperties()
+                         .Where(p => p.ClrType == typeof(DateOnly)))
+            {
+                property.SetValueConverter(dateOnlyConverter);
+            }
+        }
 
-        modelBuilder.Entity<Customer>()
-            .Property(c => c.credit_limit).HasPrecision(18, 2);
+        // ✅ Decimal precision adjustments
+        modelBuilder.Entity<PaymentVoucher>().Property(p => p.amount).HasPrecision(18, 2);
+        modelBuilder.Entity<Bank>().Property(p => p.opening_balance).HasPrecision(18, 2);
+        modelBuilder.Entity<Customer>().Property(c => c.credit_limit).HasPrecision(18, 2);
+        modelBuilder.Entity<Customer>().Property(c => c.current_balance).HasPrecision(18, 2);
+        modelBuilder.Entity<Vender>().Property(v => v.current_balance).HasPrecision(18, 2);
+        modelBuilder.Entity<Item>().Property(i => i.purchase_rate).HasPrecision(18, 2);
+        modelBuilder.Entity<Item>().Property(i => i.sale_rate).HasPrecision(18, 2);
+        modelBuilder.Entity<Item>().Property(i => i.rate).HasPrecision(18, 2);
+        modelBuilder.Entity<Item>().Property(i => i.discount_amount).HasPrecision(18, 2);
+        modelBuilder.Entity<Item>().Property(i => i.total_amount).HasPrecision(18, 2);
+        modelBuilder.Entity<StockMaster>().Property(s => s.total_amount).HasPrecision(18, 2);
+        modelBuilder.Entity<StockMaster>().Property(s => s.discount_amount).HasPrecision(18, 2);
+        modelBuilder.Entity<StockMaster>().Property(s => s.tax_amount).HasPrecision(18, 2);
+        modelBuilder.Entity<StockMaster>().Property(s => s.net_amount).HasPrecision(18, 2);
+        modelBuilder.Entity<StockDetail>().Property(s => s.rate).HasPrecision(18, 2);
+        modelBuilder.Entity<StockDetail>().Property(s => s.amount).HasPrecision(18, 2);
+        modelBuilder.Entity<StockDetail>().Property(s => s.discount_percentage).HasPrecision(18, 2);
+        modelBuilder.Entity<StockDetail>().Property(s => s.discount_amount).HasPrecision(18, 2);
+        modelBuilder.Entity<StockDetail>().Property(s => s.net_amount).HasPrecision(18, 2);
+        modelBuilder.Entity<JournalEntry>().Property(j => j.total_debit).HasPrecision(18, 2);
+        modelBuilder.Entity<JournalEntry>().Property(j => j.total_credit).HasPrecision(18, 2);
+        modelBuilder.Entity<JournalDetail>().Property(j => j.debit_amount).HasPrecision(18, 2);
+        modelBuilder.Entity<JournalDetail>().Property(j => j.credit_amount).HasPrecision(18, 2);
+        modelBuilder.Entity<Ledger>().Property(l => l.debit_amount).HasPrecision(18, 2);
+        modelBuilder.Entity<Ledger>().Property(l => l.credit_amount).HasPrecision(18, 2);
+        modelBuilder.Entity<Ledger>().Property(l => l.running_balance).HasPrecision(18, 2);
 
-        modelBuilder.Entity<Customer>()
-            .Property(c => c.current_balance).HasPrecision(18, 2);
+        // ✅ Relationships (important)
 
-        modelBuilder.Entity<Vender>()
-            .Property(v => v.current_balance).HasPrecision(18, 2);
-
-        modelBuilder.Entity<Item>()
-            .Property(i => i.purchase_rate).HasPrecision(18, 2);
-
-        modelBuilder.Entity<Item>()
-            .Property(i => i.sale_rate).HasPrecision(18, 2);
-
-        modelBuilder.Entity<Item>()
-            .Property(i => i.rate).HasPrecision(18, 2);
-
-        modelBuilder.Entity<Item>()
-            .Property(i => i.discount_amount).HasPrecision(18, 2);
-
-        modelBuilder.Entity<Item>()
-            .Property(i => i.total_amount).HasPrecision(18, 2);
-
-        modelBuilder.Entity<StockMaster>()
-            .Property(s => s.total_amount).HasPrecision(18, 2);
-
-        modelBuilder.Entity<StockMaster>()
-            .Property(s => s.discount_amount).HasPrecision(18, 2);
-
-        modelBuilder.Entity<StockMaster>()
-            .Property(s => s.tax_amount).HasPrecision(18, 2);
-
-        modelBuilder.Entity<StockMaster>()
-            .Property(s => s.net_amount).HasPrecision(18, 2);
-
-        modelBuilder.Entity<StockDetail>()
-            .Property(s => s.rate).HasPrecision(18, 2);
-
-        modelBuilder.Entity<StockDetail>()
-            .Property(s => s.amount).HasPrecision(18, 2);
-        modelBuilder.Entity<StockDetail>()
-           .Property(s => s.discount_percentage).HasPrecision(18, 2);
-
-        modelBuilder.Entity<StockDetail>()
-            .Property(s => s.discount_amount).HasPrecision(18, 2);
-
-        modelBuilder.Entity<StockDetail>()
-            .Property(s => s.net_amount).HasPrecision(18, 2);
-
-        modelBuilder.Entity<JournalEntry>()
-            .Property(j => j.total_debit).HasPrecision(18, 2);
-
-        modelBuilder.Entity<JournalEntry>()
-            .Property(j => j.total_credit).HasPrecision(18, 2);
-
-        modelBuilder.Entity<JournalDetail>()
-            .Property(j => j.debit_amount).HasPrecision(18, 2);
-
-        modelBuilder.Entity<JournalDetail>()
-            .Property(j => j.credit_amount).HasPrecision(18, 2);
-
-        modelBuilder.Entity<Ledger>()
-            .Property(l => l.debit_amount).HasPrecision(18, 2);
-
-        modelBuilder.Entity<Ledger>()
-            .Property(l => l.credit_amount).HasPrecision(18, 2);
-
-        modelBuilder.Entity<Ledger>()
-            .Property(l => l.running_balance).HasPrecision(18, 2);
-
-        // Relationships (important for delete behavior)
-
+        // Category / SubCategory / Item
         modelBuilder.Entity<SubCategory>()
             .HasOne(sc => sc.Category)
             .WithMany()
@@ -149,6 +117,7 @@ public class AppDbContext : DbContext
             .HasForeignKey(i => i.uomId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        // Permission
         modelBuilder.Entity<Permission>()
             .HasOne(p => p.Role)
             .WithMany()
@@ -173,6 +142,7 @@ public class AppDbContext : DbContext
             .HasForeignKey(c => c.moduleId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        // User
         modelBuilder.Entity<User>()
             .HasOne(u => u.Company)
             .WithMany()
@@ -185,6 +155,7 @@ public class AppDbContext : DbContext
             .HasForeignKey(u => u.roleId)
             .OnDelete(DeleteBehavior.NoAction);
 
+        // PaymentVoucher
         modelBuilder.Entity<PaymentVoucher>()
             .HasOne(p => p.Company)
             .WithMany()
@@ -201,6 +172,82 @@ public class AppDbContext : DbContext
             .HasOne(p => p.Bank)
             .WithMany()
             .HasForeignKey(p => p.bankAccountId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        // Ledger
+        modelBuilder.Entity<Ledger>()
+            .HasOne(l => l.Company)
+            .WithMany()
+            .HasForeignKey(l => l.companyId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Ledger>()
+            .HasOne(l => l.ChartOfAccount)
+            .WithMany()
+            .HasForeignKey(l => l.chartOfAccountId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Ledger>()
+            .HasOne(l => l.JournalEntry)
+            .WithMany()
+            .HasForeignKey(l => l.journalEntryId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // StockMaster
+        modelBuilder.Entity<StockMaster>()
+            .HasOne(sm => sm.Company)
+            .WithMany()
+            .HasForeignKey(sm => sm.companyId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<StockMaster>()
+            .HasOne(sm => sm.Vender)
+            .WithMany()
+            .HasForeignKey(sm => sm.venderId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<StockMaster>()
+            .HasOne(sm => sm.Customer)
+            .WithMany()
+            .HasForeignKey(sm => sm.customerId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<StockMaster>()
+            .HasOne(sm => sm.Transporter)
+            .WithMany()
+            .HasForeignKey(sm => sm.transporterId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // StockDetail
+        modelBuilder.Entity<StockDetail>()
+            .HasOne(sd => sd.StockMaster)
+            .WithMany()
+            .HasForeignKey(sd => sd.stockMasterId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<StockDetail>()
+            .HasOne(sd => sd.Item)
+            .WithMany()
+            .HasForeignKey(sd => sd.itemId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // Company relationships
+        modelBuilder.Entity<JournalEntry>()
+            .HasOne(je => je.Company)
+            .WithMany()
+            .HasForeignKey(je => je.companyId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        // JournalEntry -> JournalDetail relationship
+        modelBuilder.Entity<JournalDetail>()
+            .HasOne(je => je.ChartOfAccount)
+            .WithMany()
+            .HasForeignKey(je => je.chartOfAccountId)
+            .OnDelete(DeleteBehavior.NoAction);
+        modelBuilder.Entity<JournalDetail>()
+            .HasOne(je => je.JournalEntry)
+            .WithMany()
+            .HasForeignKey(je => je.journalEntryId)
             .OnDelete(DeleteBehavior.NoAction);
 
         base.OnModelCreating(modelBuilder);

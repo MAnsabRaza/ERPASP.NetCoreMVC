@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ERP.Migrations
 {
     /// <inheritdoc />
-    public partial class CreateInital : Migration
+    public partial class initialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -17,7 +17,7 @@ namespace ERP.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    current_date = table.Column<DateOnly>(type: "date", nullable: false),
+                    current_date = table.Column<DateTime>(type: "datetime2", nullable: false),
                     status = table.Column<bool>(type: "bit", nullable: false),
                     account_name = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
@@ -32,7 +32,7 @@ namespace ERP.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    current_date = table.Column<DateOnly>(type: "date", nullable: false),
+                    current_date = table.Column<DateTime>(type: "datetime2", nullable: false),
                     brand_name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     brand_description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     status = table.Column<bool>(type: "bit", nullable: false)
@@ -48,7 +48,7 @@ namespace ERP.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    current_date = table.Column<DateOnly>(type: "date", nullable: false),
+                    current_date = table.Column<DateTime>(type: "datetime2", nullable: false),
                     category_name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     category_description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     status = table.Column<bool>(type: "bit", nullable: false)
@@ -64,7 +64,7 @@ namespace ERP.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    current_date = table.Column<DateOnly>(type: "date", nullable: false),
+                    current_date = table.Column<DateTime>(type: "datetime2", nullable: false),
                     company_name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     address = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     status = table.Column<bool>(type: "bit", nullable: false),
@@ -87,7 +87,7 @@ namespace ERP.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    current_date = table.Column<DateOnly>(type: "date", nullable: false),
+                    current_date = table.Column<DateTime>(type: "datetime2", nullable: false),
                     module_name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     module_icon = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     moduel_href = table.Column<string>(type: "nvarchar(max)", nullable: false),
@@ -104,7 +104,7 @@ namespace ERP.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    current_date = table.Column<DateOnly>(type: "date", nullable: false),
+                    current_date = table.Column<DateTime>(type: "datetime2", nullable: false),
                     role_name = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     status = table.Column<bool>(type: "bit", nullable: false)
                 },
@@ -119,7 +119,7 @@ namespace ERP.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    current_date = table.Column<DateOnly>(type: "date", nullable: false),
+                    current_date = table.Column<DateTime>(type: "datetime2", nullable: false),
                     name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     transporter_no = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     phone = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -138,7 +138,7 @@ namespace ERP.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    current_date = table.Column<DateOnly>(type: "date", nullable: false),
+                    current_date = table.Column<DateTime>(type: "datetime2", nullable: false),
                     uom_name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     status = table.Column<bool>(type: "bit", nullable: false)
                 },
@@ -153,7 +153,7 @@ namespace ERP.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    current_date = table.Column<DateOnly>(type: "date", nullable: false),
+                    current_date = table.Column<DateTime>(type: "datetime2", nullable: false),
                     categoryId = table.Column<int>(type: "int", nullable: false),
                     sub_category_name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     sub_category_description = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -176,7 +176,7 @@ namespace ERP.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    current_date = table.Column<DateOnly>(type: "date", nullable: false),
+                    current_date = table.Column<DateTime>(type: "datetime2", nullable: false),
                     bank_name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     account_no = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     name = table.Column<string>(type: "nvarchar(max)", nullable: false),
@@ -201,7 +201,7 @@ namespace ERP.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    current_date = table.Column<DateOnly>(type: "date", nullable: false),
+                    current_date = table.Column<DateTime>(type: "datetime2", nullable: false),
                     name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     companyId = table.Column<int>(type: "int", nullable: false),
                     accountTypeId = table.Column<int>(type: "int", nullable: false),
@@ -235,7 +235,7 @@ namespace ERP.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    current_date = table.Column<DateOnly>(type: "date", nullable: false),
+                    current_date = table.Column<DateTime>(type: "datetime2", nullable: false),
                     name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     email = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     address = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -259,12 +259,37 @@ namespace ERP.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "JournalEntry",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    current_date = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    due_date = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    posted_date = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    companyId = table.Column<int>(type: "int", nullable: false),
+                    etype = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    total_debit = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    total_credit = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_JournalEntry", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_JournalEntry_Company_companyId",
+                        column: x => x.companyId,
+                        principalTable: "Company",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Vender",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    current_date = table.Column<DateOnly>(type: "date", nullable: false),
+                    current_date = table.Column<DateTime>(type: "datetime2", nullable: false),
                     name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     email = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     address = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -292,7 +317,7 @@ namespace ERP.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    current_date = table.Column<DateOnly>(type: "date", nullable: false),
+                    current_date = table.Column<DateTime>(type: "datetime2", nullable: false),
                     warehouse_name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     warehouse_description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     address = table.Column<string>(type: "nvarchar(max)", nullable: false),
@@ -319,7 +344,7 @@ namespace ERP.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    current_date = table.Column<DateOnly>(type: "date", nullable: false),
+                    current_date = table.Column<DateTime>(type: "datetime2", nullable: false),
                     component_name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     moduleId = table.Column<int>(type: "int", nullable: false),
                     status = table.Column<bool>(type: "bit", nullable: false)
@@ -341,7 +366,7 @@ namespace ERP.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    current_date = table.Column<DateOnly>(type: "date", nullable: false),
+                    current_date = table.Column<DateTime>(type: "datetime2", nullable: false),
                     name = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     companyId = table.Column<int>(type: "int", nullable: false),
                     roleId = table.Column<int>(type: "int", nullable: false),
@@ -374,7 +399,7 @@ namespace ERP.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    current_date = table.Column<DateOnly>(type: "date", nullable: false),
+                    current_date = table.Column<DateTime>(type: "datetime2", nullable: false),
                     remark = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     item_name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     item_barcode = table.Column<string>(type: "nvarchar(max)", nullable: false),
@@ -420,16 +445,54 @@ namespace ERP.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Ledger",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    current_date = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    companyId = table.Column<int>(type: "int", nullable: false),
+                    chartOfAccountId = table.Column<int>(type: "int", nullable: false),
+                    journalEntryId = table.Column<int>(type: "int", nullable: false),
+                    debit_amount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    credit_amount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    running_balance = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    description = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Ledger", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Ledger_ChartOfAccount_chartOfAccountId",
+                        column: x => x.chartOfAccountId,
+                        principalTable: "ChartOfAccount",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Ledger_Company_companyId",
+                        column: x => x.companyId,
+                        principalTable: "Company",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Ledger_JournalEntry_journalEntryId",
+                        column: x => x.journalEntryId,
+                        principalTable: "JournalEntry",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "PaymentVoucher",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    current_date = table.Column<DateOnly>(type: "date", nullable: false),
-                    voucher_date = table.Column<DateOnly>(type: "date", nullable: false),
+                    current_date = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    voucher_date = table.Column<DateTime>(type: "datetime2", nullable: false),
                     amount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     method = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    status = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    status = table.Column<bool>(type: "bit", nullable: false),
                     companyId = table.Column<int>(type: "int", nullable: false),
                     venderId = table.Column<int>(type: "int", nullable: false),
                     bankAccountId = table.Column<int>(type: "int", nullable: false)
@@ -455,12 +518,61 @@ namespace ERP.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "StockMaster",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    current_date = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    due_date = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    posted_date = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    companyId = table.Column<int>(type: "int", nullable: false),
+                    venderId = table.Column<int>(type: "int", nullable: false),
+                    customerId = table.Column<int>(type: "int", nullable: false),
+                    transporterId = table.Column<int>(type: "int", nullable: false),
+                    etype = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    total_amount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    discount_amount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    tax_amount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    net_amount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    remarks = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_StockMaster", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_StockMaster_Company_companyId",
+                        column: x => x.companyId,
+                        principalTable: "Company",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_StockMaster_Customer_customerId",
+                        column: x => x.customerId,
+                        principalTable: "Customer",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_StockMaster_Transporter_transporterId",
+                        column: x => x.transporterId,
+                        principalTable: "Transporter",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_StockMaster_Vender_venderId",
+                        column: x => x.venderId,
+                        principalTable: "Vender",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Permission",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    current_date = table.Column<DateOnly>(type: "date", nullable: false),
+                    current_date = table.Column<DateTime>(type: "datetime2", nullable: false),
                     roleId = table.Column<int>(type: "int", nullable: false),
                     moduleId = table.Column<int>(type: "int", nullable: false),
                     componentId = table.Column<int>(type: "int", nullable: false),
@@ -487,6 +599,46 @@ namespace ERP.Migrations
                         name: "FK_Permission_Role_roleId",
                         column: x => x.roleId,
                         principalTable: "Role",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "StockDetail",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    current_date = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    stockMasterId = table.Column<int>(type: "int", nullable: false),
+                    warehouseId = table.Column<int>(type: "int", nullable: false),
+                    itemId = table.Column<int>(type: "int", nullable: false),
+                    qty = table.Column<int>(type: "int", nullable: false),
+                    rate = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    amount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    discount_percentage = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    discount_amount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    net_amount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_StockDetail", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_StockDetail_Item_itemId",
+                        column: x => x.itemId,
+                        principalTable: "Item",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_StockDetail_StockMaster_stockMasterId",
+                        column: x => x.stockMasterId,
+                        principalTable: "StockMaster",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_StockDetail_Warehouse_warehouseId",
+                        column: x => x.warehouseId,
+                        principalTable: "Warehouse",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -542,6 +694,26 @@ namespace ERP.Migrations
                 column: "uomId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_JournalEntry_companyId",
+                table: "JournalEntry",
+                column: "companyId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Ledger_chartOfAccountId",
+                table: "Ledger",
+                column: "chartOfAccountId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Ledger_companyId",
+                table: "Ledger",
+                column: "companyId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Ledger_journalEntryId",
+                table: "Ledger",
+                column: "journalEntryId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_PaymentVoucher_bankAccountId",
                 table: "PaymentVoucher",
                 column: "bankAccountId");
@@ -570,6 +742,41 @@ namespace ERP.Migrations
                 name: "IX_Permission_roleId",
                 table: "Permission",
                 column: "roleId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_StockDetail_itemId",
+                table: "StockDetail",
+                column: "itemId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_StockDetail_stockMasterId",
+                table: "StockDetail",
+                column: "stockMasterId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_StockDetail_warehouseId",
+                table: "StockDetail",
+                column: "warehouseId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_StockMaster_companyId",
+                table: "StockMaster",
+                column: "companyId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_StockMaster_customerId",
+                table: "StockMaster",
+                column: "customerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_StockMaster_transporterId",
+                table: "StockMaster",
+                column: "transporterId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_StockMaster_venderId",
+                table: "StockMaster",
+                column: "venderId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_SubCategory_categoryId",
@@ -601,13 +808,7 @@ namespace ERP.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "ChartOfAccount");
-
-            migrationBuilder.DropTable(
-                name: "Customer");
-
-            migrationBuilder.DropTable(
-                name: "Item");
+                name: "Ledger");
 
             migrationBuilder.DropTable(
                 name: "PaymentVoucher");
@@ -616,16 +817,40 @@ namespace ERP.Migrations
                 name: "Permission");
 
             migrationBuilder.DropTable(
-                name: "Transporter");
+                name: "StockDetail");
 
             migrationBuilder.DropTable(
                 name: "User");
 
             migrationBuilder.DropTable(
+                name: "ChartOfAccount");
+
+            migrationBuilder.DropTable(
+                name: "JournalEntry");
+
+            migrationBuilder.DropTable(
+                name: "Bank");
+
+            migrationBuilder.DropTable(
+                name: "Component");
+
+            migrationBuilder.DropTable(
+                name: "Item");
+
+            migrationBuilder.DropTable(
+                name: "StockMaster");
+
+            migrationBuilder.DropTable(
                 name: "Warehouse");
 
             migrationBuilder.DropTable(
+                name: "Role");
+
+            migrationBuilder.DropTable(
                 name: "AccountType");
+
+            migrationBuilder.DropTable(
+                name: "Module");
 
             migrationBuilder.DropTable(
                 name: "Brand");
@@ -637,25 +862,19 @@ namespace ERP.Migrations
                 name: "UOM");
 
             migrationBuilder.DropTable(
-                name: "Bank");
+                name: "Customer");
+
+            migrationBuilder.DropTable(
+                name: "Transporter");
 
             migrationBuilder.DropTable(
                 name: "Vender");
-
-            migrationBuilder.DropTable(
-                name: "Component");
-
-            migrationBuilder.DropTable(
-                name: "Role");
 
             migrationBuilder.DropTable(
                 name: "Category");
 
             migrationBuilder.DropTable(
                 name: "Company");
-
-            migrationBuilder.DropTable(
-                name: "Module");
         }
     }
 }

@@ -5,7 +5,7 @@
 namespace ERP.Migrations
 {
     /// <inheritdoc />
-    public partial class addnewTable : Migration
+    public partial class addNewTable : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
