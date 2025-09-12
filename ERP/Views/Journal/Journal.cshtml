@@ -1,0 +1,402 @@
+﻿@model ERP.Models.JournalViewModel
+@{
+    ViewData["Title"] = "Journal Voucher";
+    var JournalList = ViewBag.Journal as List<ERP.Models.JournalViewModel>;
+}
+
+<div class="space-y-8">
+
+    <!-- Tabs -->
+    <div class="border-b border-gray-300 bg-white shadow-sm rounded-xl p-2">
+        <nav class="flex space-x-6" aria-label="Tabs">
+            <button id="tab-form"
+                    class="px-4 py-2 text-sm font-semibold text-blue-600 border-b-2 border-blue-600 focus:outline-none transition"
+                    type="button">
+                <i class="fa-solid fa-plus-circle mr-2"></i> Journal Entry
+            </button>
+            <button id="tab-list"
+                    class="px-4 py-2 text-sm font-semibold text-gray-500 hover:text-blue-600 hover:border-blue-400 border-b-2 border-transparent focus:outline-none transition"
+                    type="button">
+                <i class="fa-solid fa-list mr-2"></i> Journal List
+            </button>
+        </nav>
+    </div>
+
+    <!-- Form Tab -->
+    <div id="content-form" class="tab-content">
+        @using (Html.BeginForm("Create", "Journal", FormMethod.Post))
+        {
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(j => j.JournalEntry.Id, new { id = "journalId" })
+
+            <!-- Hidden input for Journal Details JSON -->
+            <input type="hidden" id="JournalDetailsJson" name="JournalDetailsJson" value="" />
+
+            <!-- Header Card -->
+            <div class="shadow-lg rounded-2xl bg-gradient-to-r from-blue-50 to-blue-100 p-6 border border-gray-200">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h2 class="text-2xl font-bold text-blue-800 flex items-center gap-2">
+                            <i class="fa-solid fas fa-boxes text-blue-600"></i> Journal Voucher
+                        </h2>
+                        <p class="text-gray-600 mt-1 text-sm">Add and manage your inventory items efficiently</p>
+                    </div>
+
+                    <div class="space-x-2">
+                        <button type="submit"
+                                class="px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-green-600 hover:bg-green-700 shadow-md transition">
+                            <i class="fa-solid fa-save mr-2"></i> Save
+                        </button>
+                        <button type="reset"
+                                class="px-5 py-2.5 rounded-xl text-sm font-semibold text-gray-700 bg-yellow-300 hover:bg-yellow-400 shadow-md transition">
+                            <i class="fa-solid fa-rotate-right mr-2"></i> Reset
+                        </button>
+                        <button type="button" onclick="refreshPage()"
+                                class="px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-purple-500 hover:bg-purple-600 shadow-md transition">
+                            <i class="fa-solid fa-arrows-rotate mr-2"></i> Refresh
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Journal Entry -->
+            <div class="shadow-md rounded-2xl bg-white p-6 border border-gray-200 mt-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">Current Date</label>
+                        @Html.TextBoxFor(j => j.JournalEntry.current_date, "{0:yyyy-MM-dd}",
+                                 new { @class = "w-full mt-1 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400", type = "date", required = "required" })
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">Due Date</label>
+                        @Html.TextBoxFor(j => j.JournalEntry.due_date, "{0:yyyy-MM-dd}",
+                                 new { @class = "w-full mt-1 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400", type = "date", required = "required" })
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">Posted Date</label>
+                        @Html.TextBoxFor(j => j.JournalEntry.posted_date, "{0:yyyy-MM-dd}",
+                                 new { @class = "w-full mt-1 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400", type = "date", required = "required" })
+                    </div>
+                </div>
+                <div class="grid grid-cols-4 gap-6 mt-3">
+                    <div class="col-span-1">
+                        <label class="block font-semibold text-gray-700 mb-1">etype Method</label>
+                        @Html.DropDownListFor(j => j.JournalEntry.etype,
+                                 new List<SelectListItem>
+                    {
+                    new SelectListItem { Text = "JV", Value = "JV" },
+                    new SelectListItem { Text = "Account Payable", Value = "Account Payable" },
+                    new SelectListItem { Text = "Account Receiveable", Value = "Account Receiveable" },
+                    },
+                                 "Select etype Method",
+                                 new { @class = "w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none", required = "required" })
+                    </div>
+                    <div class="col-span-1">
+                        <label class="block font-semibold text-gray-700 mb-1">Company</label>
+                        @Html.DropDownListFor(m => m.JournalEntry.companyId,
+                                 new SelectList(ViewBag.CompanyList, "Id", "company_name"),
+                                 "Select Company Name",
+                                 new { @class = "w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400", required = "required" })
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block font-semibold text-gray-700 mb-1">Description</label>
+                        @Html.TextAreaFor(j => j.JournalEntry.description,
+                                 new { @class = "w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none", required = "required", placeholder = "Enter Description", rows = "2" })
+                    </div>
+                </div>
+            </div>
+
+            <!-- Journal Detail Entry Section -->
+            <div class="shadow-md rounded-2xl bg-white p-6 border border-gray-200 mt-4">
+                <h3 class="text-lg font-semibold text-gray-700 mb-4">Add Journal Details</h3>
+                <div class="grid grid-cols-12 gap-6 items-end">
+                    <!-- Chart of Account (span more columns for wider size) -->
+                    <div class="col-span-5">
+                        <label class="block font-semibold text-gray-700 mb-1">Chart Of Account</label>
+                        <select id="chartOfAccount" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400" required>
+                            <option value="">Select Chart of Account</option>
+                            @foreach (var account in ViewBag.ChartOfAccount)
+                            {
+                                <option value="@account.Id">@account.name</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-span-3">
+                        <label class="block font-semibold text-gray-700 mb-1">Credit</label>
+                        <input type="number" id="credit" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400" placeholder="Enter Credit Amount" step="0.01" />
+                    </div>
+                    <div class="col-span-3">
+                        <label class="block font-semibold text-gray-700 mb-1">Debit</label>
+                        <input type="number" id="debit" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400" placeholder="Enter Debit Amount" step="0.01" />
+                    </div>
+                    <div class="col-span-1 flex justify-end">
+                        <button type="button" class="px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 shadow-md transition" id="btnAddDetail">
+                            Add
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Details Table -->
+            <div class="overflow-hidden border border-gray-200 rounded-lg mt-6">
+                <div class="max-h-96 overflow-y-auto">
+                    <table class="table-auto w-full text-sm" id="detailsTable">
+                        <thead class="bg-gradient-to-r from-blue-500 to-blue-600 text-white sticky top-0">
+                            <tr>
+                                <th class="p-3 text-left">S.No</th>
+                                <th class="p-3 text-left">Date</th>
+                                <th class="p-3 text-left">Chart of Account</th>
+                                <th class="p-3 text-left">Credit</th>
+                                <th class="p-3 text-left">Debit</th>
+                                <th class="p-3 text-left">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Dynamic rows will be added here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- List Tab -->
+    <div id="content-list" class="tab-content hidden shadow-lg rounded-2xl bg-white p-6 border border-gray-200">
+        <div class="flex justify-between items-center">
+            <div>
+                <h2 class="text-2xl font-bold text-blue-800 flex items-center gap-2">
+                    <i class="fa-solid fa-list-ul text-blue-600"></i> Journal List
+                </h2>
+                <p class="text-gray-600 text-sm mt-1">View and manage all your Journal List</p>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="px-5 py-2 rounded-xl text-sm font-semibold text-white bg-blue-600 shadow-md">
+                    Total Items: @(JournalList?.Count() ?? 0)
+                </div>
+                <button type="button" id="btn-add-new"
+                        class="px-5 py-2 rounded-xl text-sm font-semibold text-white bg-green-600 hover:bg-green-700 shadow-md transition">
+                    <i class="fa-solid fa-plus mr-2"></i>Add New
+                </button>
+            </div>
+        </div>
+        <!-- Table -->
+        <div class="overflow-hidden border border-gray-200 rounded-lg mt-6">
+            <div class="max-h-96 overflow-y-auto">
+                <table class="table-auto w-full text-sm">
+                    <thead class="bg-gradient-to-r from-blue-500 to-blue-600 text-white sticky top-0">
+                        <tr>
+                            <th class="p-3 text-left">ID</th>
+                            <th class="p-3 text-left">Date</th>
+                            <th class="p-3 text-left">Company</th>
+                            <th class="p-3 text-left">Type</th>
+                            <th class="p-3 text-left">Description</th>
+                            <th class="p-3 text-left">Total Credit</th>
+                            <th class="p-3 text-left">Total Debit</th>
+                            <th class="p-3 text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (ViewBag.Journal != null)
+                        {
+                            @foreach (var item in ViewBag.Journal)
+                            {
+                                <tr class="border-b hover:bg-gray-50">
+                                    <td class="p-3">@item.journalEntries.Id</td>
+                                    <td class="p-3">@item.journalEntries.current_date.ToString("yyyy-MM-dd")</td>
+                                    <td class="p-3">@item.journalEntries.Company?.company_name</td>
+                                    <td class="p-3">@item.journalEntries.etype</td>
+                                    <td class="p-3">@item.journalEntries.description</td>
+                                    <td class="p-3">@item.journalEntries.total_credit</td>
+                                    <td class="p-3">@item.journalEntries.total_debit</td>
+                                    <td class="p-3 text-center">
+                                        <a href="@Url.Action("Edit", new { id = item.journalEntries.Id })" class="text-blue-600 hover:text-blue-800 mr-2">Edit</a>
+                                        <form method="post" action="@Url.Action("Delete", new { id = item.journalEntries.Id })" class="inline" onsubmit="return confirm('Are you sure?')">
+                                            <button type="submit" class="text-red-600 hover:text-red-800">Delete</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript -->
+<script>
+    let details = [];
+    let chartOfAccountOptions = {};
+
+    // Load chart of account options
+    document.addEventListener('DOMContentLoaded', function () {
+        const chartSelect = document.getElementById('chartOfAccount');
+        for (let i = 0; i < chartSelect.options.length; i++) {
+            const option = chartSelect.options[i];
+            if (option.value) {
+                chartOfAccountOptions[option.value] = option.text;
+            }
+        }
+    });
+
+    document.getElementById("btnAddDetail").addEventListener('click', function (e) {
+        e.preventDefault();
+
+        const chartOfAccountId = document.getElementById('chartOfAccount').value;
+        const chartOfAccountName = document.getElementById('chartOfAccount').selectedOptions[0]?.text;
+        const credit = parseFloat(document.getElementById('credit').value) || 0;
+        const debit = parseFloat(document.getElementById('debit').value) || 0;
+        const currentDate = document.querySelector('input[name="JournalEntry.current_date"]').value;
+
+        // Validation
+        if (!chartOfAccountId) {
+            alert("Please select a Chart of Account.");
+            return;
+        }
+
+        if (credit === 0 && debit === 0) {
+            alert("Please enter either Credit or Debit amount.");
+            return;
+        }
+
+        if (credit > 0 && debit > 0) {
+            alert("Please enter either Credit OR Debit amount, not both.");
+            return;
+        }
+
+        const detail = {
+            chartOfAccountId: parseInt(chartOfAccountId),
+            chartOfAccountName: chartOfAccountName,
+            credit_amount: credit,
+            debit_amount: debit,
+            current_date: currentDate
+        };
+
+        details.push(detail);
+        renderTable();
+        clearDetailInputs();
+    });
+
+    function renderTable() {
+        const tbody = document.querySelector("#detailsTable tbody");
+        tbody.innerHTML = "";
+
+        let totalCredit = 0;
+        let totalDebit = 0;
+
+        details.forEach((d, i) => {
+            totalCredit += d.credit_amount;
+            totalDebit += d.debit_amount;
+
+            tbody.innerHTML += `
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="p-3">${i + 1}</td>
+                        <td class="p-3">${d.current_date}</td>
+                        <td class="p-3">${d.chartOfAccountName}</td>
+                        <td class="p-3">${d.credit_amount.toFixed(2)}</td>
+                        <td class="p-3">${d.debit_amount.toFixed(2)}</td>
+                        <td class="p-3">
+                            <button type="button" onclick="removeDetail(${i})" class="text-red-600 hover:text-red-800 px-2 py-1 rounded">
+                                <i class="fa-solid fa-trash"></i> Delete
+                            </button>
+                        </td>
+                    </tr>`;
+        });
+
+        // Add totals row
+        if (details.length > 0) {
+            tbody.innerHTML += `
+                    <tr class="bg-gray-100 font-semibold">
+                        <td class="p-3" colspan="3">Total:</td>
+                        <td class="p-3">${totalCredit.toFixed(2)}</td>
+                        <td class="p-3">${totalDebit.toFixed(2)}</td>
+                        <td class="p-3"></td>
+                    </tr>`;
+        }
+
+        // Update hidden field with JSON data
+        document.getElementById("JournalDetailsJson").value = JSON.stringify(details);
+
+        // Update journal entry totals
+        updateJournalEntryTotals(totalCredit, totalDebit);
+    }
+
+    function removeDetail(index) {
+        details.splice(index, 1);
+        renderTable();
+    }
+
+    function clearDetailInputs() {
+        document.getElementById('chartOfAccount').value = '';
+        document.getElementById('credit').value = '';
+        document.getElementById('debit').value = '';
+    }
+
+    function updateJournalEntryTotals(totalCredit, totalDebit) {
+        // You can add hidden fields for totals if needed in your model
+        // For now, we'll just store them in the details array
+    }
+
+    // Tab functionality
+    const tabForm = document.getElementById("tab-form");
+    const tabList = document.getElementById("tab-list");
+    const contentForm = document.getElementById("content-form");
+    const contentList = document.getElementById("content-list");
+    const btnAddNew = document.getElementById("btn-add-new");
+
+    function showFormTab() {
+        tabForm.classList.add("text-blue-600", "border-blue-600");
+        tabForm.classList.remove("text-gray-500", "border-transparent");
+
+        tabList.classList.remove("text-blue-600", "border-blue-600");
+        tabList.classList.add("text-gray-500", "border-transparent");
+
+        contentForm.classList.remove("hidden");
+        contentList.classList.add("hidden");
+    }
+
+    function showListTab() {
+        tabList.classList.add("text-blue-600", "border-blue-600");
+        tabList.classList.remove("text-gray-500", "border-transparent");
+
+        tabForm.classList.remove("text-blue-600", "border-blue-600");
+        tabForm.classList.add("text-gray-500", "border-transparent");
+
+        contentList.classList.remove("hidden");
+        contentForm.classList.add("hidden");
+    }
+
+    tabForm.addEventListener("click", showFormTab);
+    tabList.addEventListener("click", showListTab);
+    if (btnAddNew) btnAddNew.addEventListener("click", showFormTab);
+
+    // Refresh button → always go to Form tab
+    function refreshPage() {
+        window.location.href = '@Url.Action("Journal", "Journal")?activeTab=form';
+    }
+
+    // Check query string for active tab
+    const params = new URLSearchParams(window.location.search);
+    const activeTab = params.get("activeTab");
+    if (activeTab === "list") {
+        showListTab();
+    } else {
+        showFormTab(); // default
+    }
+
+    // Form reset functionality
+    document.querySelector('button[type="reset"]').addEventListener('click', function (e) {
+        e.preventDefault();
+        details = [];
+        renderTable();
+        clearDetailInputs();
+        // Reset the main form
+        document.querySelector('form').reset();
+        // Reset dates to current date
+        const today = new Date().toISOString().split('T')[0];
+        document.querySelector('input[name="JournalEntry.current_date"]').value = today;
+        document.querySelector('input[name="JournalEntry.due_date"]').value = today;
+        document.querySelector('input[name="JournalEntry.posted_date"]').value = today;
+    });
+</script>
