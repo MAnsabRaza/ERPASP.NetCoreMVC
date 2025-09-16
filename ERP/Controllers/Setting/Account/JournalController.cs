@@ -128,30 +128,50 @@ namespace ERP.Controllers.Setting.Account
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
-            var journal = await _context.JournalEntry.FindAsync(id);
-            if(journal == null)
+            var journal = await _context.JournalEntry
+                .Include(j => j.Company)
+                .FirstOrDefaultAsync(j => j.Id == id);
+
+            if (journal == null)
             {
                 return NotFound();
             }
-        var journalEntries = await _context.JournalEntry
-             .Include(j => j.Company)
-             .ToListAsync();
-        var journalDetails = await _context.JournalDetail
-            .Include(d => d.ChartOfAccount)
-            .ToListAsync();
-        var journalData = (from je in journalEntries
-                           join jd in journalDetails on je.Id equals jd.journalEntryId
-                           select new
-                           {
-                               journalEntries = je,
-                               journalDetails = jd
-                           }).ToList();
-        ViewBag.CompanyList = await _context.Company.ToListAsync();
-        ViewBag.ChartOfAccount = await _context.ChartOfAccount.ToListAsync();
-        ViewBag.Journal = journalData;
 
-            return View("Journal", journal);
+            var journalDetails = await _context.JournalDetail
+                .Include(d => d.ChartOfAccount)
+                .Where(d => d.journalEntryId == id)
+                .ToListAsync();
+
+            var model = new JournalViewModel
+            {
+                JournalEntry = journal,
+                JournalDetail = journalDetails
+            };
+
+            // Populate dropdowns again
+            ViewBag.CompanyList = await _context.Company.ToListAsync();
+            ViewBag.ChartOfAccount = await _context.ChartOfAccount
+                .Where(c => c.parentAccountId != null)
+                .ToListAsync();
+
+            // For list tab
+            var journalData = await _context.JournalEntry
+                .Include(j => j.Company)
+                .Select(j => new JournalViewModel
+                {
+                    JournalEntry = j,
+                    JournalDetail = _context.JournalDetail
+                        .Include(d => d.ChartOfAccount)
+                        .Where(d => d.journalEntryId == j.Id)
+                        .ToList()
+                })
+                .ToListAsync();
+
+            ViewBag.Journal = journalData;
+
+            return View("Journal", model); // ✅ Now passing JournalViewModel
         }
+
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
