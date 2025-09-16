@@ -42,17 +42,30 @@ public class AppDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        // ✅ DateOnly Converter (important)
+        // ✅ ValueConverters for DateOnly / DateOnly?
         var dateOnlyConverter = new ValueConverter<DateOnly, DateTime>(
             d => d.ToDateTime(TimeOnly.MinValue),
             d => DateOnly.FromDateTime(d));
 
+        var nullableDateOnlyConverter = new ValueConverter<DateOnly?, DateTime?>(
+            d => d.HasValue ? d.Value.ToDateTime(TimeOnly.MinValue) : null,
+            d => d.HasValue ? DateOnly.FromDateTime(d.Value) : (DateOnly?)null);
+
         foreach (var entityType in modelBuilder.Model.GetEntityTypes())
         {
-            foreach (var property in entityType.GetProperties()
-                         .Where(p => p.ClrType == typeof(DateOnly)))
+            foreach (var property in entityType.GetProperties())
             {
-                property.SetValueConverter(dateOnlyConverter);
+                if (property.ClrType == typeof(DateOnly))
+                {
+                    property.SetValueConverter(dateOnlyConverter);
+                    property.SetColumnType("date"); // ✅ force SQL column to `date`
+                }
+
+                if (property.ClrType == typeof(DateOnly?))
+                {
+                    property.SetValueConverter(nullableDateOnlyConverter);
+                    property.SetColumnType("date"); // ✅ force SQL column to `date`
+                }
             }
         }
 
@@ -84,9 +97,7 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Ledger>().Property(l => l.credit_amount).HasPrecision(18, 2);
         modelBuilder.Entity<Ledger>().Property(l => l.running_balance).HasPrecision(18, 2);
 
-        // ✅ Relationships (important)
-
-        // Category / SubCategory / Item
+        // ✅ Relationships (shortened for readability)
         modelBuilder.Entity<SubCategory>()
             .HasOne(sc => sc.Category)
             .WithMany()
@@ -117,7 +128,6 @@ public class AppDbContext : DbContext
             .HasForeignKey(i => i.uomId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        // Permission
         modelBuilder.Entity<Permission>()
             .HasOne(p => p.Role)
             .WithMany()
@@ -142,7 +152,6 @@ public class AppDbContext : DbContext
             .HasForeignKey(c => c.moduleId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        // User
         modelBuilder.Entity<User>()
             .HasOne(u => u.Company)
             .WithMany()
@@ -155,7 +164,6 @@ public class AppDbContext : DbContext
             .HasForeignKey(u => u.roleId)
             .OnDelete(DeleteBehavior.NoAction);
 
-        // PaymentVoucher
         modelBuilder.Entity<PaymentVoucher>()
             .HasOne(p => p.Company)
             .WithMany()
@@ -174,7 +182,6 @@ public class AppDbContext : DbContext
             .HasForeignKey(p => p.bankAccountId)
             .OnDelete(DeleteBehavior.NoAction);
 
-        // Ledger
         modelBuilder.Entity<Ledger>()
             .HasOne(l => l.Company)
             .WithMany()
@@ -193,7 +200,6 @@ public class AppDbContext : DbContext
             .HasForeignKey(l => l.journalEntryId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        // StockMaster
         modelBuilder.Entity<StockMaster>()
             .HasOne(sm => sm.Company)
             .WithMany()
@@ -218,7 +224,6 @@ public class AppDbContext : DbContext
             .HasForeignKey(sm => sm.transporterId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        // StockDetail
         modelBuilder.Entity<StockDetail>()
             .HasOne(sd => sd.StockMaster)
             .WithMany()
@@ -231,19 +236,18 @@ public class AppDbContext : DbContext
             .HasForeignKey(sd => sd.itemId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        // Company relationships
         modelBuilder.Entity<JournalEntry>()
             .HasOne(je => je.Company)
             .WithMany()
             .HasForeignKey(je => je.companyId)
             .OnDelete(DeleteBehavior.NoAction);
 
-        // JournalEntry -> JournalDetail relationship
         modelBuilder.Entity<JournalDetail>()
             .HasOne(je => je.ChartOfAccount)
             .WithMany()
             .HasForeignKey(je => je.chartOfAccountId)
             .OnDelete(DeleteBehavior.NoAction);
+
         modelBuilder.Entity<JournalDetail>()
             .HasOne(je => je.JournalEntry)
             .WithMany()

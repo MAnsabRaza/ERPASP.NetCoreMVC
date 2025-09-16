@@ -23,88 +23,108 @@ namespace ERP.Controllers.Setting.Account
                     due_date = DateOnly.FromDateTime(DateTime.Now),
                     posted_date = DateOnly.FromDateTime(DateTime.Now)
                 },
-                JournalDetail = new JournalDetail
-                {
-                    current_date = DateOnly.FromDateTime(DateTime.Now),
-                }
+                JournalDetail = new List<JournalDetail>()
             };
-            var journalEntries = await _context.JournalEntry
-                  .Include(j => j.Company)
-                  .ToListAsync();
-            var journalDetails = await _context.JournalDetail
-                .Include(d => d.ChartOfAccount)
+
+            var journalData = await _context.JournalEntry
+                .Include(j => j.Company)
+                .Select(j => new JournalViewModel
+                {
+                    JournalEntry = j,
+                    JournalDetail = _context.JournalDetail
+                        .Include(d => d.ChartOfAccount)
+                        .Where(d => d.journalEntryId == j.Id)
+                        .ToList()
+                })
                 .ToListAsync();
-            var journalData = (from je in journalEntries
-                               join jd in journalDetails on je.Id equals jd.journalEntryId
-                               select new
-                               {
-                                   journalEntries=je,
-                                   journalDetails=jd
-                               }).ToList();
+
             ViewBag.CompanyList = await _context.Company.ToListAsync();
-            ViewBag.ChartOfAccount = await _context.ChartOfAccount.ToListAsync();
+            ViewBag.ChartOfAccount = await _context.ChartOfAccount
+                .Where(c => c.parentAccountId != null)
+                .ToListAsync();
             ViewBag.Journal = journalData;
+
             return View("Journal", model);
         }
+
         [HttpPost]
-        public async Task<IActionResult> Create(JournalViewModel jvm,string JournalDetailsJson)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(JournalViewModel jvm, string JournalDetailsJson)
         {
             try
             {
-                if(jvm.JournalEntry.Id > 0)
+                List<JournalDetail> details = new List<JournalDetail>();
+
+                if (!string.IsNullOrEmpty(JournalDetailsJson))
+                {
+                    details = System.Text.Json.JsonSerializer.Deserialize<List<JournalDetail>>(JournalDetailsJson);
+                    jvm.JournalEntry.total_credit = details.Sum(d => d.credit_amount);
+                    jvm.JournalEntry.total_debit = details.Sum(d => d.debit_amount);
+                }
+
+                if (jvm.JournalEntry.Id > 0) 
                 {
                     var existingEntry = await _context.JournalEntry
                         .FirstOrDefaultAsync(x => x.Id == jvm.JournalEntry.Id);
+
                     if (existingEntry != null)
                     {
+                        // Update main entry
                         existingEntry.current_date = jvm.JournalEntry.current_date;
                         existingEntry.due_date = jvm.JournalEntry.due_date;
                         existingEntry.posted_date = jvm.JournalEntry.posted_date;
-                        existingEntry.companyId=jvm.JournalEntry.companyId;
+                        existingEntry.companyId = jvm.JournalEntry.companyId;
                         existingEntry.etype = jvm.JournalEntry.etype;
                         existingEntry.description = jvm.JournalEntry.description;
-                        existingEntry.total_credit=jvm.JournalEntry.total_credit;
+                        existingEntry.total_credit = jvm.JournalEntry.total_credit;
                         existingEntry.total_debit = jvm.JournalEntry.total_debit;
+
                         _context.Update(existingEntry);
                         await _context.SaveChangesAsync();
-                        var existingDetail = _context.JournalDetail.Where(d => d.journalEntryId
-                        == existingEntry.Id);
-                        _context.JournalDetail.RemoveRange(existingDetail);
+
+                        // Clear old details
+                        var existingDetails = _context.JournalDetail.Where(d => d.journalEntryId == existingEntry.Id);
+                        _context.JournalDetail.RemoveRange(existingDetails);
                         await _context.SaveChangesAsync();
-                        if (!string.IsNullOrEmpty(JournalDetailsJson))
+
+                        // Insert new details (if any)
+                        if (details.Count > 0)
                         {
-                            var details = System.Text.Json.JsonSerializer.Deserialize<List<JournalDetail>>(JournalDetailsJson);
-                            foreach(var d in details)
+                            foreach (var d in details)
                             {
-                                d.journalEntryId = existingEntry.Id;
+                                d.journalEntryId = existingEntry.Id; // ensure FK
                                 _context.JournalDetail.Add(d);
                             }
                             await _context.SaveChangesAsync();
                         }
                     }
                 }
-                else
+                else // Insert
                 {
                     _context.JournalEntry.Add(jvm.JournalEntry);
                     await _context.SaveChangesAsync();
-                    if (!string.IsNullOrEmpty(JournalDetailsJson))
+
+                    if (details.Count > 0)
                     {
-                        var details = System.Text.Json.JsonSerializer.Deserialize<List<JournalDetail>>(JournalDetailsJson);
-                        foreach(var d in details)
+                        foreach (var d in details)
                         {
-                            d.journalEntryId = jvm.JournalEntry.Id;
+                            d.journalEntryId = jvm.JournalEntry.Id; // ensure FK
                             _context.JournalDetail.Add(d);
                         }
                         await _context.SaveChangesAsync();
                     }
                 }
+
                 return RedirectToAction("Journal");
             }
-            catch(Exception ex)
+          catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                  var inner = ex.InnerException != null ? ex.InnerException.Message : "";
+                 return BadRequest($"{ex.Message} - {inner}");
             }
+
         }
+
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
