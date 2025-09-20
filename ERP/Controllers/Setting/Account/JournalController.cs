@@ -69,7 +69,6 @@ namespace ERP.Controllers.Setting.Account
 
                     if (existingEntry != null)
                     {
-                        // Update main entry
                         existingEntry.current_date = jvm.JournalEntry.current_date;
                         existingEntry.due_date = jvm.JournalEntry.due_date;
                         existingEntry.posted_date = jvm.JournalEntry.posted_date;
@@ -82,24 +81,21 @@ namespace ERP.Controllers.Setting.Account
                         _context.Update(existingEntry);
                         await _context.SaveChangesAsync();
 
-                        // Clear old details
                         var existingDetails = _context.JournalDetail.Where(d => d.journalEntryId == existingEntry.Id);
                         _context.JournalDetail.RemoveRange(existingDetails);
                         await _context.SaveChangesAsync();
-
-                        // Insert new details (if any)
                         if (details.Count > 0)
                         {
                             foreach (var d in details)
                             {
-                                d.journalEntryId = existingEntry.Id; // ensure FK
+                                d.journalEntryId = existingEntry.Id; 
                                 _context.JournalDetail.Add(d);
                             }
                             await _context.SaveChangesAsync();
                         }
                     }
                 }
-                else // Insert
+                else 
                 {
                     _context.JournalEntry.Add(jvm.JournalEntry);
                     await _context.SaveChangesAsync();
@@ -108,7 +104,7 @@ namespace ERP.Controllers.Setting.Account
                     {
                         foreach (var d in details)
                         {
-                            d.journalEntryId = jvm.JournalEntry.Id; // ensure FK
+                            d.journalEntryId = jvm.JournalEntry.Id; 
                             _context.JournalDetail.Add(d);
                         }
                         await _context.SaveChangesAsync();
@@ -148,13 +144,11 @@ namespace ERP.Controllers.Setting.Account
                 JournalDetail = journalDetails
             };
 
-            // Populate dropdowns again
             ViewBag.CompanyList = await _context.Company.ToListAsync();
             ViewBag.ChartOfAccount = await _context.ChartOfAccount
                 .Where(c => c.parentAccountId != null)
                 .ToListAsync();
 
-            // For list tab
             var journalData = await _context.JournalEntry
                 .Include(j => j.Company)
                 .Select(j => new JournalViewModel
@@ -169,8 +163,9 @@ namespace ERP.Controllers.Setting.Account
 
             ViewBag.Journal = journalData;
 
-            return View("Journal", model); // ✅ Now passing JournalViewModel
+            return View("Journal", model);
         }
+
 
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
