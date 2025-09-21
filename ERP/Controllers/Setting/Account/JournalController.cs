@@ -1,19 +1,21 @@
 ﻿using ERP.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Client;
-using System.Text.Json.Nodes;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace ERP.Controllers.Setting.Account
 {
     public class JournalController : Controller
     {
         private readonly AppDbContext _context;
+
         public JournalController(AppDbContext context)
         {
             _context = context;
         }
-        public async Task<IActionResult> Journal()
+
+        public async Task<IActionResult> Journal(int page = 1, int pageSize = 5, string activeTab = "form")
         {
             var model = new JournalViewModel
             {
@@ -26,8 +28,12 @@ namespace ERP.Controllers.Setting.Account
                 JournalDetail = new List<JournalDetail>()
             };
 
+            var totalJournal = await _context.JournalEntry.CountAsync();
             var journalData = await _context.JournalEntry
                 .Include(j => j.Company)
+                .OrderBy(j => j.Id)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .Select(j => new JournalViewModel
                 {
                     JournalEntry = j,
@@ -38,18 +44,22 @@ namespace ERP.Controllers.Setting.Account
                 })
                 .ToListAsync();
 
+            ViewBag.TotalItems = totalJournal;
+            ViewBag.Page = page;
+            ViewBag.PageSize = pageSize;
+            ViewBag.ActiveTab = activeTab;
             ViewBag.CompanyList = await _context.Company.ToListAsync();
             ViewBag.ChartOfAccount = await _context.ChartOfAccount
                 .Where(c => c.parentAccountId != null)
                 .ToListAsync();
             ViewBag.Journal = journalData;
 
-            return View("Journal", model);
+            return View("~/Views/Setting/Account/Journal.cshtml", model);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(JournalViewModel jvm)
+        public async Task<IActionResult> Create(JournalViewModel jvm, int page = 1, int pageSize = 5)
         {
             try
             {
@@ -100,7 +110,7 @@ namespace ERP.Controllers.Setting.Account
                     await _context.SaveChangesAsync();
                 }
 
-                return RedirectToAction("Journal");
+                return RedirectToAction("Journal", new { page, pageSize, activeTab = "list" });
             }
             catch (Exception ex)
             {
@@ -108,8 +118,9 @@ namespace ERP.Controllers.Setting.Account
                 return BadRequest($"{ex.Message} - {inner}");
             }
         }
+
         [HttpGet]
-        public async Task<IActionResult> Edit(int id)
+        public async Task<IActionResult> Edit(int id, int page = 1, int pageSize = 5)
         {
             var journal = await _context.JournalEntry
                 .Include(j => j.Company)
@@ -131,13 +142,12 @@ namespace ERP.Controllers.Setting.Account
                 JournalDetail = journalDetails
             };
 
-            ViewBag.CompanyList = await _context.Company.ToListAsync();
-            ViewBag.ChartOfAccount = await _context.ChartOfAccount
-                .Where(c => c.parentAccountId != null)
-                .ToListAsync();
-
+            var totalJournal = await _context.JournalEntry.CountAsync();
             var journalData = await _context.JournalEntry
                 .Include(j => j.Company)
+                .OrderBy(j => j.Id)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .Select(j => new JournalViewModel
                 {
                     JournalEntry = j,
@@ -148,14 +158,21 @@ namespace ERP.Controllers.Setting.Account
                 })
                 .ToListAsync();
 
+            ViewBag.TotalItems = totalJournal;
+            ViewBag.Page = page;
+            ViewBag.PageSize = pageSize;
+            ViewBag.ActiveTab = "form";
+            ViewBag.CompanyList = await _context.Company.ToListAsync();
+            ViewBag.ChartOfAccount = await _context.ChartOfAccount
+                .Where(c => c.parentAccountId != null)
+                .ToListAsync();
             ViewBag.Journal = journalData;
 
-            return View("Journal", model);
+            return View("~/Views/Setting/Account/Journal.cshtml", model);
         }
 
-
         [HttpPost]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete(int id, int page = 1, int pageSize = 5)
         {
             var journal = await _context.JournalEntry.FindAsync(id);
             if (journal != null)
@@ -165,7 +182,7 @@ namespace ERP.Controllers.Setting.Account
                 _context.JournalEntry.Remove(journal);
                 await _context.SaveChangesAsync();
             }
-            return RedirectToAction("Journal");
+            return RedirectToAction("Journal", new { page, pageSize, activeTab = "list" });
         }
     }
 }
