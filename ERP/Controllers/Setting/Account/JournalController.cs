@@ -49,20 +49,11 @@ namespace ERP.Controllers.Setting.Account
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(JournalViewModel jvm, string JournalDetailsJson)
+        public async Task<IActionResult> Create(JournalViewModel jvm)
         {
             try
             {
-                List<JournalDetail> details = new List<JournalDetail>();
-
-                if (!string.IsNullOrEmpty(JournalDetailsJson))
-                {
-                    details = System.Text.Json.JsonSerializer.Deserialize<List<JournalDetail>>(JournalDetailsJson);
-                    jvm.JournalEntry.total_credit = details.Sum(d => d.credit_amount);
-                    jvm.JournalEntry.total_debit = details.Sum(d => d.debit_amount);
-                }
-
-                if (jvm.JournalEntry.Id > 0) 
+                if (jvm.JournalEntry.Id > 0)
                 {
                     var existingEntry = await _context.JournalEntry
                         .FirstOrDefaultAsync(x => x.Id == jvm.JournalEntry.Id);
@@ -75,8 +66,8 @@ namespace ERP.Controllers.Setting.Account
                         existingEntry.companyId = jvm.JournalEntry.companyId;
                         existingEntry.etype = jvm.JournalEntry.etype;
                         existingEntry.description = jvm.JournalEntry.description;
-                        existingEntry.total_credit = jvm.JournalEntry.total_credit;
-                        existingEntry.total_debit = jvm.JournalEntry.total_debit;
+                        existingEntry.total_credit = jvm.JournalDetail.Sum(x => x.credit_amount);
+                        existingEntry.total_debit = jvm.JournalDetail.Sum(x => x.debit_amount);
 
                         _context.Update(existingEntry);
                         await _context.SaveChangesAsync();
@@ -84,43 +75,39 @@ namespace ERP.Controllers.Setting.Account
                         var existingDetails = _context.JournalDetail.Where(d => d.journalEntryId == existingEntry.Id);
                         _context.JournalDetail.RemoveRange(existingDetails);
                         await _context.SaveChangesAsync();
-                        if (details.Count > 0)
-                        {
-                            foreach (var d in details)
-                            {
-                                d.journalEntryId = existingEntry.Id; 
-                                _context.JournalDetail.Add(d);
-                            }
-                            await _context.SaveChangesAsync();
-                        }
-                    }
-                }
-                else 
-                {
-                    _context.JournalEntry.Add(jvm.JournalEntry);
-                    await _context.SaveChangesAsync();
 
-                    if (details.Count > 0)
-                    {
-                        foreach (var d in details)
+                        foreach (var d in jvm.JournalDetail)
                         {
-                            d.journalEntryId = jvm.JournalEntry.Id; 
+                            d.journalEntryId = existingEntry.Id;
                             _context.JournalDetail.Add(d);
                         }
                         await _context.SaveChangesAsync();
                     }
                 }
+                else
+                {
+                    jvm.JournalEntry.total_credit = jvm.JournalDetail.Sum(x => x.credit_amount);
+                    jvm.JournalEntry.total_debit = jvm.JournalDetail.Sum(x => x.debit_amount);
+
+                    _context.JournalEntry.Add(jvm.JournalEntry);
+                    await _context.SaveChangesAsync();
+
+                    foreach (var d in jvm.JournalDetail)
+                    {
+                        d.journalEntryId = jvm.JournalEntry.Id;
+                        _context.JournalDetail.Add(d);
+                    }
+                    await _context.SaveChangesAsync();
+                }
 
                 return RedirectToAction("Journal");
             }
-          catch (Exception ex)
+            catch (Exception ex)
             {
-                  var inner = ex.InnerException != null ? ex.InnerException.Message : "";
-                 return BadRequest($"{ex.Message} - {inner}");
+                var inner = ex.InnerException != null ? ex.InnerException.Message : "";
+                return BadRequest($"{ex.Message} - {inner}");
             }
-
         }
-
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
@@ -178,7 +165,7 @@ namespace ERP.Controllers.Setting.Account
                 _context.JournalEntry.Remove(journal);
                 await _context.SaveChangesAsync();
             }
-            return RedirectToAction("journal");
+            return RedirectToAction("Journal");
         }
     }
 }
