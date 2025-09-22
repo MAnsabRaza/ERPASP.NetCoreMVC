@@ -75,6 +75,7 @@ namespace ERP.Controllers.Setting.UserManagement
                         existingUser.address = user.address;
                         existingUser.phone_number = user.phone_number;
                         existingUser.email = user.email;
+                        existingUser.status = user.status;
                         if (!string.IsNullOrWhiteSpace(user.password))
                         {
                             existingUser.password = BCrypt.Net.BCrypt.HashPassword(user.password);

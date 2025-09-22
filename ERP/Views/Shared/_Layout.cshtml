@@ -7,6 +7,11 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
+        /* Custom font stack for modern typography */
+        body {
+            font-family: 'Inter', 'Segoe UI', 'Roboto', sans-serif;
+        }
+
         .sidebar-transition {
             transition: transform 0.3s ease-in-out;
         }
@@ -15,9 +20,57 @@
             transform: translateX(-100%);
         }
 
-        .hover-bg:hover {
-            background-color: rgba(59, 130, 246, 0.1);
+        /* Fixed sidebar styling */
+        .fixed-sidebar {
+            position: fixed;
+            top: 4rem;
+            height: calc(100vh - 4rem);
+            z-index: 20;
+            background: linear-gradient(180deg, #ffffff, #f1f5f9); /* Subtle gradient */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); /* Soft shadow */
         }
+
+        /* Enhanced hover effects */
+        .hover-bg {
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+
+            .hover-bg:hover {
+                background-color: #3b82f6; /* Blue hover background */
+                color: #ffffff; /* White text on hover */
+            }
+
+        /* Icon hover animation */
+        .nav-icon {
+            transition: transform 0.2s ease;
+        }
+
+        .hover-bg:hover .nav-icon {
+            transform: scale(1.2); /* Slight icon zoom on hover */
+        }
+
+        /* Dropdown styling */
+        .dropdown-menu {
+            transition: max-height 0.3s ease, opacity 0.3s ease;
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+        }
+
+            .dropdown-menu.active {
+                max-height: 500px; /* Adjust based on content */
+                opacity: 1;
+            }
+
+            /* Dropdown item hover */
+            .dropdown-menu li a {
+                transition: background-color 0.2s ease, color 0.2s ease;
+            }
+
+                .dropdown-menu li a:hover {
+                    background-color: #eff6ff; /* Light blue hover */
+                    color: #1e40af; /* Darker blue text */
+                }
     </style>
 </head>
 <body class="bg-gray-50">
@@ -63,7 +116,7 @@
 
     <div class="flex pt-16">
         <!-- Sidebar -->
-        <aside id="sidebar" class="sidebar-transition fixed md:static inset-y-0 left-0 z-20 w-64 bg-white shadow-lg border-r border-gray-200 mt-16 md:mt-0">
+        <aside id="sidebar" class="sidebar-transition fixed inset-y-0 left-0 z-20 w-64 bg-white shadow-lg border-r border-gray-200 fixed-sidebar">
             <div class="h-full overflow-y-auto">
                 <!-- User Info -->
                 <div class="p-4 border-b border-gray-200">
@@ -85,9 +138,9 @@
                     </div>
 
                     <ul class="space-y-1 px-2">
-                        <li><a href="#" class="flex items-center px-3 py-2 text-gray-700 hover-bg rounded-lg"><i class="fas fa-home mr-3 text-gray-400"></i> Dashboard</a></li>
-                        <li><a href="#" class="flex items-center px-3 py-2 text-gray-700 hover-bg rounded-lg"><i class="fas fa-box mr-3 text-gray-400"></i> Inventory</a></li>
-                        <li><a href="#" class="flex items-center px-3 py-2 text-gray-700 hover-bg rounded-lg"><i class="fas fa-receipt mr-3 text-gray-400"></i> Orders</a></li>
+                        <li><a href="#" class="flex items-center px-3 py-2 text-gray-700 hover-bg rounded-lg"><i class="fas fa-home mr-3 text-gray-400 nav-icon"></i> Dashboard</a></li>
+                        <li><a href="#" class="flex items-center px-3 py-2 text-gray-700 hover-bg rounded-lg"><i class="fas fa-box mr-3 text-gray-400 nav-icon"></i> Inventory</a></li>
+                        <li><a href="#" class="flex items-center px-3 py-2 text-gray-700 hover-bg rounded-lg"><i class="fas fa-receipt mr-3 text-gray-400 nav-icon"></i> Orders</a></li>
                     </ul>
 
                     <div class="px-4 py-2 mt-6">
@@ -98,174 +151,155 @@
                         <!-- Settings Dropdown -->
                         <li class="relative">
                             <button id="settingsToggle" class="flex items-center justify-between w-full px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 focus:outline-none">
-                                <span class="flex items-center"><i class="fas fa-cog mr-3 text-gray-400"></i> Settings</span>
+                                <span class="flex items-center"><i class="fas fa-cog mr-3 text-gray-400 nav-icon"></i> Settings</span>
                                 <i id="settingsChevron" class="fas fa-chevron-down text-gray-400 transition-transform duration-200"></i>
                             </button>
                             <!-- First Level Dropdown -->
-                            <ul id="settingsDropdown" class="hidden mt-1 ml-6 space-y-1 bg-white border border-gray-200 rounded-lg shadow-lg p-2">
+                            <ul id="settingsDropdown" class="dropdown-menu mt-1 ml-6 space-y-1 bg-white border border-gray-200 rounded-lg shadow-lg p-2">
                                 <li>
-                                    <button id="accountToggle"
-                                            class="flex items-center justify-between w-full px-3 py-2 text-gray-600 rounded-md hover:bg-gray-100">
-                                        <span class="flex items-center">
-                                            <i class="fas fa-wallet mr-2"></i> Account
-                                        </span>
+                                    <button id="accountToggle" class="flex items-center justify-between w-full px-3 py-2 text-gray-600 rounded-md hover:bg-gray-100">
+                                        <span class="flex items-center"><i class="fas fa-wallet mr-2 nav-icon"></i> Account</span>
                                         <i id="accountChevron" class="fas fa-chevron-down text-gray-400 transition-transform duration-200"></i>
                                     </button>
-
-                                    <ul id="accountDropdown"
-                                        class="hidden mt-1 ml-6 space-y-1 bg-white border border-gray-200 rounded-lg shadow-lg p-2">
+                                    <ul id="accountDropdown" class="dropdown-menu mt-1 ml-6 space-y-1 bg-white border border-gray-200 rounded-lg shadow-lg p-2">
                                         <li>
-                                            <a asp-controller="Journal" asp-action="Journal"
-                                               class="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
-                                                <i class="fas fa-sitemap mr-2 text-gray-400"></i>
-                                                <span>Journal Voucher</span>
+                                            <a asp-controller="Journal" asp-action="Journal" class="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
+                                                <i class="fas fa-sitemap mr-2 text-gray-400 nav-icon"></i><span>Journal Voucher</span>
                                             </a>
                                         </li>
                                         <li>
-                                            <a asp-controller="AccountType" asp-action="AccountType"
-                                               class="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
-                                                <i class="fas fa-sitemap mr-2 text-gray-400"></i>
-                                                <span>Account Type</span>
+                                            <a asp-controller="AccountType" asp-action="AccountType" class="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
+                                                <i class="fas fa-sitemap mr-2 text-gray-400 nav-icon"></i><span>Account Type</span>
                                             </a>
                                         </li>
-
                                         <li>
-                                            <a asp-controller="Bank" asp-action="Bank"
-                                               class="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
-                                                <i class="fas fa-university mr-2 text-gray-400"></i>
-                                                <span>Bank</span>
+                                            <a asp-controller="Bank" asp-action="Bank" class="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
+                                                <i class="fas fa-university mr-2 text-gray-400 nav-icon"></i><span>Bank</span>
                                             </a>
                                         </li>
-
                                         <li>
-                                            <a asp-controller="PaymentVoucher" asp-action="PaymentVoucher"
-                                               class="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
-                                                <i class="fas fa-file-invoice-dollar mr-2 text-gray-400"></i>
-                                                <span>Payment Voucher</span>
+                                            <a asp-controller="PaymentVoucher" asp-action="PaymentVoucher" class="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
+                                                <i class="fas fa-file-invoice-dollar mr-2 text-gray-400 nav-icon"></i><span>Payment Voucher</span>
                                             </a>
                                         </li>
-
                                         <li>
-                                            <a asp-controller="ChartOfAccount" asp-action="ChartOfAccount"
-                                               class="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
-                                                <i class="fas fa-book mr-2 text-gray-400"></i>
-                                                <span>Chart of Account</span>
+                                            <a asp-controller="ChartOfAccount" asp-action="ChartOfAccount" class="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
+                                                <i class="fas fa-book mr-2 text-gray-400 nav-icon"></i><span>Chart of Account</span>
                                             </a>
                                         </li>
-
                                     </ul>
                                 </li>
-
                                 <li>
                                     <button id="masterToggle" class="flex items-center justify-between w-full px-3 py-2 text-gray-600 rounded-md hover:bg-gray-100">
-                                        <span class="flex items-center"><i class="fas fa-cogs mr-2"></i>Master</span>
+                                        <span class="flex items-center"><i class="fas fa-cogs mr-2 nav-icon"></i>Master</span>
                                         <i id="masterChevron" class="fas fa-chevron-down text-gray-400 transition-transform duration-200"></i>
                                     </button>
-                                    <ul id="masterDropdown" class="hidden mt-1 ml-6 space-y-1 bg-white border border-gray-200 rounded-lg shadow-lg p-2">
+                                    <ul id="masterDropdown" class="dropdown-menu mt-1 ml-6 space-y-1 bg-white border border-gray-200 rounded-lg shadow-lg p-2">
                                         <li>
                                             <a asp-controller="Customer" asp-action="Customer" class="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
-                                                <i class="fas fa-users mr-2 text-gray-400"></i><span>Customer</span>
+                                                <i class="fas fa-users mr-2 text-gray-400 nav-icon"></i><span>Customer</span>
                                             </a>
                                         </li>
-                                         <li>
+                                        <li>
                                             <a asp-controller="Vender" asp-action="Vender" class="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
-                                                <i class="fas fa-box-open mr-2 text-gray-400"></i><span>Vender</span>
+                                                <i class="fas fa-box-open mr-2 text-gray-400 nav-icon"></i><span>Vender</span>
                                             </a>
                                         </li>
-                                         <li>
+                                        <li>
                                             <a asp-controller="Warehouse" asp-action="Warehouse" class="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
-                                                <i class="fas fa-warehouse mr-2 text-gray-400"></i><span>Warehouse</span>
+                                                <i class="fas fa-warehouse mr-2 text-gray-400 nav-icon"></i><span>Warehouse</span>
                                             </a>
                                         </li>
                                         <li>
                                             <a asp-controller="Transporter" asp-action="Transporter" class="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
-                                                <i class="fas fa-truck mr-2 text-gray-400"></i><span>Transporter</span>
+                                                <i class="fas fa-truck mr-2 text-gray-400 nav-icon"></i><span>Transporter</span>
                                             </a>
                                         </li>
                                     </ul>
-
                                 </li>
                                 <li>
                                     <button id="itemToggle" class="flex items-center justify-between w-full px-3 py-2 text-gray-600 rounded-md hover:bg-gray-100">
-                                        <span class="flex items-center"><i class="fas fa-box-open mr-2"></i> Chat Of Item</span>
+                                        <span class="flex items-center"><i class="fas fa-box-open mr-2 nav-icon"></i> Chat Of Item</span>
                                         <i id="itemChevron" class="fas fa-chevron-down text-gray-400 transition-transform duration-200"></i>
                                     </button>
-                                    <ul id="itemDropdown" class="hidden mt-1 ml-6 space-y-1 bg-white border border-gray-200 rounded-lg shadow-lg p-2">
+                                    <ul id="itemDropdown" class="dropdown-menu mt-1 ml-6 space-y-1 bg-white border border-gray-200 rounded-lg shadow-lg p-2">
                                         <li>
                                             <a asp-controller="Item" asp-action="Item" class="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
-                                                <i class="fas fa-box-open mr-2 text-gray-400"></i><span>Item</span>
+                                                <i class="fas fa-box-open mr-2 text-gray-400 nav-icon"></i><span>Item</span>
                                             </a>
                                         </li>
                                         <li>
                                             <a asp-controller="Category" asp-action="Category" class="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
-                                                <i class="fas fa-layer-group mr-2 text-gray-400"></i><span>Category</span>
+                                                <i class="fas fa-layer-group mr-2 text-gray-400 nav-icon"></i><span>Category</span>
                                             </a>
                                         </li>
                                         <li>
                                             <a asp-controller="SubCategory" asp-action="SubCategory" class="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
-                                                <i class="fas fa-stream mr-2 text-gray-400"></i><span>Sub Category</span>
+                                                <i class="fas fa-stream mr-2 text-gray-400 nav-icon"></i><span>Sub Category</span>
                                             </a>
                                         </li>
                                         <li>
                                             <a asp-controller="Brand" asp-action="Brand" class="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
-                                                <i class="fas fa-tag mr-2 text-gray-400"></i><span>Brand</span>
+                                                <i class="fas fa-tag mr-2 text-gray-400 nav-icon"></i><span>Brand</span>
                                             </a>
                                         </li>
                                         <li>
                                             <a asp-controller="UOM" asp-action="UOM" class="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
-                                                <i class="fas fa-ruler-combined mr-2 text-gray-400"></i><span>UOM</span>
+                                                <i class="fas fa-ruler-combined mr-2 text-gray-400 nav-icon"></i><span>UOM</span>
                                             </a>
                                         </li>
-                                        </ul>
-                                  </li>
+                                    </ul>
+                                </li>
                                 <!-- Admin Nested Dropdown -->
                                 <li class="relative">
                                     <button id="adminToggle" class="flex items-center justify-between w-full px-3 py-2 text-gray-600 rounded-md hover:bg-gray-100">
-                                        <span class="flex items-center"><i class="fas fa-user-shield mr-2"></i> Admin</span>
+                                        <span class="flex items-center"><i class="fas fa-user-shield mr-2 nav-icon"></i> Admin</span>
                                         <i id="adminChevron" class="fas fa-chevron-down text-gray-400 transition-transform duration-200"></i>
                                     </button>
                                     <!-- Second Level Dropdown -->
-                                    <ul id="adminDropdown" class="hidden mt-1 ml-6 space-y-1 bg-white border border-gray-200 rounded-lg shadow-lg p-2">
+                                    <ul id="adminDropdown" class="dropdown-menu mt-1 ml-6 space-y-1 bg-white border border-gray-200 rounded-lg shadow-lg p-2">
                                         <li>
                                             <a asp-controller="User" asp-action="User" class="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
-                                                <i class="fas fa-users mr-2 text-gray-400"></i><span>User</span>
+                                                <i class="fas fa-users mr-2 text-gray-400 nav-icon"></i><span>User</span>
                                             </a>
                                         </li>
                                         <li>
                                             <a asp-controller="Role" asp-action="Role" class="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
-                                                <i class="fas fa-user-shield mr-2 text-gray-400"></i><span>Role</span>
+                                                <i class="fas fa-user-shield mr-2 text-gray-400 nav-icon"></i><span>Role</span>
                                             </a>
                                         </li>
                                         <li>
                                             <a asp-controller="Permission" asp-action="Permission" class="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
-                                                <i class="fas fa-key mr-2 text-gray-400"></i><span>Permission</span>
+                                                <i class="fas fa-key mr-2 text-gray-400 nav-icon"></i><span>Permission</span>
                                             </a>
                                         </li>
-                                          <li>
+                                        <li>
                                             <a asp-controller="Module" asp-action="Module" class="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
-                                                <i class="fas fa-cubes mr-2 text-gray-400"></i><span>Module</span>
+                                                <i class="fas fa-cubes mr-2 text-gray-400 nav-icon"></i><span>Module</span>
                                             </a>
                                         </li>
-                                      <li><a asp-controller="Component" asp-action="Component" class="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
-                                            <i class="fas fa-puzzle-piece mr-2 text-gray-400"></i><span>Component</span></a></li>
+                                        <li>
+                                            <a asp-controller="Component" asp-action="Component" class="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
+                                                <i class="fas fa-puzzle-piece mr-2 text-gray-400 nav-icon"></i><span>Component</span>
+                                            </a>
+                                        </li>
                                         <li>
                                             <a asp-controller="Company" asp-action="Company" class="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
-                                                <i class="fas fa-building mr-2 text-gray-400"></i><span>Company</span>
+                                                <i class="fas fa-building mr-2 text-gray-400 nav-icon"></i><span>Company</span>
                                             </a>
                                         </li>
                                     </ul>
                                 </li>
                             </ul>
                         </li>
-
-                        <li><a href="#" class="flex items-center px-3 py-2 text-gray-700 hover-bg rounded-lg"><i class="fas fa-question-circle mr-3 text-gray-400"></i> Help Center</a></li>
+                        <li><a href="#" class="flex items-center px-3 py-2 text-gray-700 hover-bg rounded-lg"><i class="fas fa-question-circle mr-3 text-gray-400 nav-icon"></i> Help Center</a></li>
                     </ul>
                 </nav>
             </div>
         </aside>
 
         <!-- Main -->
-        <main class="flex-1 md:ml-0 min-h-screen">
+        <main class="flex-1 md:ml-64 min-h-screen">
             <div class="p-6 min-h-screen">
                 <div class="p-6">
                     @RenderBody()
@@ -284,19 +318,15 @@
         </div>
     </footer>
 
-
     <script>
-
-          
         // SETTINGS dropdown
-     
         const settingsToggle = document.getElementById('settingsToggle');
         const settingsDropdown = document.getElementById('settingsDropdown');
         const settingsChevron = document.getElementById('settingsChevron');
 
         settingsToggle.addEventListener('click', function () {
-            settingsDropdown.classList.toggle('hidden');
-            settingsChevron.style.transform = settingsDropdown.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
+            settingsDropdown.classList.toggle('active');
+            settingsChevron.style.transform = settingsDropdown.classList.contains('active') ? 'rotate(180deg)' : 'rotate(0deg)';
         });
 
         // ADMIN nested dropdown
@@ -305,41 +335,39 @@
         const adminChevron = document.getElementById('adminChevron');
 
         adminToggle.addEventListener('click', function () {
-            adminDropdown.classList.toggle('hidden');
-            adminChevron.style.transform = adminDropdown.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
+            adminDropdown.classList.toggle('active');
+            adminChevron.style.transform = adminDropdown.classList.contains('active') ? 'rotate(180deg)' : 'rotate(0deg)';
         });
-        //ChatOfItem nested dropdown
 
+        // ChatOfItem nested dropdown
         const itemToggle = document.getElementById('itemToggle');
         const itemDropdown = document.getElementById('itemDropdown');
         const itemChevron = document.getElementById('itemChevron');
 
         itemToggle.addEventListener('click', function () {
-            itemDropdown.classList.toggle('hidden');
-            itemChevron.style.transform = itemDropdown.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
+            itemDropdown.classList.toggle('active');
+            itemChevron.style.transform = itemDropdown.classList.contains('active') ? 'rotate(180deg)' : 'rotate(0deg)';
         });
 
-        //Master
-
+        // Master
         const masterToggle = document.getElementById('masterToggle');
         const masterDropdown = document.getElementById('masterDropdown');
         const masterChevron = document.getElementById('masterChevron');
 
         masterToggle.addEventListener('click', function () {
-            masterDropdown.classList.toggle('hidden');
-            masterChevron.style.transform = masterDropdown.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
+            masterDropdown.classList.toggle('active');
+            masterChevron.style.transform = masterDropdown.classList.contains('active') ? 'rotate(180deg)' : 'rotate(0deg)';
         });
-        
-        //Account
+
+        // Account
         const accountToggle = document.getElementById('accountToggle');
         const accountDropdown = document.getElementById('accountDropdown');
         const accountChevron = document.getElementById('accountChevron');
 
         accountToggle.addEventListener('click', function () {
-            accountDropdown.classList.toggle('hidden');
-            accountChevron.style.transform = accountDropdown.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
+            accountDropdown.classList.toggle('active');
+            accountChevron.style.transform = accountDropdown.classList.contains('active') ? 'rotate(180deg)' : 'rotate(0deg)';
         });
-
 
         // SIDEBAR toggle
         const sidebarToggle = document.getElementById('sidebarToggle');
@@ -350,6 +378,7 @@
             sidebar.classList.toggle('sidebar-closed');
             sidebarOverlay.classList.toggle('hidden');
         }
+
         sidebarToggle.addEventListener('click', toggleSidebar);
         sidebarOverlay.addEventListener('click', toggleSidebar);
     </script>
