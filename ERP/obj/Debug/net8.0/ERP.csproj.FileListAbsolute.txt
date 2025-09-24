@@ -290,3 +290,4 @@ D:\AspDotNet\Asp.Net Web Core MVC\ERP\ERP\bin\Debug\net8.0\runtimes\win\lib\net7
 D:\AspDotNet\Asp.Net Web Core MVC\ERP\ERP\bin\Debug\net8.0\runtimes\win\lib\net7.0\System.Windows.Extensions.dll
 D:\AspDotNet\Asp.Net Web Core MVC\ERP\ERP\bin\Debug\net8.0\AspNetCoreHero.ToastNotification.Views.dll
 D:\AspDotNet\Asp.Net Web Core MVC\ERP\ERP\bin\Debug\net8.0\AspNetCoreHero.ToastNotification.dll
+D:\AspDotNet\Asp.Net Web Core MVC\ERP\ERP\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
