@@ -1,8 +1,9 @@
 ﻿using ERP.Middleware;
+using ERP.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using AspNetCoreHero.ToastNotification; // Add this namespace
+using AspNetCoreHero.ToastNotification;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,6 +12,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 
 // Configure session
+builder.Services.AddDistributedMemoryCache(); // Required for session storage
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromMinutes(30);
@@ -54,9 +56,9 @@ builder.Services.AddAuthorization();
 // Add ToastNotification services
 builder.Services.AddNotyf(config =>
 {
-    config.DurationInSeconds = 5; // Duration of the notification
-    config.IsDismissable = true;  // Allow users to dismiss the notification
-    config.Position = NotyfPosition.TopRight; // Position of the notification
+    config.DurationInSeconds = 5;
+    config.IsDismissable = true;
+    config.Position = NotyfPosition.TopRight;
 });
 
 var app = builder.Build();
@@ -77,7 +79,7 @@ app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Add custom JWT middleware
+// Add custom JWT middleware (if defined in your project)
 app.UseMiddleware<JwtMiddleware>();
 
 app.MapControllerRoute(

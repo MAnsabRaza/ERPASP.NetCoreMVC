@@ -2,13 +2,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.VisualBasic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Runtime.CompilerServices;
-using AspNetCoreHero.ToastNotification.Abstractions;
-
 using System.Security.Claims;
 using System.Text;
+using AspNetCoreHero.ToastNotification.Abstractions;
 
 namespace ERP.Controllers
 {
@@ -17,30 +14,36 @@ namespace ERP.Controllers
         private readonly AppDbContext _context;
         private readonly IConfiguration _configuration;
         private readonly INotyfService _notyf;
+
         public AuthController(AppDbContext context, IConfiguration configuration, INotyfService notyf)
         {
             _context = context;
             _configuration = configuration;
             _notyf = notyf;
         }
+
         public async Task<IActionResult> Login()
         {
             return View();
         }
+
         public async Task<IActionResult> Register()
         {
             var model = new User
             {
                 current_date = DateOnly.FromDateTime(DateTime.Now)
             };
-            return View("Register",model);
+            return View("Register", model);
         }
+
         [HttpPost]
         public async Task<IActionResult> CheckLogin(Login login)
         {
             try
             {
                 var user = await _context.User
+                    .Include(u => u.Company)
+                    .Include(u => u.Role)
                     .FirstOrDefaultAsync(u => u.email == login.email && u.status == true);
 
                 if (user == null || !BCrypt.Net.BCrypt.Verify(login.password, user.password))
@@ -53,7 +56,12 @@ namespace ERP.Controllers
 
                 HttpContext.Session.SetString("UserId", user.Id.ToString());
                 HttpContext.Session.SetString("UserEmail", user.email);
+                HttpContext.Session.SetString("UserImage", user.image);
                 HttpContext.Session.SetString("JwtToken", token);
+                HttpContext.Session.SetString("UserName", user.name);
+                HttpContext.Session.SetString("CompanyName", user.Company.company_name);
+                HttpContext.Session.SetString("RoleName", user.Role?.role_name ?? "User");
+
                 _notyf.Success("Login successful!");
                 return RedirectToAction("Index", "Home");
             }
@@ -63,6 +71,8 @@ namespace ERP.Controllers
                 return View("Login", login);
             }
         }
+
+        [HttpPost]
         public async Task<IActionResult> CreateRegistration(User user, IFormFile logoFile)
         {
             try
@@ -84,19 +94,27 @@ namespace ERP.Controllers
                 _notyf.Success("Registration successful! Please log in.");
                 return View("Login");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _notyf.Error($"Registration failed: {ex.Message}");
                 return BadRequest(ex.Message);
             }
         }
+
+        public IActionResult Logout()
+        {
+            HttpContext.Session.Clear();
+            _notyf.Success("Logged out successfully!");
+            return RedirectToAction("Login", "Auth");
+        }
+
         private string GenerateJwtToken(User user)
         {
             var claims = new[]
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Name, user.email),
-                new Claim(ClaimTypes.Role, user.roleId?.ToString() ?? "User")
+                new Claim(ClaimTypes.Role, user.roleId.ToString())
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
