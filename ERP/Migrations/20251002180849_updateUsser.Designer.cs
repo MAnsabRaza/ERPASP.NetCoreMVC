@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ERP.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251002180849_updateUsser")]
+    partial class updateUsser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -892,8 +895,8 @@ namespace ERP.Migrations
                     b.Property<string>("otp")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("otp_expire")
-                        .HasColumnType("date");
+                    b.Property<string>("otp_expire")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("password")
                         .HasColumnType("nvarchar(max)");

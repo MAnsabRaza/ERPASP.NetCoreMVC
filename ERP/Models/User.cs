@@ -19,5 +19,7 @@ namespace ERP.Models
         public string? password { get; set; }
         public string? image { get; set; }
         public bool status { get; set; }
+        public string? otp { get; set; }
+        public DateOnly? otp_expire { get; set; }
     }
 }

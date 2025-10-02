@@ -6,6 +6,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using AspNetCoreHero.ToastNotification.Abstractions;
+using Microsoft.EntityFrameworkCore.Migrations.Operations;
 
 namespace ERP.Controllers
 {
@@ -34,6 +35,18 @@ namespace ERP.Controllers
                 current_date = DateOnly.FromDateTime(DateTime.Now)
             };
             return View("Register", model);
+        }
+        public async Task<IActionResult> ForgetPassword()
+        {
+            return View();
+        }
+        public async Task<IActionResult> VerifyOtp()
+        {
+            return View();
+        }
+        public async Task<IActionResult> ChangePassword()
+        {
+            return View();
         }
 
         [HttpPost]
@@ -107,6 +120,102 @@ namespace ERP.Controllers
             _notyf.Success("Logged out successfully!");
             return RedirectToAction("Login", "Auth");
         }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CheckEmailForForgetPassword(Login model)
+        {
+            try
+            {
+                var user = await _context.User.FirstOrDefaultAsync(u => u.email == model.email);
+                if (user == null)
+                {
+                    return View("Login");
+                }
+                string otp = GenerateOtp();
+                user.otp = otp;
+                user.otp_expire = DateOnly.FromDateTime(DateTime.UtcNow);
+                await _context.SaveChangesAsync();
+                TempData["ResetEmail"] = model.email;
+                return RedirectToAction("VerifyOtp");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CheckVerifyOtp(VerifyOtp vo)
+        {
+            try
+            {
+                var email = TempData["ResetEmail"] as string;
+                if (string.IsNullOrEmpty(email))
+                {
+                    _notyf.Error("Session expired. Please try again.");
+                    return RedirectToAction("ForgetPassword");
+                }
+
+                var user = await _context.User.FirstOrDefaultAsync(u => u.email == email);
+                if (user == null || user.otp == null || user.otp_expire == null)
+                {
+                    _notyf.Error("Invalid or expired OTP. Please request a new one.");
+                    return RedirectToAction("ForgetPassword");
+                }
+                if (user.otp != vo.otp)
+                {
+                    _notyf.Error("Incorrect OTP. Please try again.");
+                    return View("VerifyOtp", vo);
+                }
+
+                if (user.otp_expire < DateOnly.FromDateTime(DateTime.UtcNow))
+                {
+                    _notyf.Error("OTP has expired. Please request a new one.");
+                    return RedirectToAction("ForgetPassword");
+                }
+
+                TempData["ResetUserId"] = user.Id;
+                _notyf.Success("OTP verified. Change your password.");
+                return RedirectToAction("ChangePassword");
+            }
+            catch (Exception ex)
+            {
+                _notyf.Error($"An error occurred: {ex.Message}");
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateNewPassword(ChangePassword cp)
+        {
+            try
+            {
+                var userId = TempData["ResetUserId"] as int?;
+                if (!userId.HasValue)
+                {
+                    return RedirectToAction("Login");
+                }
+                var user=await _context.User.FindAsync(userId.Value);
+                if(user == null)
+                {
+                    return RedirectToAction("Login");
+                }
+                if (cp.Password != cp.ConfirmPassword)
+                {
+                    _notyf.Error("Passwords do not match.");
+                    return View("ChangePassword", cp);
+                }
+                user.password = BCrypt.Net.BCrypt.HashPassword(cp.Password);
+                user.otp = null;
+                user.otp_expire = null;
+                await _context.SaveChangesAsync();
+                return RedirectToAction("Login");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
 
         private string GenerateJwtToken(User user)
         {
@@ -129,6 +238,14 @@ namespace ERP.Controllers
                 signingCredentials: creds);
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+       
+        private string GenerateOtp(int length = 6)
+        {
+            var random = new Random();
+            const string chars = "0123456789";
+            return new string(Enumerable.Repeat(chars, length)
+                .Select(s => s[random.Next(s.Length)]).ToArray());
         }
     }
 }

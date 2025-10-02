@@ -26,12 +26,24 @@ build_property.GenerateRazorMetadataSourceChecksumAttributes =
 build_property.MSBuildProjectDirectory = D:\AspDotNet\Asp.Net Web Core MVC\ERP\ERP
 build_property._RazorSourceGeneratorDebug = 
 
+[D:/AspDotNet/Asp.Net Web Core MVC/ERP/ERP/Views/Auth/ChangePassword.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXV0aFxDaGFuZ2VQYXNzd29yZC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/AspDotNet/Asp.Net Web Core MVC/ERP/ERP/Views/Auth/ForgetPassword.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXV0aFxGb3JnZXRQYXNzd29yZC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [D:/AspDotNet/Asp.Net Web Core MVC/ERP/ERP/Views/Auth/Login.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXV0aFxMb2dpbi5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/AspDotNet/Asp.Net Web Core MVC/ERP/ERP/Views/Auth/Register.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXV0aFxSZWdpc3Rlci5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/AspDotNet/Asp.Net Web Core MVC/ERP/ERP/Views/Auth/VerifyOtp.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXV0aFxWZXJpZnlPdHAuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/AspDotNet/Asp.Net Web Core MVC/ERP/ERP/Views/Auth/_ViewStart.cshtml]
