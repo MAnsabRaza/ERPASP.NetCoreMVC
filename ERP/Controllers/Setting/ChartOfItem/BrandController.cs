@@ -1,4 +1,5 @@
-﻿using ERP.Models;
+﻿using AspNetCoreHero.ToastNotification.Abstractions;
+using ERP.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Net.Quic;
@@ -8,9 +9,11 @@ namespace ERP.Controllers.Setting.ChartOfItem
     public class BrandController : Controller
     {
         private readonly AppDbContext _context;
-        public BrandController(AppDbContext context)
+        private readonly INotyfService _notyf;
+        public BrandController(AppDbContext context,INotyfService notyf)
         {
             _context = context;
+            _notyf = notyf;
         }
         public async Task<IActionResult> Brand(string searchString, int page = 1, int pageSize = 5)
         {
@@ -59,6 +62,8 @@ namespace ERP.Controllers.Setting.ChartOfItem
                 {
                     _context.Brand.Add(brand);
                     await _context.SaveChangesAsync();
+
+                    _notyf.Success("Successfully Created Brand");
                 }
                 return RedirectToAction("Brand");
             }

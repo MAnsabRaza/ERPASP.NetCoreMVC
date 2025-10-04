@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using AspNetCoreHero.ToastNotification;
 using System.Text;
+using AspNetCoreHero.ToastNotification.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -78,6 +79,7 @@ app.UseRouting();
 app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseNotyf();
 
 // Add custom JWT middleware (if defined in your project)
 app.UseMiddleware<JwtMiddleware>();

@@ -1,22 +1,38 @@
-﻿@* Views/Shared/_AuthLayout.cshtml *@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>@ViewData["Title"] - ERP</title>
+
+    <!-- TailwindCSS -->
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
+    <!-- FontAwesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Toastify CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
+
+
     <style>
         body {
-            background: #f3f4f6
-        }</style>
+            background: #f3f4f6;
+        }
+    </style>
 </head>
 <body>
     <div class="min-h-screen flex items-center justify-center">
+
         @RenderBody()
     </div>
 
-    <!-- optional scripts -->
+    <!-- Toastify JS -->
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    @await Component.InvokeAsync("Notyf")
 </body>
 </html>
+

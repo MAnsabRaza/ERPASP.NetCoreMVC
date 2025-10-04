@@ -1,4 +1,5 @@
-﻿using ERP.Models;
+﻿using AspNetCoreHero.ToastNotification.Abstractions;
+using ERP.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,7 +8,8 @@ namespace ERP.Controllers.Setting.Account
     public class BankController : Controller
     {
         private readonly AppDbContext _context;
-        public BankController(AppDbContext context) { _context = context; }
+        private readonly INotyfService _notyf;
+        public BankController(AppDbContext context,INotyfService notyf) { _context = context; _notyf = notyf; }
         public async Task<IActionResult> Bank(string searchString, int page = 1, int pageSize = 5)
         {
             var query = _context.Bank.AsQueryable();
