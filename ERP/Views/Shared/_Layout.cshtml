@@ -70,7 +70,7 @@
                 }
     </style>
 </head>
-<body class="bg-gray-50">
+<body class="bg-gray-50 flex flex-col min-h-screen">
     <!-- Header -->
     <header class="bg-white shadow-sm border-b border-gray-200 fixed w-full top-0 z-30">
         <div class="flex items-center justify-between px-4 py-3">
@@ -79,10 +79,13 @@
                     <i class="fas fa-bars text-xl"></i>
                 </button>
                 <div class="flex items-center">
-                    <div class="bg-blue-600 text-white p-2 rounded-lg mr-3">
-                        <i class="fas fa-chart-line text-xl"></i>
-                    </div>
-                    <h1 class="text-xl font-bold text-gray-800">Enterprise ERP</h1>
+                    @if (Context.Session.GetString("UserName") != null)
+                    {
+                        <div class="bg-blue-600 text-white p-2 rounded-lg mr-3">
+                            <i class="fas fa-chart-line text-xl"></i>
+                        </div>
+                        <h1 class="text-xl font-bold text-gray-800">@Context.Session.GetString("CompanyName")</h1>
+                    }
                 </div>
             </div>
 
@@ -147,7 +150,7 @@
         </div>
     </header>
 
-    <div class="flex pt-16">
+    <div class="flex pt-16 flex-1">
         <!-- Sidebar -->
         <aside id="sidebar" class="sidebar-transition fixed inset-y-0 left-0 z-20 w-64 bg-white shadow-lg border-r border-gray-200 fixed-sidebar">
             <div class="h-full overflow-y-auto">
@@ -170,6 +173,7 @@
                         <div>
                             @if (Context.Session.GetString("UserName") != null)
                             {
+                                <h3 class="font-semibold text-gray-800">@Context.Session.GetString("UserName")</h3>
                                 <p class="text-sm text-gray-500">@Context.Session.GetString("RoleName")</p>
                             }
                             else
@@ -357,24 +361,26 @@
         </aside>
 
         <!-- Main -->
-        <main class="flex-1 md:ml-64 min-h-screen">
-            <div class="p-6 min-h-screen">
+        <main class="flex-1 md:ml-64 flex flex-col min-h-screen">
+            <div class="flex-1 overflow-y-auto p-6">
                 <div class="p-6">
                     @RenderBody()
                 </div>
             </div>
+            <!-- Footer -->
+            <footer class="flex-shrink-0 bg-white border-t border-gray-200">
+                @if (Context.Session.GetString("UserName") != null)
+                {
+                    <div class="container mx-auto px-6 py-4 flex justify-between">
+                        <div class="text-sm text-gray-600">&copy; 2025 @Context.Session.GetString("CompanyName").</div>
+                    </div>
+                }
+            </footer>
         </main>
     </div>
 
     <!-- Overlay -->
     <div id="sidebarOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-10 md:hidden hidden"></div>
-
-    <!-- Footer -->
-    <footer class="bg-white border-t border-gray-200 mt-auto">
-        <div class="container mx-auto px-6 py-4 flex justify-between">
-            <div class="text-sm text-gray-600">&copy; 2025 Enterprise ERP System.</div>
-        </div>
-    </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
