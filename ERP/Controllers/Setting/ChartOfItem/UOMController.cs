@@ -1,4 +1,5 @@
-﻿using ERP.Models;
+﻿using AspNetCoreHero.ToastNotification.Abstractions;
+using ERP.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,8 +8,10 @@ namespace ERP.Controllers.Setting.ChartOfItem
     public class UOMController : Controller
     {
         private readonly AppDbContext _context;
-        public UOMController(AppDbContext context)
+        private readonly INotyfService _notyf;
+        public UOMController(AppDbContext context,INotyfService notyf)
         {
+            _notyf = notyf;
             _context = context;
         }
         public async Task<IActionResult> UOM(string searchString, int page = 1, int pageSize = 5)
@@ -91,17 +94,20 @@ namespace ERP.Controllers.Setting.ChartOfItem
                         existingUom.uom_name = uom.uom_name;
                         _context.Update(existingUom);
                         await _context.SaveChangesAsync();
+                        _notyf.Success("UOM Update Successfully");
                     }
                 }
                 else
                 {
                     _context.UOM.Add(uom);
                     await _context.SaveChangesAsync();
+                    _notyf.Success("UOM Create Successfully");
                 }
                 return RedirectToAction("UOM");
             }
             catch (Exception ex)
             {
+                _notyf.Error($"An error occurred: {ex.Message}");
                 return BadRequest(ex.Message);
             }
         }
@@ -113,6 +119,7 @@ namespace ERP.Controllers.Setting.ChartOfItem
             {
                 _context.UOM.Remove(uom);
                 await _context.SaveChangesAsync();
+                _notyf.Success("UOM Delete Successfully");
             }
             return RedirectToAction("UOM");
         }

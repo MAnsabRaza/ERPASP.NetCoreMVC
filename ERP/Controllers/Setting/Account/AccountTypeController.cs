@@ -1,4 +1,5 @@
-﻿using ERP.Models;
+﻿using AspNetCoreHero.ToastNotification.Abstractions;
+using ERP.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,7 +8,11 @@ namespace ERP.Controllers.Setting.Account
     public class AccountTypeController : Controller
     {
         private readonly AppDbContext _context;
-        public AccountTypeController(AppDbContext context) { _context = context; }
+        private readonly INotyfService _notyf;
+        public AccountTypeController(AppDbContext context,INotyfService notyf) {
+            _notyf = notyf;
+            _context = context; 
+        }
         public async Task<IActionResult> AccountType(string searchString,int page = 1,int pageSize=5)
         {
             var query = _context.AccountType.AsQueryable();
@@ -29,7 +34,6 @@ namespace ERP.Controllers.Setting.Account
                 current_date = DateOnly.FromDateTime(DateTime.Now)
             };
             ViewBag.AccountType = accountTypeList;
-            //return View("AccountType",model);
             return View("~/Views/Setting/Account/AccountType.cshtml", model);
         }
         [HttpGet]
@@ -55,7 +59,6 @@ namespace ERP.Controllers.Setting.Account
             ViewBag.PageSize = pageSize;
             ViewBag.SearchString = searchString;
             ViewBag.AccountType = accountTypeList;
-            // return View("AccountType", accountType);
             return View("~/Views/Setting/Account/AccountType.cshtml", accountType);
         }
         [HttpPost]
@@ -66,6 +69,7 @@ namespace ERP.Controllers.Setting.Account
             {
                  _context.AccountType.Remove(accountType);
                 await _context.SaveChangesAsync();
+                _notyf.Success("Account Type Delete Successfully");
             }
             return RedirectToAction("AccountType");
         }
@@ -84,17 +88,20 @@ namespace ERP.Controllers.Setting.Account
                         exisitngAccount.account_name = accountType.account_name;
                         _context.Update(exisitngAccount);
                         await _context.SaveChangesAsync();
+                        _notyf.Success("Account Type Update Successfully");
                     }
                 }
                 else
                 {
                     _context.AccountType.Add(accountType);
                     await _context.SaveChangesAsync();
+                    _notyf.Success("Account Type Create Successfully");
                 }
                 return RedirectToAction("AccountType");
             }
             catch(Exception ex)
             {
+                _notyf.Error($"An error occurred: {ex.Message}");
                 return BadRequest(ex.Message);
             }
         }

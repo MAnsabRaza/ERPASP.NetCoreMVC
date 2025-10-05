@@ -40,8 +40,6 @@ namespace ERP.Controllers.Setting.ChartOfItem
             };
             ViewBag.Category = categoryList;
             return View("~/Views/Setting/ChartOfItem/Category.cshtml", model);
-            //return View("Category",model);
-            //return View("~/Views/Setting/ChartOfItem/Category.cshtml", model);
         }
         [HttpPost]
         public async Task<IActionResult> Create(Category category)
@@ -66,12 +64,13 @@ namespace ERP.Controllers.Setting.ChartOfItem
                 {
                     _context.Category.Add(category);
                     await _context.SaveChangesAsync();
-                    _notyf.Success("Record saved successfully!");
+                    _notyf.Success("Category saved Successfully!");
                 }
                 return RedirectToAction("Category");
             }
             catch (Exception ex)
             {
+                _notyf.Error($"An error occurred: {ex.Message}");
                 return BadRequest(ex.Message);
             }
         }
@@ -83,6 +82,7 @@ namespace ERP.Controllers.Setting.ChartOfItem
             {
                 _context.Category.Remove(category);
                 await _context.SaveChangesAsync();
+                _notyf.Success("Category Delete Successfully");
             }
             return RedirectToAction("Category");
         }
@@ -95,13 +95,10 @@ namespace ERP.Controllers.Setting.ChartOfItem
                 return NotFound();
             }
             var query = _context.Category.AsQueryable();
-            //search
             if (!string.IsNullOrEmpty(searchString))
             {
                 query = query.Where(u => u.category_name.Contains(searchString));
             }
-
-            //Pagination
             var totalItems = await query.CountAsync();
             var categoryList = await query.
                         OrderBy(u => u.Id).
@@ -113,7 +110,6 @@ namespace ERP.Controllers.Setting.ChartOfItem
             ViewBag.PageSize = pageSize;
             ViewBag.SearchString = searchString;
             ViewBag.Category = categoryList;
-            //return View("Category", category);
             return View("~/Views/Setting/ChartOfItem/Category.cshtml", category);
         }
 

@@ -1,4 +1,5 @@
-﻿using ERP.Models;
+﻿using AspNetCoreHero.ToastNotification.Abstractions;
+using ERP.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,8 +8,10 @@ namespace ERP.Controllers.Setting.Master
     public class VenderController : Controller
     {
         private readonly AppDbContext _context;
-        public VenderController(AppDbContext context)
+        private readonly INotyfService _notyf;
+        public VenderController(AppDbContext context,INotyfService notyf)
         {
+            _notyf = notyf;
             _context = context;
         }
         public async Task<IActionResult> Vender(string searchString, int page = 1, int pageSize = 5)
@@ -73,6 +76,7 @@ namespace ERP.Controllers.Setting.Master
             {
                 _context.Vender.Remove(vender);
                 await _context.SaveChangesAsync();
+                _notyf.Success("Vender Delete Successfully");
             }
             return RedirectToAction("Vender");
         }
@@ -99,17 +103,21 @@ namespace ERP.Controllers.Setting.Master
                         _context.Update(existingVender);
 
                         await _context.SaveChangesAsync();
+                        _notyf.Success("Vender Update Successfully");
                     }
                 }
                 else
                 {
                     _context.Vender.Add(vender);
                     await _context.SaveChangesAsync();
+                    _notyf.Success("Vender Create Successfully");
                 }
                 return RedirectToAction("Vender");
             }
             catch (Exception ex)
             {
+
+                _notyf.Error($"An Error Occurred: {ex.Message}");
                 return BadRequest(ex.Message);
             }
         }

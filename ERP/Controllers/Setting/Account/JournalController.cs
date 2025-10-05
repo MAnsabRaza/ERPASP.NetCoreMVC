@@ -1,4 +1,5 @@
-﻿using ERP.Models;
+﻿using AspNetCoreHero.ToastNotification.Abstractions;
+using ERP.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
@@ -9,9 +10,10 @@ namespace ERP.Controllers.Setting.Account
     public class JournalController : Controller
     {
         private readonly AppDbContext _context;
-
-        public JournalController(AppDbContext context)
+        private readonly INotyfService _notyf;
+        public JournalController(AppDbContext context,INotyfService notyf)
         {
+            _notyf=notyf;
             _context = context;
         }
 
@@ -92,6 +94,7 @@ namespace ERP.Controllers.Setting.Account
                             _context.JournalDetail.Add(d);
                         }
                         await _context.SaveChangesAsync();
+                        _notyf.Success("Journal Voucher Update Successfully");
                     }
                 }
                 else
@@ -108,12 +111,14 @@ namespace ERP.Controllers.Setting.Account
                         _context.JournalDetail.Add(d);
                     }
                     await _context.SaveChangesAsync();
+                    _notyf.Success("Journal Voucher Create Successfully");
                 }
 
                 return RedirectToAction("Journal", new { page, pageSize, activeTab = "list" });
             }
             catch (Exception ex)
             {
+                _notyf.Error($"An Error Occurred: {ex.Message}");
                 var inner = ex.InnerException != null ? ex.InnerException.Message : "";
                 return BadRequest($"{ex.Message} - {inner}");
             }
@@ -181,6 +186,7 @@ namespace ERP.Controllers.Setting.Account
                 _context.JournalDetail.RemoveRange(detail);
                 _context.JournalEntry.Remove(journal);
                 await _context.SaveChangesAsync();
+                _notyf.Success("Journal Voucher Delete Successfully");
             }
             return RedirectToAction("Journal", new { page, pageSize, activeTab = "list" });
         }

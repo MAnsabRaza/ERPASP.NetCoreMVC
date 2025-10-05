@@ -1,4 +1,5 @@
-﻿using ERP.Models;
+﻿using AspNetCoreHero.ToastNotification.Abstractions;
+using ERP.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,8 +8,10 @@ namespace ERP.Controllers.Setting.UserManagement
     public class ComponentController : Controller
     {
         private readonly AppDbContext _context;
-        public ComponentController(AppDbContext context)
+        private readonly INotyfService _notyf;
+        public ComponentController(AppDbContext context,INotyfService notyf)
         {
+            _notyf = notyf;
             _context = context;
         }
         public async Task<IActionResult> Component(string searchString, int page = 1, int pageSize = 5)
@@ -46,6 +49,7 @@ namespace ERP.Controllers.Setting.UserManagement
             {
                 _context.Component.Remove(component);
                 await _context.SaveChangesAsync();
+                _notyf.Success("Component Delete Successfully");
             }
             return RedirectToAction("Component");
         }
@@ -95,17 +99,20 @@ namespace ERP.Controllers.Setting.UserManagement
                         existingComponent.status = component.status;
                         _context.Update(existingComponent);
                         await _context.SaveChangesAsync();
+                        _notyf.Success("Component Update Successfully");
                     }
                 }
                 else
                 {
                     _context.Component.Add(component);
                     await _context.SaveChangesAsync();
+                    _notyf.Success("Component Create Successfully");
                 }
                 return RedirectToAction("Component");
             }
             catch (Exception ex)
             {
+                _notyf.Error($"An Error Occurred: {ex.Message}");
                 return BadRequest(ex.Message);
             }
         }

@@ -1,4 +1,5 @@
-﻿using ERP.Models;
+﻿using AspNetCoreHero.ToastNotification.Abstractions;
+using ERP.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Client;
@@ -9,8 +10,10 @@ namespace ERP.Controllers.Setting.ChartOfItem
     public class ItemController : Controller
     {
         private readonly AppDbContext _context;
-        public ItemController(AppDbContext context)
+        private readonly INotyfService _notyf;
+        public ItemController(AppDbContext context,INotyfService notyf)
         {
+            _notyf = notyf;
             _context = context;
         }
         public async Task<IActionResult> Item(string searchString, int page = 1, int pageSize = 5)
@@ -38,7 +41,6 @@ namespace ERP.Controllers.Setting.ChartOfItem
             ViewBag.brandList = await _context.Brand.Where(b => b.status == true).ToListAsync();
             ViewBag.uomList = await _context.UOM.Where(u => u.status == true).ToListAsync();
             ViewBag.subCategoryList = await _context.SubCategory.Where(sb => sb.status == true).ToListAsync();
-            //return View("Item",model);
             return View("~/Views/Setting/ChartOfItem/Item.cshtml", model);
         }
         [HttpPost]
@@ -49,6 +51,7 @@ namespace ERP.Controllers.Setting.ChartOfItem
             {
                 _context.Item.Remove(item);
                 await _context.SaveChangesAsync();
+                _notyf.Success("Item Delete Successfully");
             }
             return RedirectToAction("Item");
         }
@@ -112,18 +115,21 @@ namespace ERP.Controllers.Setting.ChartOfItem
                         existingItem.remark = item.remark;
                         _context.Update(existingItem);
                         await _context.SaveChangesAsync();
+                        _notyf.Success("Item Update Successfully");
                     }
                 }
                 else
                 {
                     _context.Item.Add(item);
                     await _context.SaveChangesAsync();
+                    _notyf.Success("Item Create Successfully");
 
                 }
                 return RedirectToAction("Item");
             }
             catch (Exception ex)
             {
+                _notyf.Error($"An error occurred: {ex.Message}");
                 return BadRequest(ex.Message);
             }
         }

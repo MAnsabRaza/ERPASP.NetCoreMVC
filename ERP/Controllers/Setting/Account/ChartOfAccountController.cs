@@ -1,4 +1,5 @@
-﻿using ERP.Models;
+﻿using AspNetCoreHero.ToastNotification.Abstractions;
+using ERP.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,8 +8,10 @@ namespace ERP.Controllers.Setting.Account
     public class ChartOfAccountController : Controller
     {
         private readonly AppDbContext _contaxt;
-        public ChartOfAccountController(AppDbContext contaxt)
+        private readonly INotyfService _notyf;
+        public ChartOfAccountController(AppDbContext contaxt,INotyfService notyf)
         {
+            _notyf = notyf;
             _contaxt = contaxt;
         }
 
@@ -89,12 +92,9 @@ namespace ERP.Controllers.Setting.Account
                                         .Take(pageSize)
                                         .ToListAsync();
 
-            // Dropdowns
             ViewBag.compantList = await _contaxt.Company.ToListAsync();
             ViewBag.accountTypeList = await _contaxt.AccountType.ToListAsync();
             ViewBag.parentAccount = await _contaxt.ChartOfAccount.Where(c => c.parentAccountId == null).ToListAsync();
-
-            // ViewBag for pagination
             ViewBag.Level1 = level1List;
             ViewBag.Level2 = level2List;
             ViewBag.Page1 = page1;
@@ -103,8 +103,6 @@ namespace ERP.Controllers.Setting.Account
             ViewBag.TotalItemsLevel1 = totalItemsLevel1;
             ViewBag.TotalItemsLevel2 = totalItemsLevel2;
             ViewBag.SearchString = searchString;
-
-            //return View("ChartOfAccount", chartOfAccount);
             return View("~/Views/Setting/Account/ChartOfAccount.cshtml", chartOfAccount);
         }
 
@@ -116,6 +114,7 @@ namespace ERP.Controllers.Setting.Account
             {
                 _contaxt.ChartOfAccount.Remove(chartOfAccount);
                 await _contaxt.SaveChangesAsync();
+                _notyf.Success("Chart Of Account Delete Successfully");
             }
             return RedirectToAction("ChartOfAccount");
         }
@@ -133,13 +132,16 @@ namespace ERP.Controllers.Setting.Account
                     existing.accountTypeId = level1.accountTypeId;
                     existing.companyId = level1.companyId;
                     _contaxt.Update(existing);
+                    await _contaxt.SaveChangesAsync();
+                    _notyf.Success("Level One Update Successfully");
                 }
             }
             else
             {
                 _contaxt.ChartOfAccount.Add(level1);
+                await _contaxt.SaveChangesAsync();
+                _notyf.Success("Level One Create Successfully");
             }
-            await _contaxt.SaveChangesAsync();
             return RedirectToAction("ChartOfAccount");
         }
 
@@ -157,13 +159,16 @@ namespace ERP.Controllers.Setting.Account
                     existing.accountTypeId = level2.accountTypeId;
                     existing.companyId = level2.companyId;
                     _contaxt.Update(existing);
+                    _notyf.Success("Level Two Update Successfully");
+                    await _contaxt.SaveChangesAsync();
                 }
             }
             else
             {
                 _contaxt.ChartOfAccount.Add(level2);
+                _notyf.Success("Level Two Update Successfully");
+                await _contaxt.SaveChangesAsync();
             }
-            await _contaxt.SaveChangesAsync();
             return RedirectToAction("ChartOfAccount");
         }
     }

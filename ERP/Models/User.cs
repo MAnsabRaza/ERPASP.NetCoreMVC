@@ -20,5 +20,6 @@ namespace ERP.Models
         public string? image { get; set; }
         public bool status { get; set; }
         public string? otp { get; set; }
+        public DateTime? otp_expiry { get; set; }
     }
 }

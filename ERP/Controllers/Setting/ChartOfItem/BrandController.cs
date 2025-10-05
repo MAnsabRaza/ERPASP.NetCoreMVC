@@ -37,7 +37,6 @@ namespace ERP.Controllers.Setting.ChartOfItem
                 current_date = DateOnly.FromDateTime(DateTime.Now)
             };
             ViewBag.Brand = brandList;
-            //return View("Brand",model);
             return View("~/Views/Setting/ChartOfItem/Brand.cshtml", model);
         }
         [HttpPost]
@@ -56,6 +55,7 @@ namespace ERP.Controllers.Setting.ChartOfItem
                         exisitngBrand.brand_description = brand.brand_description;
                         _context.Update(exisitngBrand);
                         await _context.SaveChangesAsync();
+                        _notyf.Success("Brand Update Successfully");
                     }
                 }
                 else
@@ -69,6 +69,7 @@ namespace ERP.Controllers.Setting.ChartOfItem
             }
             catch (Exception ex)
             {
+                _notyf.Error($"An error occurred: {ex.Message}");
                 return BadRequest(ex.Message);
             }
         }
@@ -80,6 +81,7 @@ namespace ERP.Controllers.Setting.ChartOfItem
             {
                 _context.Brand.Remove(brand);
                 await _context.SaveChangesAsync();
+                _notyf.Success("Brand Delete Successfully");
             }
             return RedirectToAction("Brand");
         }
@@ -106,7 +108,6 @@ namespace ERP.Controllers.Setting.ChartOfItem
             ViewBag.PageSize = pageSize;
             ViewBag.SearchString = searchString;
             ViewBag.Brand = brandList;
-            //return View("Brand", brand);
             return View("~/Views/Setting/ChartOfItem/Brand.cshtml", brand);
         }
     }

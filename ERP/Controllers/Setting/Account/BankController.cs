@@ -33,7 +33,6 @@ namespace ERP.Controllers.Setting.Account
             };
             ViewBag.companyList = await _context.Company.ToListAsync();
             ViewBag.Bank = bankList;
-            //return View("Bank", model);
             return View("~/Views/Setting/Account/Bank.cshtml", model);
         }
         [HttpGet]
@@ -72,6 +71,7 @@ namespace ERP.Controllers.Setting.Account
             {
                 _context.Bank.Remove(bank);
                 await _context.SaveChangesAsync();
+                _notyf.Success("Bank Delete Successfully");
             }
             return RedirectToAction("Bank");
         }
@@ -94,17 +94,21 @@ namespace ERP.Controllers.Setting.Account
                         exisitngBank.companyId = bank.companyId;
                         _context.Update(exisitngBank);
                         await _context.SaveChangesAsync();
+                        _notyf.Success("Bank Update Successfully");
                     }
                 }
                 else
                 {
                     _context.Bank.Add(bank);
                     await _context.SaveChangesAsync();
+                    _notyf.Success("Bank Create Successfully");
+
                 }
                 return RedirectToAction("Bank");
             }
             catch (Exception ex)
             {
+                _notyf.Error($"An Error occurred: {ex.Message}");
                 return BadRequest(ex.Message);
             }
         }

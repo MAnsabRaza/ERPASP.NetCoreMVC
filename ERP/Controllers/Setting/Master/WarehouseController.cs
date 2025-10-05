@@ -1,4 +1,5 @@
-﻿using ERP.Models;
+﻿using AspNetCoreHero.ToastNotification.Abstractions;
+using ERP.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Drawing.Printing;
@@ -8,8 +9,10 @@ namespace ERP.Controllers.Setting.Master
     public class WarehouseController : Controller
     {
         private readonly AppDbContext _context;
-        public WarehouseController(AppDbContext context)
+        private readonly INotyfService _notyf;
+        public WarehouseController(AppDbContext context,INotyfService notyf)
         {
+            _notyf = notyf;
             _context = context;
         }
         public async Task<IActionResult> Warehouse(string searchString, int page = 1, int pageSize = 5)
@@ -47,6 +50,7 @@ namespace ERP.Controllers.Setting.Master
             {
                 _context.Warehouse.Remove(warehouse);
                 await _context.SaveChangesAsync();
+                _notyf.Success("Warehouse Delete Successfully");
             }
             return RedirectToAction("Warehouse");
         }
@@ -77,7 +81,6 @@ namespace ERP.Controllers.Setting.Master
             ViewBag.companyList = await _context.Company.ToListAsync();
             ViewBag.Warehouse = warehouseList;
 
-            //return View("Warehouse", warehouse);
             return View("~/Views/Setting/Master/Warehouse.cshtml", warehouse);
 
         }
@@ -101,6 +104,7 @@ namespace ERP.Controllers.Setting.Master
                         existingWarehouse.companyId = warehouse.companyId;
                         _context.Update(existingWarehouse);
                         await _context.SaveChangesAsync();
+                        _notyf.Success("Warehouse Update Successfully");
                     }
 
                 }
@@ -108,11 +112,14 @@ namespace ERP.Controllers.Setting.Master
                 {
                     _context.Warehouse.Add(warehouse);
                     await _context.SaveChangesAsync();
+                    _notyf.Success("Warehouse Create Successfully");
+
                 }
                 return RedirectToAction("Warehouse");
             }
             catch (Exception ex)
             {
+                _notyf.Error($"An Error Occurred: {ex.Message}");
                 return RedirectToAction(ex.Message);
             }
         }

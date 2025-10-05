@@ -1,4 +1,5 @@
-﻿using ERP.Models;
+﻿using AspNetCoreHero.ToastNotification.Abstractions;
+using ERP.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Drawing.Printing;
@@ -8,8 +9,10 @@ namespace ERP.Controllers.Setting.ChartOfItem
     public class SubCategoryController : Controller
     {
         private readonly AppDbContext _context;
-        public SubCategoryController(AppDbContext context)
+        private readonly INotyfService _notfy;
+        public SubCategoryController(AppDbContext context,INotyfService notfy)
         {
+            _notfy = notfy;
             _context = context;
         }
         public async Task<IActionResult> SubCategory(string searchString, int page = 1, int pageSize = 5)
@@ -39,7 +42,6 @@ namespace ERP.Controllers.Setting.ChartOfItem
                     .Where(c => c.status == true)
                     .ToListAsync();
             ViewBag.SubCategory = subCategoryList;
-            //return View("SubCategory",model);
             return View("~/Views/Setting/ChartOfItem/SubCategory.cshtml", model);
         }
         [HttpPost]
@@ -50,6 +52,7 @@ namespace ERP.Controllers.Setting.ChartOfItem
             {
                 _context.SubCategory.Remove(subCategory);
                 await _context.SaveChangesAsync();
+                _notfy.Success("SubCategory Delete Successfully");
             }
             return RedirectToAction("SubCategory");
         }
@@ -70,12 +73,14 @@ namespace ERP.Controllers.Setting.ChartOfItem
                         existingSub.categoryId = subcategory.categoryId;
                         _context.Update(existingSub);
                         await _context.SaveChangesAsync();
+                        _notfy.Success("SubCategory Update Successfully");
                     }
                 }
                 else
                 {
                     _context.SubCategory.Add(subcategory);
                     await _context.SaveChangesAsync();
+                    _notfy.Success("SubCategory Create Successfully");
                 }
                 return RedirectToAction("SubCategory");
             }
@@ -111,8 +116,6 @@ namespace ERP.Controllers.Setting.ChartOfItem
                 Where(c => c.status == true).
                 ToListAsync();
             ViewBag.SubCategory = subCategoryList;
-            //return View("SubCategory", sub);
-
             return View("~/Views/Setting/ChartOfItem/SubCategory.cshtml", sub);
         }
     }

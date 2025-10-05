@@ -139,6 +139,7 @@ namespace ERP.Controllers
 
                 string otp = GenerateOtp();
                 user.otp = otp;
+                user.otp_expiry = DateTime.Now.AddMinutes(2);
                 await _context.SaveChangesAsync();
 
                 TempData["ResetEmail"] = model.email;
@@ -173,22 +174,33 @@ namespace ERP.Controllers
                     _notyf.Error("User not found. Please try again.");
                     return RedirectToAction("ForgetPassword");
                 }
+
                 if (string.IsNullOrEmpty(user.otp))
                 {
                     _notyf.Error("Invalid or expired OTP. Please request a new one.");
                     return RedirectToAction("ForgetPassword");
                 }
 
+                // 🕒 Check if OTP has expired
+                if (user.otp_expiry < DateTime.Now)
+                {
+                    user.otp = null; // clear OTP if expired
+                    await _context.SaveChangesAsync();
+
+                    _notyf.Error("Your OTP has expired. Please request a new one.");
+                    return RedirectToAction("ForgetPassword");
+                }
+
+                // ✅ Check OTP match
                 if (user.otp != vo.otp)
                 {
                     _notyf.Error("Incorrect OTP. Please try again.");
                     TempData["ResetEmail"] = email;
-                    TempData.Keep("ResetEmail"); 
+                    TempData.Keep("ResetEmail");
                     return View("VerifyOtp", vo);
                 }
 
-               
-
+                // ✅ OTP valid
                 TempData["ResetEmail"] = email;
                 TempData.Keep("ResetEmail");
 
@@ -214,7 +226,6 @@ namespace ERP.Controllers
         {
             try
             {
-                // Get email from TempData
                 var email = TempData["ResetEmail"]?.ToString();
                 if (string.IsNullOrEmpty(email))
                 {
@@ -222,7 +233,6 @@ namespace ERP.Controllers
                     return RedirectToAction("ForgetPassword");
                 }
 
-                // Find user by email
                 var user = await _context.User.FirstOrDefaultAsync(u => u.email == email);
                 if (user == null)
                 {
@@ -230,30 +240,25 @@ namespace ERP.Controllers
                     return RedirectToAction("ForgetPassword");
                 }
 
-                // Validate password match
                 if (cp.Password != cp.ConfirmPassword)
                 {
                     _notyf.Error("Passwords do not match. Please try again.");
                     TempData["ResetEmail"] = email;
-                    TempData.Keep("ResetEmail"); // Keep for retry
+                    TempData.Keep("ResetEmail"); 
                     return View("ChangePassword", cp);
                 }
 
-                // Validate password strength
                 if (string.IsNullOrEmpty(cp.Password) || cp.Password.Length < 6)
                 {
                     _notyf.Error("Password must be at least 6 characters long.");
                     TempData["ResetEmail"] = email;
-                    TempData.Keep("ResetEmail"); // Keep for retry
+                    TempData.Keep("ResetEmail"); 
                     return View("ChangePassword", cp);
                 }
 
-                // Update password and clear OTP
                 user.password = BCrypt.Net.BCrypt.HashPassword(cp.Password);
                 user.otp = null;
-
                 await _context.SaveChangesAsync();
-
                 _notyf.Success("Password changed successfully! Please login with your new password.");
                 return RedirectToAction("Login");
             }

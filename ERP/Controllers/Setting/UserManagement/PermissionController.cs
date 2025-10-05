@@ -1,4 +1,5 @@
-﻿using ERP.Models;
+﻿using AspNetCoreHero.ToastNotification.Abstractions;
+using ERP.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Client;
@@ -10,8 +11,10 @@ namespace ERP.Controllers.Setting.UserManagement
     public class PermissionController : Controller
     {
         private readonly AppDbContext _context;
-        public PermissionController(AppDbContext context)
+        private readonly INotyfService _notyf;
+        public PermissionController(AppDbContext context,INotyfService notyf)
         {
+            _notyf = notyf;
             _context = context;
         }
         public async Task<IActionResult> Permission(int page = 1, int pageSize = 5)
@@ -47,6 +50,7 @@ namespace ERP.Controllers.Setting.UserManagement
             {
                 _context.Permission.Remove(permission);
                 await _context.SaveChangesAsync();
+                _notyf.Success("Permission Delete Successfully");
             }
             return RedirectToAction("Permission");
         }
@@ -98,17 +102,20 @@ namespace ERP.Controllers.Setting.UserManagement
                         existingPermission.edit = permission.edit;
                         _context.Update(existingPermission);
                         await _context.SaveChangesAsync();
+                        _notyf.Success("Permission Update Successfully");
                     }
                 }
                 else
                 {
                     _context.Permission.Add(permission);
                     await _context.SaveChangesAsync();
+                    _notyf.Success("Permission Create Successfully");
                 }
                 return RedirectToAction("Permission");
             }
             catch (Exception ex)
             {
+                _notyf.Error($"An Error Occurred: {ex.Message}");
                 return BadRequest(ex.Message);
             }
         }

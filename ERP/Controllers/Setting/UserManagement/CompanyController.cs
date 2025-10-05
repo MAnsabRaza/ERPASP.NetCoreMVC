@@ -1,4 +1,5 @@
-﻿using ERP.Models;
+﻿using AspNetCoreHero.ToastNotification.Abstractions;
+using ERP.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
@@ -9,8 +10,10 @@ namespace ERP.Controllers.Setting.UserManagement
     public class CompanyController : Controller
     {
         private readonly AppDbContext _context;
-        public CompanyController(AppDbContext context)
+        private readonly INotyfService _notyf;
+        public CompanyController(AppDbContext context,INotyfService notyf)
         {
+            _notyf = notyf;
             _context = context;
         }
         public async Task<IActionResult> Company(string searchString, int page = 1, int pageSize = 5)
@@ -68,6 +71,7 @@ namespace ERP.Controllers.Setting.UserManagement
             {
                 _context.Company.Remove(company);
                 await _context.SaveChangesAsync();
+                _notyf.Success("Company Delete Successfully");
             }
             return RedirectToAction("Company");
         }
@@ -106,17 +110,20 @@ namespace ERP.Controllers.Setting.UserManagement
                         }
                         _context.Update(existingCompany);
                         await _context.SaveChangesAsync();
+                        _notyf.Success("Company Update Successfully");
                     }
                 }
                 else
                 {
                     _context.Company.Add(company);
                     await _context.SaveChangesAsync();
+                    _notyf.Success("Company Create Successfully");
                 }
                 return RedirectToAction("Company");
             }
             catch (Exception ex)
             {
+                _notyf.Error($"An Error Occurred: {ex.Message}");
                 return BadRequest(ex.Message);
             }
         }

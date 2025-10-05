@@ -1,4 +1,5 @@
-﻿using ERP.Models;
+﻿using AspNetCoreHero.ToastNotification.Abstractions;
+using ERP.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Drawing.Printing;
@@ -8,8 +9,10 @@ namespace ERP.Controllers.Setting.UserManagement
     public class ModuleController : Controller
     {
         private readonly AppDbContext _content;
-        public ModuleController(AppDbContext content)
+        private readonly INotyfService _notyf;
+        public ModuleController(AppDbContext content,INotyfService notyf)
         {
+            _notyf = notyf;
             _content = content;
         }
         public async Task<IActionResult> Module(string searchString, int page = 1, int pageSize = 5)
@@ -72,6 +75,7 @@ namespace ERP.Controllers.Setting.UserManagement
             {
                 _content.Module.Remove(module);
                 await _content.SaveChangesAsync();
+                _notyf.Success("Module Delete Successfully");
             }
             return RedirectToAction("Module");
         }
@@ -92,18 +96,21 @@ namespace ERP.Controllers.Setting.UserManagement
                         existingModule.status = module.status;
                         _content.Update(existingModule);
                         await _content.SaveChangesAsync();
+                        _notyf.Success("Module Update Successfully");
                     }
                 }
                 else
                 {
                     _content.Module.Add(module);
                     await _content.SaveChangesAsync();
+                    _notyf.Success("Module Create Successfully");
                 }
                 return RedirectToAction("Module");
 
             }
             catch (Exception ex)
             {
+                _notyf.Error($"An Error Occurred: {ex.Message}");
                 return BadRequest(ex.Message);
             }
         }

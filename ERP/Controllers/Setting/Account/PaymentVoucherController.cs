@@ -1,4 +1,5 @@
-﻿using ERP.Models;
+﻿using AspNetCoreHero.ToastNotification.Abstractions;
+using ERP.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Drawing;
@@ -8,7 +9,9 @@ namespace ERP.Controllers.Setting.Account
     public class PaymentVoucherController : Controller
     {
         private readonly AppDbContext _context;
-        public PaymentVoucherController(AppDbContext context) { 
+        private readonly INotyfService _notyf;
+        public PaymentVoucherController(AppDbContext context,INotyfService notyf) {
+            _notyf = notyf;
             _context = context;
         }
         public async Task<IActionResult> PaymentVoucher(string searchString,int page=1,int pageSize=5)
@@ -87,6 +90,7 @@ namespace ERP.Controllers.Setting.Account
             {
                 _context.PaymentVoucher.Remove(paymentVoucher);
                 await _context.SaveChangesAsync();
+                _notyf.Success("Payment Voucher Delete Successfully");
             }
             return RedirectToAction("PaymentVoucher");
         }
@@ -110,17 +114,20 @@ namespace ERP.Controllers.Setting.Account
                         existingPayment.bankAccountId = paymentVoucher.bankAccountId;
                         _context.Update(existingPayment);
                         await _context.SaveChangesAsync();
+                        _notyf.Success("Payment Voucher Update Successfully");
                     }
                 }
                 else
                 {
                     _context.PaymentVoucher.Add(paymentVoucher);
                     await _context.SaveChangesAsync();
+                    _notyf.Success("Payment Voucher Create Successfully");
                 }
                 return RedirectToAction("PaymentVoucher");
             }
             catch(Exception ex)
             {
+                _notyf.Error($"An Error Occurred: {ex.Message}");
                 return BadRequest(ex.Message);
             }
         }

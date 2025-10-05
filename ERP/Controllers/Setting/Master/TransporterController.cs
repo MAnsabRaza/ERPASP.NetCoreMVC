@@ -1,4 +1,5 @@
-﻿using ERP.Models;
+﻿using AspNetCoreHero.ToastNotification.Abstractions;
+using ERP.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,8 +8,11 @@ namespace ERP.Controllers.Setting.Master
     public class TransporterController : Controller
     {
         private readonly AppDbContext _context;
-        public TransporterController(AppDbContext context)
+
+        private readonly INotyfService _notyf;
+        public TransporterController(AppDbContext context,INotyfService notyf)
         {
+            _notyf = notyf;
             _context = context;
         }
         public async Task<IActionResult> Transporter(string searchString, int page = 1, int pageSize = 5)
@@ -97,17 +101,20 @@ namespace ERP.Controllers.Setting.Master
 
                         _context.Update(existingTransporter);
                         await _context.SaveChangesAsync();
+                        _notyf.Success("Transporter Update Successfully");
                     }
                 }
                 else
                 {
                     _context.Transporter.Add(transporter);
                     await _context.SaveChangesAsync();
+                    _notyf.Success("Transporter Create Successfully");
                 }
                 return RedirectToAction("Transporter");
             }
             catch (Exception ex)
             {
+                _notyf.Error($"An Error Occurred: {ex.Message}");
                 return BadRequest(ex.Message);
             }
         }
@@ -119,6 +126,7 @@ namespace ERP.Controllers.Setting.Master
             {
                 _context.Transporter.Remove(transporter);
                 await _context.SaveChangesAsync();
+                _notyf.Success("Transporter Delete Successfully");
             }
             return RedirectToAction("Transporter");
         }

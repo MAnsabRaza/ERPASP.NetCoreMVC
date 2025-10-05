@@ -1,4 +1,5 @@
-﻿using ERP.Models;
+﻿using AspNetCoreHero.ToastNotification.Abstractions;
+using ERP.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,8 +8,10 @@ namespace ERP.Controllers.Setting.Master
     public class CustomerController : Controller
     {
         private readonly AppDbContext _context;
-        public CustomerController(AppDbContext context)
+        private readonly INotyfService _notyf;
+        public CustomerController(AppDbContext context,INotyfService notyf)
         {
+            _notyf = notyf;
             _context = context;
         }
         public async Task<IActionResult> Customer(string searchString, int page = 1, int pageSize = 5)
@@ -62,6 +65,7 @@ namespace ERP.Controllers.Setting.Master
                         existingCustomer.companyId = customer.companyId;
                         _context.Update(existingCustomer);
                         await _context.SaveChangesAsync();
+                        _notyf.Success("Customer Update Successfully");
                     }
 
                 }
@@ -69,11 +73,13 @@ namespace ERP.Controllers.Setting.Master
                 {
                     _context.Customer.Add(customer);
                     await _context.SaveChangesAsync();
+                    _notyf.Success("Customer Create Successfully");
                 }
                 return RedirectToAction("Customer");
             }
             catch (Exception ex)
             {
+                _notyf.Error($"An Error Occurred: {ex.Message}");
                 return BadRequest(ex.Message);
             }
         }
@@ -114,6 +120,7 @@ namespace ERP.Controllers.Setting.Master
             {
                 _context.Customer.Remove(customer);
                 await _context.SaveChangesAsync();
+                _notyf.Success("Customer Delete Successfully");
             }
             return RedirectToAction("Customer");
         }

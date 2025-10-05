@@ -1,4 +1,5 @@
-﻿using BCrypt.Net;
+﻿using AspNetCoreHero.ToastNotification.Abstractions;
+using BCrypt.Net;
 using ERP.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,8 +12,11 @@ namespace ERP.Controllers.Setting.UserManagement
     public class UserController : Controller
     {
         private readonly AppDbContext _context;
-        public UserController(AppDbContext context)
+
+        private readonly INotyfService _notyf;
+        public UserController(AppDbContext context,INotyfService notyf)
         {
+            _notyf = notyf;
             _context = context;
         }
         public async Task<IActionResult> User(string searchString, int page = 1, int pageSize = 5)
@@ -86,6 +90,7 @@ namespace ERP.Controllers.Setting.UserManagement
                         }
                         _context.Update(existingUser);
                         await _context.SaveChangesAsync();
+                        _notyf.Success("User Update Successfully");
 
                     }
                 }
@@ -94,11 +99,13 @@ namespace ERP.Controllers.Setting.UserManagement
                     user.password = BCrypt.Net.BCrypt.HashPassword(user.password);
                     _context.User.Add(user);
                     await _context.SaveChangesAsync();
+                    _notyf.Success("User Create Successfully");
                 }
                 return RedirectToAction("User");
             }
             catch (Exception ex)
             {
+                _notyf.Error($"An Error Occurred: {ex.Message}");
                 return BadRequest(ex.Message);
             }
         }
@@ -142,6 +149,7 @@ namespace ERP.Controllers.Setting.UserManagement
             {
                 _context.User.Remove(user);
                 await _context.SaveChangesAsync();
+                _notyf.Success("User Delete Successfully");
             }
             return RedirectToAction("User", user);
         }

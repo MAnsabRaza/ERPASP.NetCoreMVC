@@ -1,4 +1,5 @@
-﻿using ERP.Models;
+﻿using AspNetCoreHero.ToastNotification.Abstractions;
+using ERP.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
@@ -9,8 +10,10 @@ namespace ERP.Controllers.Setting.UserManagement
     public class RoleController : Controller
     {
         private readonly AppDbContext _context;
-        public RoleController(AppDbContext context)
+        private readonly INotyfService _notyf;
+        public RoleController(AppDbContext context,INotyfService notyf)
         {
+            _notyf = notyf;
             _context = context;
         }
 
@@ -78,17 +81,20 @@ namespace ERP.Controllers.Setting.UserManagement
                         existingRole.current_date = role.current_date;
                         _context.Update(existingRole);
                         await _context.SaveChangesAsync();
+                        _notyf.Success("Role Update Successfully");
                     }
                 }
                 else
                 {
                     _context.Role.Add(role);
                     await _context.SaveChangesAsync();
+                    _notyf.Success("Role Create Successfully");
                 }
                 return RedirectToAction("Role");
             }
             catch (Exception ex)
             {
+                _notyf.Error($"An Error Occurred: {ex.Message}");
                 return BadRequest(ex.Message);
             }
         }
@@ -102,6 +108,7 @@ namespace ERP.Controllers.Setting.UserManagement
             {
                 _context.Role.Remove(roles);
                 await _context.SaveChangesAsync();
+                _notyf.Success("Role Delete Successfully");
             }
             return RedirectToAction("Role");
         }
