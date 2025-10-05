@@ -47,6 +47,14 @@ namespace ERP.Controllers.Setting.Master
         {
             try
             {
+                var companyIdString = HttpContext.Session.GetString("companyId");
+                if (string.IsNullOrEmpty(companyIdString))
+                {
+                    _notyf.Error("Session expired. Please log in again.");
+                    return RedirectToAction("Login", "Auth");
+                }
+                int companyId = int.Parse(companyIdString);
+                customer.companyId = companyId;
                 if (customer.Id > 0)
                 {
                     var existingCustomer = await _context.Customer.FindAsync(customer.Id);
@@ -62,7 +70,7 @@ namespace ERP.Controllers.Setting.Master
                         existingCustomer.phone = customer.phone;
                         existingCustomer.credit_limit = customer.credit_limit;
                         existingCustomer.current_balance = customer.current_balance;
-                        existingCustomer.companyId = customer.companyId;
+                        existingCustomer.companyId = companyId;
                         _context.Update(existingCustomer);
                         await _context.SaveChangesAsync();
                         _notyf.Success("Customer Update Successfully");

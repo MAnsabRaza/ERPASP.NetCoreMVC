@@ -65,6 +65,17 @@ namespace ERP.Controllers.Setting.Account
         {
             try
             {
+                var companyIdString = HttpContext.Session.GetString("companyId");
+                var userIdString = HttpContext.Session.GetString("userId");
+                if (string.IsNullOrEmpty(companyIdString) || string.IsNullOrEmpty(userIdString))
+                {
+                    _notyf.Error("Session expired. Please log in again.");
+                    return RedirectToAction("Login", "Auth");
+                }
+                int companyId = int.Parse(companyIdString);
+                int userId = int.Parse(userIdString);
+                jvm.JournalEntry.companyId = companyId;
+                jvm.JournalEntry.userId = userId;
                 if (jvm.JournalEntry.Id > 0)
                 {
                     var existingEntry = await _context.JournalEntry
@@ -75,7 +86,8 @@ namespace ERP.Controllers.Setting.Account
                         existingEntry.current_date = jvm.JournalEntry.current_date;
                         existingEntry.due_date = jvm.JournalEntry.due_date;
                         existingEntry.posted_date = jvm.JournalEntry.posted_date;
-                        existingEntry.companyId = jvm.JournalEntry.companyId;
+                        existingEntry.companyId = companyId;
+                        existingEntry.userId = userId;
                         existingEntry.etype = jvm.JournalEntry.etype;
                         existingEntry.description = jvm.JournalEntry.description;
                         existingEntry.total_credit = jvm.JournalDetail.Sum(x => x.credit_amount);

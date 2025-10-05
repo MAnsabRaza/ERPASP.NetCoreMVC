@@ -89,6 +89,14 @@ namespace ERP.Controllers.Setting.Master
         {
             try
             {
+                var companyIdString = HttpContext.Session.GetString("companyId");
+                if (string.IsNullOrEmpty(companyIdString))
+                {
+                    _notyf.Error("Session expired. Please log in again.");
+                    return RedirectToAction("Login", "Auth");
+                }
+                int companyId = int.Parse(companyIdString);
+                warehouse.companyId = companyId;
                 if (warehouse.Id > 0)
                 {
                     var existingWarehouse = await _context.Warehouse.FindAsync(warehouse.Id);
@@ -101,7 +109,7 @@ namespace ERP.Controllers.Setting.Master
                         existingWarehouse.city = warehouse.city;
                         existingWarehouse.status = warehouse.status;
                         existingWarehouse.type = warehouse.type;
-                        existingWarehouse.companyId = warehouse.companyId;
+                        existingWarehouse.companyId = companyId;
                         _context.Update(existingWarehouse);
                         await _context.SaveChangesAsync();
                         _notyf.Success("Warehouse Update Successfully");

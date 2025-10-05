@@ -80,6 +80,14 @@ namespace ERP.Controllers.Setting.Account
         {
             try
             {
+                var companyIdString = HttpContext.Session.GetString("companyId");
+                if (string.IsNullOrEmpty(companyIdString))
+                {
+                    _notyf.Error("Session expired. Please log in again.");
+                    return RedirectToAction("Login", "Auth");
+                }
+                int companyId=int.Parse(companyIdString);
+                bank.companyId=companyId;
                 if (bank.Id > 0)
                 {
                     var exisitngBank= await _context.Bank.FindAsync(bank.Id);
@@ -91,7 +99,7 @@ namespace ERP.Controllers.Setting.Account
                         exisitngBank.name = bank.name;
                         exisitngBank.bank_name = bank.bank_name;
                         exisitngBank.opening_balance = bank.opening_balance;
-                        exisitngBank.companyId = bank.companyId;
+                        exisitngBank.companyId =companyId;
                         _context.Update(exisitngBank);
                         await _context.SaveChangesAsync();
                         _notyf.Success("Bank Update Successfully");

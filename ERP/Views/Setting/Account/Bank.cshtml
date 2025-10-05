@@ -76,23 +76,13 @@
                     </div>
                 </div>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <input type="hidden" asp-for="companyId" />
+
                 <div>
                     <label class="block font-semibold text-gray-700 mb-1">Account Number</label>
                     @Html.TextBoxFor(m => m.account_no,
                              new { @class = "w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none", required = "required", type = "text", placeholder = "Enter Account Number" })
-                </div>
-                <div>
-                    <label class="block font-semibold text-gray-700 mb-1">Company Name</label>
-                    @Html.DropDownListFor(m => m.companyId, new SelectList(ViewBag.companyList, "Id", "company_name"),
-                             "Select Company",
-                             new
-                             {
-                                 @class = "w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none",
-                                 @id = "companyId",
-                                 required = "required"
-                             }
-                             )
                 </div>
                 <div>
                     <label class="block font-semibold text-gray-700 mb-1">Opening Balance</label>

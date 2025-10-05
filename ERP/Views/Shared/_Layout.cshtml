@@ -71,6 +71,22 @@
     </style>
 </head>
 <body class="bg-gray-50 flex flex-col min-h-screen">
+    @{
+        bool isLoggedIn = Context.Session.GetString("UserName") != null;
+    }
+
+    @if (!isLoggedIn)
+    {
+        <!-- Auto-redirect to login if not authenticated -->
+        <script>
+            window.location.href = '@Url.Action("Login", "Auth")';
+        </script>
+        <!-- Fallback meta refresh for no-JS scenarios -->
+        <meta http-equiv="refresh" content="0;url=@Url.Action("Login", "Auth")">
+        return;
+          <!-- Stop rendering the rest of the layout -->
+    }
+
     <!-- Header -->
     <header class="bg-white shadow-sm border-b border-gray-200 fixed w-full top-0 z-30">
         <div class="flex items-center justify-between px-4 py-3">
@@ -79,13 +95,10 @@
                     <i class="fas fa-bars text-xl"></i>
                 </button>
                 <div class="flex items-center">
-                    @if (Context.Session.GetString("UserName") != null)
-                    {
-                        <div class="bg-blue-600 text-white p-2 rounded-lg mr-3">
-                            <i class="fas fa-chart-line text-xl"></i>
-                        </div>
-                        <h1 class="text-xl font-bold text-gray-800">@Context.Session.GetString("CompanyName")</h1>
-                    }
+                    <div class="bg-blue-600 text-white p-2 rounded-lg mr-3">
+                        <i class="fas fa-chart-line text-xl"></i>
+                    </div>
+                    <h1 class="text-xl font-bold text-gray-800">@Context.Session.GetString("CompanyName")</h1>
                 </div>
             </div>
 
@@ -109,41 +122,21 @@
                         <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
                             <i class="fas fa-user text-white text-sm"></i>
                         </div>
-                        @if (Context.Session.GetString("UserName") != null)
-                        {
-                            <span class="hidden md:block text-gray-700 font-medium">@Context.Session.GetString("UserName")</span>
-                        }
-                        else
-                        {
-                            <span class="hidden md:block text-gray-700 font-medium">Guest</span>
-                        }
+                        <span class="hidden md:block text-gray-700 font-medium">@Context.Session.GetString("UserName")</span>
                         <i id="arrowIcon" class="fas fa-chevron-down text-gray-400 text-sm"></i>
                     </div>
 
                     <!-- Hidden details -->
                     <div id="profileDetails" class="hidden absolute right-0 mt-2 w-56 bg-white border rounded-lg shadow-lg p-3">
-                        @if (Context.Session.GetString("UserName") != null)
-                        {
-                            <p class="text-sm text-gray-700 font-medium">@Context.Session.GetString("UserName")</p>
-                            <p class="text-sm text-gray-500">@Context.Session.GetString("RoleName")</p>
-                            <p class="text-sm text-gray-500">@Context.Session.GetString("CompanyName")</p>
-                            <p>
-                                <a asp-controller="Auth" asp-action="Logout"
-                                   class="font-semibold flex items-center px-3 py-2 text-red-500 hover:text-red-600 hover:bg-red-100 rounded-lg">
-                                    <i class="fas fa-sign-out-alt mr-3 text-red-400 nav-icon"></i> Logout
-                                </a>
-                            </p>
-                        }
-                        else
-                        {
-                            <p class="text-sm text-gray-500">No details available</p>
-                            <p>
-                                <a asp-controller="Auth" asp-action="Logout"
-                                   class="font-semibold flex items-center px-3 py-2 text-red-500 hover:text-red-600 hover:bg-red-100 rounded-lg">
-                                    <i class="fas fa-sign-out-alt mr-3 text-red-400 nav-icon"></i> Logout
-                                </a>
-                            </p>
-                        }
+                        <p class="text-sm text-gray-700 font-medium">@Context.Session.GetString("UserName")</p>
+                        <p class="text-sm text-gray-500">@Context.Session.GetString("RoleName")</p>
+                        <p class="text-sm text-gray-500">@Context.Session.GetString("CompanyName")</p>
+                        <p>
+                            <a asp-controller="Auth" asp-action="Logout"
+                               class="font-semibold flex items-center px-3 py-2 text-red-500 hover:text-red-600 hover:bg-red-100 rounded-lg">
+                                <i class="fas fa-sign-out-alt mr-3 text-red-400 nav-icon"></i> Logout
+                            </a>
+                        </p>
                     </div>
                 </div>
             </div>
@@ -171,16 +164,8 @@
                         </div>
 
                         <div>
-                            @if (Context.Session.GetString("UserName") != null)
-                            {
-                                <h3 class="font-semibold text-gray-800">@Context.Session.GetString("UserName")</h3>
-                                <p class="text-sm text-gray-500">@Context.Session.GetString("RoleName")</p>
-                            }
-                            else
-                            {
-                                <h3 class="font-semibold text-gray-800">Guest</h3>
-                                <p class="text-sm text-gray-500">N/A</p>
-                            }
+                            <h3 class="font-semibold text-gray-800">@Context.Session.GetString("UserName")</h3>
+                            <p class="text-sm text-gray-500">@Context.Session.GetString("RoleName")</p>
                         </div>
                     </div>
                 </div>
@@ -272,7 +257,7 @@
                                 </li>
                                 <li>
                                     <button id="itemToggle" class="flex items-center justify-between w-full px-3 py-2 text-gray-600 rounded-md hover:bg-gray-100">
-                                        <span class="flex items-center"><i class="fas fa-box-open mr-2 nav-icon"></i> Chat Of Item</span>
+                                        <span class="flex items-center"><i class="fas fa-box-open mr-2 nav-icon"></i> Chart Of Item</span>
                                         <i id="itemChevron" class="fas fa-chevron-down text-gray-400 transition-transform duration-200"></i>
                                     </button>
                                     <ul id="itemDropdown" class="dropdown-menu mt-1 ml-6 space-y-1 bg-white border border-gray-200 rounded-lg shadow-lg p-2">
@@ -353,7 +338,6 @@
                                class="font-semibold flex items-center px-3 py-2 text-red-500 hover:text-red-600 hover:bg-red-100 rounded-lg">
                                 <i class="fas fa-sign-out-alt mr-3 text-red-400 nav-icon"></i> Logout
                             </a>
-
                         </li>
                     </ul>
                 </nav>
@@ -369,12 +353,9 @@
             </div>
             <!-- Footer -->
             <footer class="flex-shrink-0 bg-white border-t border-gray-200">
-                @if (Context.Session.GetString("UserName") != null)
-                {
-                    <div class="container mx-auto px-6 py-4 flex justify-between">
-                        <div class="text-sm text-gray-600">&copy; 2025 @Context.Session.GetString("CompanyName").</div>
-                    </div>
-                }
+                <div class="container mx-auto px-6 py-4 flex justify-between">
+                    <div class="text-sm text-gray-600">&copy; 2025 @Context.Session.GetString("CompanyName").</div>
+                </div>
             </footer>
         </main>
     </div>

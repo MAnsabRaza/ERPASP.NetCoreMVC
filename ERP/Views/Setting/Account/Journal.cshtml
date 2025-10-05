@@ -56,6 +56,10 @@
             </div>
             <div class="shadow-md rounded-2xl bg-white p-6 border border-gray-200 mt-4">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    @Html.HiddenFor(j => j.JournalEntry.companyId)
+                    @Html.HiddenFor(j => j.JournalEntry.userId)
+
+
                     <div>
                         <label class="block font-semibold text-gray-700 mb-1">Current Date *</label>
                         @Html.TextBoxFor(j => j.JournalEntry.current_date, "{0:yyyy-MM-dd}",
@@ -72,7 +76,8 @@
                                  new { @class = "w-full p-2 border rounded-lg", type = "date", required = "required" })
                     </div>
                 </div>
-                <div class="grid grid-cols-4 gap-6 mt-3">
+                <div class="grid grid-cols-3 gap-6 mt-3">
+                  
                     <div>
                         <label class="block font-semibold text-gray-700 mb-1">etype</label>
                         @Html.DropDownListFor(j => j.JournalEntry.etype,
@@ -84,13 +89,8 @@
                                  "Select etype Method",
                                  new { @class = "w-full p-2 border rounded-lg", required = "required" })
                     </div>
-                    <div>
-                        <label class="block font-semibold text-gray-700 mb-1">Company</label>
-                        @Html.DropDownListFor(m => m.JournalEntry.companyId,
-                                 new SelectList(ViewBag.CompanyList, "Id", "company_name"),
-                                 "Select Company Name",
-                                 new { @class = "w-full p-2 border rounded-lg", required = "required" })
-                    </div>
+                    
+                    
                     <div class="col-span-2">
                         <label class="block font-semibold text-gray-700 mb-1">Description</label>
                         @Html.TextAreaFor(j => j.JournalEntry.description,

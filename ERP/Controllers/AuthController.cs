@@ -70,7 +70,8 @@ namespace ERP.Controllers
 
                 var token = GenerateJwtToken(user);
 
-                HttpContext.Session.SetString("UserId", user.Id.ToString());
+                HttpContext.Session.SetString("userId", user.Id.ToString());
+                HttpContext.Session.SetString("companyId", user.companyId.ToString());
                 HttpContext.Session.SetString("UserEmail", user.email);
                 HttpContext.Session.SetString("UserImage", user.image);
                 HttpContext.Session.SetString("JwtToken", token);

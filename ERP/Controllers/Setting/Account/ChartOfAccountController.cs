@@ -122,6 +122,15 @@ namespace ERP.Controllers.Setting.Account
         [HttpPost]
         public async Task<IActionResult> CreateLevel1(ChartOfAccount level1)
         {
+
+            var companyIdString = HttpContext.Session.GetString("companyId");
+            if (string.IsNullOrEmpty(companyIdString))
+            {
+                _notyf.Error("Session expired. Please log in again.");
+                return RedirectToAction("Login", "Auth");
+            }
+            int companyId = int.Parse(companyIdString);
+            level1.companyId=companyId;
             if (level1.Id > 0)
             {
                 var existing = await _contaxt.ChartOfAccount.FindAsync(level1.Id);
@@ -130,7 +139,7 @@ namespace ERP.Controllers.Setting.Account
                     existing.current_date = level1.current_date;
                     existing.name = level1.name;
                     existing.accountTypeId = level1.accountTypeId;
-                    existing.companyId = level1.companyId;
+                    existing.companyId = companyId;
                     _contaxt.Update(existing);
                     await _contaxt.SaveChangesAsync();
                     _notyf.Success("Level One Update Successfully");
@@ -148,6 +157,14 @@ namespace ERP.Controllers.Setting.Account
         [HttpPost]
         public async Task<IActionResult> CreateLevel2(ChartOfAccount level2)
         {
+            var companyIdString = HttpContext.Session.GetString("companyId");
+            if (string.IsNullOrEmpty(companyIdString))
+            {
+                _notyf.Error("Session expired. Please log in again.");
+                return RedirectToAction("Login", "Auth");
+            }
+            int companyId = int.Parse(companyIdString);
+            level2.companyId = companyId;
             if (level2.Id > 0)
             {
                 var existing = await _contaxt.ChartOfAccount.FindAsync(level2.Id);
@@ -157,7 +174,7 @@ namespace ERP.Controllers.Setting.Account
                     existing.name = level2.name;
                     existing.parentAccountId = level2.parentAccountId;
                     existing.accountTypeId = level2.accountTypeId;
-                    existing.companyId = level2.companyId;
+                    existing.companyId = companyId;
                     _contaxt.Update(existing);
                     _notyf.Success("Level Two Update Successfully");
                     await _contaxt.SaveChangesAsync();

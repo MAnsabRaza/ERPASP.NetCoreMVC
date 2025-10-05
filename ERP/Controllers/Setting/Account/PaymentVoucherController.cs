@@ -99,7 +99,15 @@ namespace ERP.Controllers.Setting.Account
         {
             try
             {
-                if(paymentVoucher.Id > 0)
+                var companyIdString = HttpContext.Session.GetString("companyId");
+                if (string.IsNullOrEmpty(companyIdString))
+                {
+                    _notyf.Error("Session expired. Please log in again.");
+                    return RedirectToAction("Login", "Auth");
+                }
+                int companyId = int.Parse(companyIdString);
+                paymentVoucher.companyId = companyId;
+                if (paymentVoucher.Id > 0)
                 {
                     var existingPayment = await _context.PaymentVoucher.FindAsync(paymentVoucher.Id);
                     if(existingPayment != null)
@@ -109,7 +117,7 @@ namespace ERP.Controllers.Setting.Account
                         existingPayment.method = paymentVoucher.method;
                         existingPayment.amount = paymentVoucher.amount;
                         existingPayment.status = paymentVoucher.status;
-                        existingPayment.companyId=paymentVoucher.companyId;
+                        existingPayment.companyId=companyId;
                         existingPayment.venderId=paymentVoucher.venderId;
                         existingPayment.bankAccountId = paymentVoucher.bankAccountId;
                         _context.Update(existingPayment);

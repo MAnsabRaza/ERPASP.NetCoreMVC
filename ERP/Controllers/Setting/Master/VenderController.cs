@@ -85,6 +85,14 @@ namespace ERP.Controllers.Setting.Master
         {
             try
             {
+                var companyIdString = HttpContext.Session.GetString("companyId");
+                if (string.IsNullOrEmpty(companyIdString))
+                {
+                    _notyf.Error("Session expired. Please log in again.");
+                    return RedirectToAction("Login", "Auth");
+                }
+                int companyId = int.Parse(companyIdString);
+                vender.companyId = companyId;
                 if (vender.Id > 0)
                 {
                     var existingVender = await _context.Vender.FindAsync(vender.Id);
@@ -99,7 +107,7 @@ namespace ERP.Controllers.Setting.Master
                         existingVender.country = vender.country;
                         existingVender.phone = vender.phone;
                         existingVender.current_balance = vender.current_balance;
-                        existingVender.companyId = vender.companyId;
+                        existingVender.companyId = companyId;
                         _context.Update(existingVender);
 
                         await _context.SaveChangesAsync();
