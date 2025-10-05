@@ -205,6 +205,12 @@ public class AppDbContext : DbContext
             .WithMany()
             .HasForeignKey(sm => sm.companyId)
             .OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<StockMaster>()
+         .HasOne(sm => sm.User)
+         .WithMany()
+         .HasForeignKey(je => je.userId)
+         .OnDelete(DeleteBehavior.NoAction);
+
 
         modelBuilder.Entity<StockMaster>()
             .HasOne(sm => sm.Vender)
@@ -240,6 +246,11 @@ public class AppDbContext : DbContext
             .HasOne(je => je.Company)
             .WithMany()
             .HasForeignKey(je => je.companyId)
+            .OnDelete(DeleteBehavior.NoAction);
+        modelBuilder.Entity<JournalEntry>()
+            .HasOne(je => je.User)
+            .WithMany()
+            .HasForeignKey(je => je.userId)
             .OnDelete(DeleteBehavior.NoAction);
 
         modelBuilder.Entity<JournalDetail>()

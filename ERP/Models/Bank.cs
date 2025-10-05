@@ -13,6 +13,7 @@ namespace ERP.Models
         public bool status { get; set; }
         public int companyId { get; set; }
         [ForeignKey("companyId")]
+
         public virtual Company? Company { get; set; }
     }
 }

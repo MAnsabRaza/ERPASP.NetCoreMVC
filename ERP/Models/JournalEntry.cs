@@ -12,6 +12,9 @@ namespace ERP.Models
 
         [ForeignKey("companyId")]
         public virtual Company? Company { get; set; }
+        public int? userId { get; set; }
+        [ForeignKey("userId")]
+        public virtual User? User { get; set; }
 
         public string etype { get; set; } = string.Empty;
         public string description { get; set; } = string.Empty;

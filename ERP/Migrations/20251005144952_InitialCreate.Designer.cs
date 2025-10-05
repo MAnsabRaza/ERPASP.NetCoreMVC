@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ERP.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251002183912_againUpdateUssers")]
-    partial class againUpdateUssers
+    [Migration("20251005144952_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -461,9 +461,14 @@ namespace ERP.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<int?>("userId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("companyId");
+
+                    b.HasIndex("userId");
 
                     b.ToTable("JournalEntry");
                 });
@@ -760,6 +765,9 @@ namespace ERP.Migrations
                     b.Property<int>("transporterId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("userId")
+                        .HasColumnType("int");
+
                     b.Property<int>("venderId")
                         .HasColumnType("int");
 
@@ -770,6 +778,8 @@ namespace ERP.Migrations
                     b.HasIndex("customerId");
 
                     b.HasIndex("transporterId");
+
+                    b.HasIndex("userId");
 
                     b.HasIndex("venderId");
 
@@ -895,8 +905,8 @@ namespace ERP.Migrations
                     b.Property<string>("otp")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("otp_expire")
-                        .HasColumnType("date");
+                    b.Property<DateTime?>("otp_expiry")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("password")
                         .HasColumnType("nvarchar(max)");
@@ -1130,7 +1140,14 @@ namespace ERP.Migrations
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
+                    b.HasOne("ERP.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("userId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
                     b.Navigation("Company");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("ERP.Models.Ledger", b =>
@@ -1261,6 +1278,11 @@ namespace ERP.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("ERP.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("userId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
                     b.HasOne("ERP.Models.Vender", "Vender")
                         .WithMany()
                         .HasForeignKey("venderId")
@@ -1272,6 +1294,8 @@ namespace ERP.Migrations
                     b.Navigation("Customer");
 
                     b.Navigation("Transporter");
+
+                    b.Navigation("User");
 
                     b.Navigation("Vender");
                 });

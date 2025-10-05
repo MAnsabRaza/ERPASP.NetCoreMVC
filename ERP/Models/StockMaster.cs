@@ -8,9 +8,13 @@ namespace ERP.Models
         public DateOnly current_date {  get; set; }
         public DateOnly due_date {  get; set; }
         public DateOnly posted_date {  get; set; }
+
         public int companyId { get; set; }
         [ForeignKey("companyId")]
         public virtual Company? Company { get; set; }
+        public int? userId { get; set; }
+        [ForeignKey("userId")]
+        public virtual User? User { get; set; }
         public int venderId { get; set; }
         [ForeignKey("venderId")]
         public virtual Vender? Vender { get; set; }

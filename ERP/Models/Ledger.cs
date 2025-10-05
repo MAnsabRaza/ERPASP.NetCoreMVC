@@ -6,6 +6,7 @@ namespace ERP.Models
     {
         public int Id { get; set; }
         public DateOnly current_date {  get; set; }
+
         public int companyId { get; set; }
         [ForeignKey("companyId")]
         public virtual Company? Company { get; set; }
