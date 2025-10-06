@@ -9,334 +9,490 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css" rel="stylesheet" />
     <style>
-        /* Custom font stack for modern typography */
+        
         body {
-            font-family: 'Inter', 'Segoe UI', 'Roboto', sans-serif;
+            font-family: 'Inter', sans-serif;
         }
 
+        /* Sidebar Animations */
         .sidebar-transition {
-            transition: transform 0.3s ease-in-out;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .sidebar-closed {
             transform: translateX(-100%);
         }
 
+        /* Sidebar Styling */
         .fixed-sidebar {
             position: fixed;
-            top: 4rem;
-            height: calc(100vh - 4rem);
-            z-index: 20;
-            background: linear-gradient(180deg, #ffffff, #f1f5f9);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            top: 0;
+            left: 0;
+            height: 100vh;
+            z-index: 40;
+            background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+            box-shadow: 4px 0 24px rgba(0, 0, 0, 0.12);
         }
 
-        .hover-bg {
-            transition: background-color 0.2s ease, color 0.2s ease;
+        /* Navigation Items */
+        .nav-item {
+            position: relative;
+            transition: all 0.2s ease;
         }
 
-            .hover-bg:hover {
-                background-color: #3b82f6;
-                color: #ffffff;
-            }
+        .nav-item:hover {
+            background: rgba(59, 130, 246, 0.1);
+            transform: translateX(4px);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(90deg, rgba(59, 130, 246, 0.2), transparent);
+            border-left: 3px solid #3b82f6;
+        }
+
+        .nav-item:hover .nav-icon {
+            color: #60a5fa;
+            transform: scale(1.1);
+        }
 
         .nav-icon {
-            transition: transform 0.2s ease;
+            transition: all 0.2s ease;
         }
 
-        .hover-bg:hover .nav-icon {
-            transform: scale(1.2);
-        }
-
+        /* Dropdown Animations */
         .dropdown-menu {
-            transition: max-height 0.3s ease, opacity 0.3s ease;
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
+                        opacity 0.3s ease,
+                        padding 0.3s ease;
             max-height: 0;
             opacity: 0;
             overflow: hidden;
+            padding: 0;
         }
 
-            .dropdown-menu.active {
-                max-height: 500px;
-                opacity: 1;
-            }
+        .dropdown-menu.active {
+            max-height: 800px;
+            opacity: 1;
+            padding: 0.5rem 0;
+        }
 
-            .dropdown-menu li a {
-                transition: background-color 0.2s ease, color 0.2s ease;
-            }
+        /* Nested Dropdown */
+        .nested-item {
+            position: relative;
+            transition: all 0.2s ease;
+        }
 
-                .dropdown-menu li a:hover {
-                    background-color: #eff6ff;
-                    color: #1e40af;
-                }
+        .nested-item:hover {
+            background: rgba(59, 130, 246, 0.15);
+            padding-left: 1rem;
+        }
+
+        .nested-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            width: 0;
+            height: 2px;
+            background: #3b82f6;
+            transition: width 0.3s ease;
+        }
+
+        .nested-item:hover::before {
+            width: 8px;
+        }
+
+        /* Scrollbar Styling */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Header Blur Effect */
+        .header-blur {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+       
+
+        .notification-badge {
+            animation: pulse-badge 2s infinite;
+        }
+
+        /* Search Bar Animation */
+        .search-bar {
+            transition: all 0.3s ease;
+        }
+
+        .search-bar:focus-within {
+            background: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 20rem;
+        }
+
+        /* Chevron Rotation */
+        .chevron-rotate {
+            transition: transform 0.3s ease;
+        }
+
+        /* Profile Dropdown */
+        .profile-dropdown {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateY(-10px);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .profile-dropdown.show {
+            transform: translateY(0);
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        /* Gradient Text */
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Card Hover Effect */
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        }
     </style>
 </head>
-<body class="bg-gray-50 flex flex-col min-h-screen">
+<body class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
     @{
         bool isLoggedIn = Context.Session.GetString("UserName") != null;
     }
 
     @if (!isLoggedIn)
     {
-        <!-- Auto-redirect to login if not authenticated -->
         <script>
             window.location.href = '@Url.Action("Login", "Auth")';
         </script>
-        <!-- Fallback meta refresh for no-JS scenarios -->
         <meta http-equiv="refresh" content="0;url=@Url.Action("Login", "Auth")">
         return;
-          <!-- Stop rendering the rest of the layout -->
     }
 
     <!-- Header -->
-    <header class="bg-white shadow-sm border-b border-gray-200 fixed w-full top-0 z-30">
-        <div class="flex items-center justify-between px-4 py-3">
-            <div class="flex items-center">
-                <button id="sidebarToggle" class="md:hidden text-gray-600 hover:text-gray-900 focus:outline-none mr-3">
+    <header class="header-blur shadow-sm border-b border-gray-200 fixed w-full top-0 z-30">
+        <div class="flex items-center justify-between px-6 py-3">
+            <div class="flex items-center space-x-4">
+                <button id="sidebarToggle" class="md:hidden text-gray-600 hover:text-blue-600 focus:outline-none transition-colors">
                     <i class="fas fa-bars text-xl"></i>
                 </button>
-                <div class="flex items-center">
-                    <div class="bg-blue-600 text-white p-2 rounded-lg mr-3">
-                        <i class="fas fa-chart-line text-xl"></i>
+                <div class="flex items-center space-x-3">
+                    <div class="bg-gradient-to-br from-blue-500 to-blue-700 p-2.5 rounded-xl shadow-lg">
+                        <i class="fas fa-chart-line text-white text-xl"></i>
                     </div>
-                    <h1 class="text-xl font-bold text-gray-800">@Context.Session.GetString("CompanyName")</h1>
+                    <div>
+                        <h1 class="text-xl font-bold text-gray-800">@Context.Session.GetString("CompanyName")</h1>
+                        <p class="text-xs text-gray-500">Enterprise Resource Planning</p>
+                    </div>
                 </div>
             </div>
 
-            <div class="flex items-center space-x-4">
+            <div class="flex items-center space-x-6">
                 <!-- Search -->
-                <div class="hidden md:flex items-center bg-gray-100 rounded-lg px-3 py-2">
+                <div class="hidden md:flex items-center bg-gray-100 rounded-xl px-4 py-2.5 search-bar">
                     <i class="fas fa-search text-gray-400 mr-2"></i>
-                    <input type="text" placeholder="Search..." class="bg-transparent outline-none text-sm w-64">
+                    <input type="text" placeholder="Search anything..." class="bg-transparent outline-none text-sm w-64">
+                    <kbd class="ml-2 px-2 py-0.5 text-xs bg-gray-200 rounded">Ctrl+K</kbd>
                 </div>
 
                 <!-- Notifications -->
-                <button class="relative text-gray-600 hover:text-gray-900">
+                <button class="relative text-gray-600 hover:text-blue-600 transition-colors p-2 hover:bg-gray-100 rounded-lg">
                     <i class="fas fa-bell text-xl"></i>
-                    <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">3</span>
+                    <span class="notification-badge absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold shadow-lg">3</span>
                 </button>
 
                 <!-- Profile -->
                 <div class="relative">
-                    <!-- Profile header -->
-                    <div id="profileToggle" class="flex items-center space-x-2 cursor-pointer hover:bg-gray-100 rounded-lg p-2">
-                        <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-                            <i class="fas fa-user text-white text-sm"></i>
+                    <div id="profileToggle" class="flex items-center space-x-3 cursor-pointer hover:bg-gray-100 rounded-xl p-2 transition-all">
+                        <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-md">
+                            <i class="fas fa-user text-white"></i>
                         </div>
-                        <span class="hidden md:block text-gray-700 font-medium">@Context.Session.GetString("UserName")</span>
-                        <i id="arrowIcon" class="fas fa-chevron-down text-gray-400 text-sm"></i>
+                        <div class="hidden md:block">
+                            <p class="text-sm font-semibold text-gray-800">@Context.Session.GetString("UserName")</p>
+                            <p class="text-xs text-gray-500">@Context.Session.GetString("RoleName")</p>
+                        </div>
+                        <i id="arrowIcon" class="fas fa-chevron-down text-gray-400 text-sm chevron-rotate"></i>
                     </div>
 
-                    <!-- Hidden details -->
-                    <div id="profileDetails" class="hidden absolute right-0 mt-2 w-56 bg-white border rounded-lg shadow-lg p-3">
-                        <p class="text-sm text-gray-700 font-medium">@Context.Session.GetString("UserName")</p>
-                        <p class="text-sm text-gray-500">@Context.Session.GetString("RoleName")</p>
-                        <p class="text-sm text-gray-500">@Context.Session.GetString("CompanyName")</p>
-                        <p>
+                    <div id="profileDetails" class="profile-dropdown absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden">
+                        <div class="p-4 bg-gradient-to-r from-blue-500 to-purple-600">
+                            <p class="text-white font-semibold">@Context.Session.GetString("UserName")</p>
+                            <p class="text-blue-100 text-sm">@Context.Session.GetString("RoleName")</p>
+                            <p class="text-blue-100 text-xs mt-1">@Context.Session.GetString("CompanyName")</p>
+                        </div>
+                        <div class="p-2">
                             <a asp-controller="Auth" asp-action="Logout"
-                               class="font-semibold flex items-center px-3 py-2 text-red-500 hover:text-red-600 hover:bg-red-100 rounded-lg">
-                                <i class="fas fa-sign-out-alt mr-3 text-red-400 nav-icon"></i> Logout
+                               class="flex items-center px-4 py-2.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors font-medium">
+                                <i class="fas fa-sign-out-alt mr-3"></i> Logout
                             </a>
-                        </p>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </header>
 
-    <div class="flex pt-16 flex-1">
+    <div class="flex pt-16">
         <!-- Sidebar -->
-        <aside id="sidebar" class="sidebar-transition fixed inset-y-0 left-0 z-20 w-64 bg-white shadow-lg border-r border-gray-200 fixed-sidebar">
-            <div class="h-full overflow-y-auto">
-                <!-- User Info -->
-                <div class="p-4 border-b border-gray-200">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center overflow-hidden">
-                            @if (Context.Session.GetString("UserImage") != "")
-                            {
-                                <img src="data:image/png;base64,@Context.Session.GetString("UserImage")"
-                                     alt="User Image"
-                                     class="w-full h-full object-cover" />
-                            }
-                            else
-                            {
-                                <i class="fas fa-user text-white text-lg"></i>
-                            }
+        <aside id="sidebar" class="sidebar-transition fixed-sidebar w-72">
+            <div class="h-full overflow-y-auto custom-scrollbar">
+                <!-- User Profile Card -->
+                <div class="p-6 border-b border-gray-700">
+                    <div class="flex items-center space-x-4">
+                        <div class="relative">
+                            <div class="w-16 h-16 bg-gradient-to-br from-blue-400 to-purple-600 rounded-2xl flex items-center justify-center overflow-hidden shadow-lg ring-4 ring-blue-500 ring-opacity-30">
+                                @if (Context.Session.GetString("UserImage") != "")
+                                {
+                                    <img src="data:image/png;base64,@Context.Session.GetString("UserImage")"
+                                         alt="User Image"
+                                         class="w-full h-full object-cover" />
+                                }
+                                else
+                                {
+                                    <i class="fas fa-user text-white text-2xl"></i>
+                                }
+                            </div>
+                            <div class="absolute bottom-0 right-0 w-4 h-4 bg-green-400 rounded-full border-2 border-gray-800"></div>
                         </div>
-
-                        <div>
-                            <h3 class="font-semibold text-gray-800">@Context.Session.GetString("UserName")</h3>
-                            <p class="text-sm text-gray-500">@Context.Session.GetString("RoleName")</p>
+                        <div class="flex-1">
+                            <h3 class="font-bold text-white text-lg">@Context.Session.GetString("UserName")</h3>
+                            <p class="text-sm text-blue-300">@Context.Session.GetString("RoleName")</p>
                         </div>
                     </div>
                 </div>
 
                 <!-- Navigation -->
-                <nav class="mt-4">
-                    <div class="px-4 py-2">
-                        <h4 class="text-xs uppercase tracking-wider text-gray-400 font-semibold">Main Menu</h4>
+                <nav class="py-4">
+                    <div class="px-6 mb-3">
+                        <h4 class="text-xs uppercase tracking-wider text-gray-400 font-bold">Main Menu</h4>
                     </div>
 
-                    <ul class="space-y-1 px-2">
-                        <li><a href="#" class="flex items-center px-3 py-2 text-gray-700 hover-bg rounded-lg"><i class="fas fa-home mr-3 text-gray-400 nav-icon"></i> Dashboard</a></li>
-                        <li><a href="#" class="flex items-center px-3 py-2 text-gray-700 hover-bg rounded-lg"><i class="fas fa-box mr-3 text-gray-400 nav-icon"></i> Inventory</a></li>
-                        <li><a href="#" class="flex items-center px-3 py-2 text-gray-700 hover-bg rounded-lg"><i class="fas fa-receipt mr-3 text-gray-400 nav-icon"></i> Orders</a></li>
+                    <ul class="space-y-1 px-3">
+                        <li>
+                            <a href="#" class="nav-item flex items-center px-4 py-3 text-gray-300 rounded-xl group">
+                                <i class="fas fa-home mr-4 text-blue-400 nav-icon text-lg"></i>
+                                <span class="font-medium">Dashboard</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="nav-item flex items-center px-4 py-3 text-gray-300 rounded-xl group">
+                                <i class="fas fa-box mr-4 text-green-400 nav-icon text-lg"></i>
+                                <span class="font-medium">Inventory</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="nav-item flex items-center px-4 py-3 text-gray-300 rounded-xl group">
+                                <i class="fas fa-receipt mr-4 text-purple-400 nav-icon text-lg"></i>
+                                <span class="font-medium">Orders</span>
+                            </a>
+                        </li>
                     </ul>
 
-                    <div class="px-4 py-2 mt-6">
-                        <h4 class="text-xs uppercase tracking-wider text-gray-400 font-semibold">Support</h4>
+                    <div class="px-6 mt-6 mb-3">
+                        <h4 class="text-xs uppercase tracking-wider text-gray-400 font-bold">Management</h4>
                     </div>
 
-                    <ul class="space-y-1 px-2">
+                    <ul class="space-y-1 px-3">
                         <!-- Settings Dropdown -->
-                        <li class="relative">
-                            <button id="settingsToggle" class="flex items-center justify-between w-full px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 focus:outline-none">
-                                <span class="flex items-center"><i class="fas fa-cog mr-3 text-gray-400 nav-icon"></i> Settings</span>
-                                <i id="settingsChevron" class="fas fa-chevron-down text-gray-400 transition-transform duration-200"></i>
+                        <li>
+                            <button id="settingsToggle" class="nav-item flex items-center justify-between w-full px-4 py-3 text-gray-300 rounded-xl focus:outline-none">
+                                <span class="flex items-center">
+                                    <i class="fas fa-cog mr-4 text-yellow-400 nav-icon text-lg"></i>
+                                    <span class="font-medium">Settings</span>
+                                </span>
+                                <i id="settingsChevron" class="fas fa-chevron-down text-gray-400 chevron-rotate"></i>
                             </button>
-                            <ul id="settingsDropdown" class="dropdown-menu mt-1 ml-6 space-y-1 bg-white border border-gray-200 rounded-lg shadow-lg p-2">
+                            <ul id="settingsDropdown" class="dropdown-menu ml-4 mt-1 space-y-1">
+                                <!-- Account Nested -->
                                 <li>
-                                    <button id="accountToggle" class="flex items-center justify-between w-full px-3 py-2 text-gray-600 rounded-md hover:bg-gray-100">
-                                        <span class="flex items-center"><i class="fas fa-wallet mr-2 nav-icon"></i> Account</span>
-                                        <i id="accountChevron" class="fas fa-chevron-down text-gray-400 transition-transform duration-200"></i>
+                                    <button id="accountToggle" class="flex items-center justify-between w-full px-4 py-2 text-gray-400 rounded-lg hover:bg-gray-700 transition-colors">
+                                        <span class="flex items-center text-sm">
+                                            <i class="fas fa-wallet mr-3 text-blue-300"></i> Account
+                                        </span>
+                                        <i id="accountChevron" class="fas fa-chevron-down text-gray-500 text-xs chevron-rotate"></i>
                                     </button>
-                                    <ul id="accountDropdown" class="dropdown-menu mt-1 ml-6 space-y-1 bg-white border border-gray-200 rounded-lg shadow-lg p-2">
+                                    <ul id="accountDropdown" class="dropdown-menu ml-4 space-y-1">
                                         <li>
-                                            <a asp-controller="Journal" asp-action="Journal" class="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
-                                                <i class="fas fa-sitemap mr-2 text-gray-400 nav-icon"></i><span>Journal Voucher</span>
+                                            <a asp-controller="Journal" asp-action="Journal" class="nested-item flex items-center px-4 py-2 text-gray-400 rounded-lg text-sm">
+                                                <i class="fas fa-sitemap mr-3 text-xs"></i>Journal Voucher
                                             </a>
                                         </li>
                                         <li>
-                                            <a asp-controller="AccountType" asp-action="AccountType" class="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
-                                                <i class="fas fa-sitemap mr-2 text-gray-400 nav-icon"></i><span>Account Type</span>
+                                            <a asp-controller="AccountType" asp-action="AccountType" class="nested-item flex items-center px-4 py-2 text-gray-400 rounded-lg text-sm">
+                                                <i class="fas fa-sitemap mr-3 text-xs"></i>Account Type
                                             </a>
                                         </li>
                                         <li>
-                                            <a asp-controller="Bank" asp-action="Bank" class="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
-                                                <i class="fas fa-university mr-2 text-gray-400 nav-icon"></i><span>Bank</span>
+                                            <a asp-controller="Bank" asp-action="Bank" class="nested-item flex items-center px-4 py-2 text-gray-400 rounded-lg text-sm">
+                                                <i class="fas fa-university mr-3 text-xs"></i>Bank
                                             </a>
                                         </li>
                                         <li>
-                                            <a asp-controller="PaymentVoucher" asp-action="PaymentVoucher" class="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
-                                                <i class="fas fa-file-invoice-dollar mr-2 text-gray-400 nav-icon"></i><span>Payment Voucher</span>
+                                            <a asp-controller="PaymentVoucher" asp-action="PaymentVoucher" class="nested-item flex items-center px-4 py-2 text-gray-400 rounded-lg text-sm">
+                                                <i class="fas fa-file-invoice-dollar mr-3 text-xs"></i>Payment Voucher
                                             </a>
                                         </li>
                                         <li>
-                                            <a asp-controller="ChartOfAccount" asp-action="ChartOfAccount" class="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
-                                                <i class="fas fa-book mr-2 text-gray-400 nav-icon"></i><span>Chart of Account</span>
+                                            <a asp-controller="ChartOfAccount" asp-action="ChartOfAccount" class="nested-item flex items-center px-4 py-2 text-gray-400 rounded-lg text-sm">
+                                                <i class="fas fa-book mr-3 text-xs"></i>Chart of Account
                                             </a>
                                         </li>
                                     </ul>
                                 </li>
+
+                                <!-- Master Nested -->
                                 <li>
-                                    <button id="masterToggle" class="flex items-center justify-between w-full px-3 py-2 text-gray-600 rounded-md hover:bg-gray-100">
-                                        <span class="flex items-center"><i class="fas fa-cogs mr-2 nav-icon"></i> Master</span>
-                                        <i id="masterChevron" class="fas fa-chevron-down text-gray-400 transition-transform duration-200"></i>
+                                    <button id="masterToggle" class="flex items-center justify-between w-full px-4 py-2 text-gray-400 rounded-lg hover:bg-gray-700 transition-colors">
+                                        <span class="flex items-center text-sm">
+                                            <i class="fas fa-cogs mr-3 text-green-300"></i> Master
+                                        </span>
+                                        <i id="masterChevron" class="fas fa-chevron-down text-gray-500 text-xs chevron-rotate"></i>
                                     </button>
-                                    <ul id="masterDropdown" class="dropdown-menu mt-1 ml-6 space-y-1 bg-white border border-gray-200 rounded-lg shadow-lg p-2">
+                                    <ul id="masterDropdown" class="dropdown-menu ml-4 space-y-1">
                                         <li>
-                                            <a asp-controller="Customer" asp-action="Customer" class="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
-                                                <i class="fas fa-users mr-2 text-gray-400 nav-icon"></i><span>Customer</span>
+                                            <a asp-controller="Customer" asp-action="Customer" class="nested-item flex items-center px-4 py-2 text-gray-400 rounded-lg text-sm">
+                                                <i class="fas fa-users mr-3 text-xs"></i>Customer
                                             </a>
                                         </li>
                                         <li>
-                                            <a asp-controller="Vender" asp-action="Vender" class="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
-                                                <i class="fas fa-box-open mr-2 text-gray-400 nav-icon"></i><span>Vender</span>
+                                            <a asp-controller="Vender" asp-action="Vender" class="nested-item flex items-center px-4 py-2 text-gray-400 rounded-lg text-sm">
+                                                <i class="fas fa-box-open mr-3 text-xs"></i>Vender
                                             </a>
                                         </li>
                                         <li>
-                                            <a asp-controller="Warehouse" asp-action="Warehouse" class="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
-                                                <i class="fas fa-warehouse mr-2 text-gray-400 nav-icon"></i><span>Warehouse</span>
+                                            <a asp-controller="Warehouse" asp-action="Warehouse" class="nested-item flex items-center px-4 py-2 text-gray-400 rounded-lg text-sm">
+                                                <i class="fas fa-warehouse mr-3 text-xs"></i>Warehouse
                                             </a>
                                         </li>
                                         <li>
-                                            <a asp-controller="Transporter" asp-action="Transporter" class="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
-                                                <i class="fas fa-truck mr-2 text-gray-400 nav-icon"></i><span>Transporter</span>
+                                            <a asp-controller="Transporter" asp-action="Transporter" class="nested-item flex items-center px-4 py-2 text-gray-400 rounded-lg text-sm">
+                                                <i class="fas fa-truck mr-3 text-xs"></i>Transporter
                                             </a>
                                         </li>
                                     </ul>
                                 </li>
+
+                                <!-- Chart Of Item Nested -->
                                 <li>
-                                    <button id="itemToggle" class="flex items-center justify-between w-full px-3 py-2 text-gray-600 rounded-md hover:bg-gray-100">
-                                        <span class="flex items-center"><i class="fas fa-box-open mr-2 nav-icon"></i> Chart Of Item</span>
-                                        <i id="itemChevron" class="fas fa-chevron-down text-gray-400 transition-transform duration-200"></i>
+                                    <button id="itemToggle" class="flex items-center justify-between w-full px-4 py-2 text-gray-400 rounded-lg hover:bg-gray-700 transition-colors">
+                                        <span class="flex items-center text-sm">
+                                            <i class="fas fa-box-open mr-3 text-purple-300"></i> Chart Of Item
+                                        </span>
+                                        <i id="itemChevron" class="fas fa-chevron-down text-gray-500 text-xs chevron-rotate"></i>
                                     </button>
-                                    <ul id="itemDropdown" class="dropdown-menu mt-1 ml-6 space-y-1 bg-white border border-gray-200 rounded-lg shadow-lg p-2">
+                                    <ul id="itemDropdown" class="dropdown-menu ml-4 space-y-1">
                                         <li>
-                                            <a asp-controller="Item" asp-action="Item" class="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
-                                                <i class="fas fa-box-open mr-2 text-gray-400 nav-icon"></i><span>Item</span>
+                                            <a asp-controller="Item" asp-action="Item" class="nested-item flex items-center px-4 py-2 text-gray-400 rounded-lg text-sm">
+                                                <i class="fas fa-box-open mr-3 text-xs"></i>Item
                                             </a>
                                         </li>
                                         <li>
-                                            <a asp-controller="Category" asp-action="Category" class="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
-                                                <i class="fas fa-layer-group mr-2 text-gray-400 nav-icon"></i><span>Category</span>
+                                            <a asp-controller="Category" asp-action="Category" class="nested-item flex items-center px-4 py-2 text-gray-400 rounded-lg text-sm">
+                                                <i class="fas fa-layer-group mr-3 text-xs"></i>Category
                                             </a>
                                         </li>
                                         <li>
-                                            <a asp-controller="SubCategory" asp-action="SubCategory" class="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
-                                                <i class="fas fa-stream mr-2 text-gray-400 nav-icon"></i><span>Sub Category</span>
+                                            <a asp-controller="SubCategory" asp-action="SubCategory" class="nested-item flex items-center px-4 py-2 text-gray-400 rounded-lg text-sm">
+                                                <i class="fas fa-stream mr-3 text-xs"></i>Sub Category
                                             </a>
                                         </li>
                                         <li>
-                                            <a asp-controller="Brand" asp-action="Brand" class="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
-                                                <i class="fas fa-tag mr-2 text-gray-400 nav-icon"></i><span>Brand</span>
+                                            <a asp-controller="Brand" asp-action="Brand" class="nested-item flex items-center px-4 py-2 text-gray-400 rounded-lg text-sm">
+                                                <i class="fas fa-tag mr-3 text-xs"></i>Brand
                                             </a>
                                         </li>
                                         <li>
-                                            <a asp-controller="UOM" asp-action="UOM" class="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
-                                                <i class="fas fa-ruler-combined mr-2 text-gray-400 nav-icon"></i><span>UOM</span>
+                                            <a asp-controller="UOM" asp-action="UOM" class="nested-item flex items-center px-4 py-2 text-gray-400 rounded-lg text-sm">
+                                                <i class="fas fa-ruler-combined mr-3 text-xs"></i>UOM
                                             </a>
                                         </li>
                                     </ul>
                                 </li>
-                                <li class="relative">
-                                    <button id="adminToggle" class="flex items-center justify-between w-full px-3 py-2 text-gray-600 rounded-md hover:bg-gray-100">
-                                        <span class="flex items-center"><i class="fas fa-user-shield mr-2 nav-icon"></i> Admin</span>
-                                        <i id="adminChevron" class="fas fa-chevron-down text-gray-400 transition-transform duration-200"></i>
+
+                                <!-- Admin Nested -->
+                                <li>
+                                    <button id="adminToggle" class="flex items-center justify-between w-full px-4 py-2 text-gray-400 rounded-lg hover:bg-gray-700 transition-colors">
+                                        <span class="flex items-center text-sm">
+                                            <i class="fas fa-user-shield mr-3 text-red-300"></i> Admin
+                                        </span>
+                                        <i id="adminChevron" class="fas fa-chevron-down text-gray-500 text-xs chevron-rotate"></i>
                                     </button>
-                                    <ul id="adminDropdown" class="dropdown-menu mt-1 ml-6 space-y-1 bg-white border border-gray-200 rounded-lg shadow-lg p-2">
+                                    <ul id="adminDropdown" class="dropdown-menu ml-4 space-y-1">
                                         <li>
-                                            <a asp-controller="User" asp-action="User" class="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
-                                                <i class="fas fa-users mr-2 text-gray-400 nav-icon"></i><span>User</span>
+                                            <a asp-controller="User" asp-action="User" class="nested-item flex items-center px-4 py-2 text-gray-400 rounded-lg text-sm">
+                                                <i class="fas fa-users mr-3 text-xs"></i>User
                                             </a>
                                         </li>
                                         <li>
-                                            <a asp-controller="Role" asp-action="Role" class="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
-                                                <i class="fas fa-user-shield mr-2 text-gray-400 nav-icon"></i><span>Role</span>
+                                            <a asp-controller="Role" asp-action="Role" class="nested-item flex items-center px-4 py-2 text-gray-400 rounded-lg text-sm">
+                                                <i class="fas fa-user-shield mr-3 text-xs"></i>Role
                                             </a>
                                         </li>
                                         <li>
-                                            <a asp-controller="Permission" asp-action="Permission" class="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
-                                                <i class="fas fa-key mr-2 text-gray-400 nav-icon"></i><span>Permission</span>
+                                            <a asp-controller="Permission" asp-action="Permission" class="nested-item flex items-center px-4 py-2 text-gray-400 rounded-lg text-sm">
+                                                <i class="fas fa-key mr-3 text-xs"></i>Permission
                                             </a>
                                         </li>
                                         <li>
-                                            <a asp-controller="Module" asp-action="Module" class="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
-                                                <i class="fas fa-cubes mr-2 text-gray-400 nav-icon"></i><span>Module</span>
+                                            <a asp-controller="Module" asp-action="Module" class="nested-item flex items-center px-4 py-2 text-gray-400 rounded-lg text-sm">
+                                                <i class="fas fa-cubes mr-3 text-xs"></i>Module
                                             </a>
                                         </li>
                                         <li>
-                                            <a asp-controller="Component" asp-action="Component" class="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
-                                                <i class="fas fa-puzzle-piece mr-2 text-gray-400 nav-icon"></i><span>Component</span>
+                                            <a asp-controller="Component" asp-action="Component" class="nested-item flex items-center px-4 py-2 text-gray-400 rounded-lg text-sm">
+                                                <i class="fas fa-puzzle-piece mr-3 text-xs"></i>Component
                                             </a>
                                         </li>
                                         <li>
-                                            <a asp-controller="Company" asp-action="Company" class="flex items-center px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors">
-                                                <i class="fas fa-building mr-2 text-gray-400 nav-icon"></i><span>Company</span>
+                                            <a asp-controller="Company" asp-action="Company" class="nested-item flex items-center px-4 py-2 text-gray-400 rounded-lg text-sm">
+                                                <i class="fas fa-building mr-3 text-xs"></i>Company
                                             </a>
                                         </li>
                                     </ul>
                                 </li>
                             </ul>
                         </li>
+
+                        <!-- Help Center -->
                         <li>
-                            <a href="#" class="flex items-center px-3 py-2 text-gray-700 hover-bg rounded-lg">
-                                <i class="fas fa-question-circle mr-3 text-gray-400 nav-icon"></i> Help Center
+                            <a href="#" class="nav-item flex items-center px-4 py-3 text-gray-300 rounded-xl">
+                                <i class="fas fa-question-circle mr-4 text-cyan-400 nav-icon text-lg"></i>
+                                <span class="font-medium">Help Center</span>
                             </a>
                         </li>
+
+                        <!-- Logout -->
                         <li>
                             <a asp-controller="Auth" asp-action="Logout"
-                               class="font-semibold flex items-center px-3 py-2 text-red-500 hover:text-red-600 hover:bg-red-100 rounded-lg">
-                                <i class="fas fa-sign-out-alt mr-3 text-red-400 nav-icon"></i> Logout
+                               class="nav-item flex items-center px-4 py-3 text-red-400 hover:bg-red-900 hover:bg-opacity-20 rounded-xl font-semibold">
+                                <i class="fas fa-sign-out-alt mr-4 text-lg"></i> Logout
                             </a>
                         </li>
                     </ul>
@@ -344,91 +500,73 @@
             </div>
         </aside>
 
-        <!-- Main -->
-        <main class="flex-1 md:ml-64 flex flex-col min-h-screen">
-            <div class="flex-1 overflow-y-auto p-6">
-                <div class="p-6">
-                    @RenderBody()
-                </div>
+        <!-- Main Content -->
+        <main class="flex-1 md:ml-72 flex flex-col min-h-screen">
+            <div class="flex-1 p-8">
+                @RenderBody()
             </div>
+
             <!-- Footer -->
-            <footer class="flex-shrink-0 bg-white border-t border-gray-200">
-                <div class="container mx-auto px-6 py-4 flex justify-between">
-                    <div class="text-sm text-gray-600">&copy; 2025 @Context.Session.GetString("CompanyName").</div>
+            <footer class="bg-white border-t border-gray-200 shadow-inner">
+                <div class="px-8 py-4 flex justify-between items-center">
+                    <div class="text-sm text-gray-600">
+                        &copy; 2025 <span class="font-semibold">@Context.Session.GetString("CompanyName")</span>. All rights reserved.
+                    </div>
+                    <div class="text-xs text-gray-400">
+                        Powered by ERP System v2.0
+                    </div>
                 </div>
             </footer>
         </main>
     </div>
 
-    <!-- Overlay -->
-    <div id="sidebarOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-10 md:hidden hidden"></div>
+    <!-- Overlay for Mobile -->
+    <div id="sidebarOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 md:hidden hidden transition-opacity"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const toggleBtn = document.getElementById("profileToggle");
-            const details = document.getElementById("profileDetails");
-            const arrow = document.getElementById("arrowIcon");
+        // Profile Dropdown Toggle
+        const profileToggle = document.getElementById("profileToggle");
+        const profileDetails = document.getElementById("profileDetails");
+        const arrowIcon = document.getElementById("arrowIcon");
 
-            toggleBtn.addEventListener("click", () => {
-                details.classList.toggle("hidden");
-                arrow.classList.toggle("fa-chevron-down");
-                arrow.classList.toggle("fa-chevron-up");
+        profileToggle.addEventListener("click", (e) => {
+            e.stopPropagation();
+            profileDetails.classList.toggle("show");
+            arrowIcon.style.transform = profileDetails.classList.contains("show") ? 'rotate(180deg)' : 'rotate(0deg)';
+        });
+
+        // Close profile dropdown when clicking outside
+        document.addEventListener("click", (e) => {
+            if (!profileToggle.contains(e.target) && !profileDetails.contains(e.target)) {
+                profileDetails.classList.remove("show");
+                arrowIcon.style.transform = 'rotate(0deg)';
+            }
+        });
+
+        // Dropdown Toggle Function
+        function setupDropdown(toggleId, dropdownId, chevronId) {
+            const toggle = document.getElementById(toggleId);
+            const dropdown = document.getElementById(dropdownId);
+            const chevron = document.getElementById(chevronId);
+
+            toggle.addEventListener('click', function(e) {
+                e.stopPropagation();
+                dropdown.classList.toggle('active');
+                chevron.style.transform = dropdown.classList.contains('active') ? 'rotate(180deg)' : 'rotate(0deg)';
             });
-        });
-        // SETTINGS dropdown
-        const settingsToggle = document.getElementById('settingsToggle');
-        const settingsDropdown = document.getElementById('settingsDropdown');
-        const settingsChevron = document.getElementById('settingsChevron');
+        }
 
-        settingsToggle.addEventListener('click', function () {
-            settingsDropdown.classList.toggle('active');
-            settingsChevron.style.transform = settingsDropdown.classList.contains('active') ? 'rotate(180deg)' : 'rotate(0deg)';
-        });
+        // Setup all dropdowns
+        setupDropdown('settingsToggle', 'settingsDropdown', 'settingsChevron');
+        setupDropdown('adminToggle', 'adminDropdown', 'adminChevron');
+        setupDropdown('itemToggle', 'itemDropdown', 'itemChevron');
+        setupDropdown('masterToggle', 'masterDropdown', 'masterChevron');
+        setupDropdown('accountToggle', 'accountDropdown', 'accountChevron');
 
-        // ADMIN nested dropdown
-        const adminToggle = document.getElementById('adminToggle');
-        const adminDropdown = document.getElementById('adminDropdown');
-        const adminChevron = document.getElementById('adminChevron');
-
-        adminToggle.addEventListener('click', function () {
-            adminDropdown.classList.toggle('active');
-            adminChevron.style.transform = adminDropdown.classList.contains('active') ? 'rotate(180deg)' : 'rotate(0deg)';
-        });
-
-        // ChatOfItem nested dropdown
-        const itemToggle = document.getElementById('itemToggle');
-        const itemDropdown = document.getElementById('itemDropdown');
-        const itemChevron = document.getElementById('itemChevron');
-
-        itemToggle.addEventListener('click', function () {
-            itemDropdown.classList.toggle('active');
-            itemChevron.style.transform = itemDropdown.classList.contains('active') ? 'rotate(180deg)' : 'rotate(0deg)';
-        });
-
-        // Master
-        const masterToggle = document.getElementById('masterToggle');
-        const masterDropdown = document.getElementById('masterDropdown');
-        const masterChevron = document.getElementById('masterChevron');
-
-        masterToggle.addEventListener('click', function () {
-            masterDropdown.classList.toggle('active');
-            masterChevron.style.transform = masterDropdown.classList.contains('active') ? 'rotate(180deg)' : 'rotate(0deg)';
-        });
-
-        // Account
-        const accountToggle = document.getElementById('accountToggle');
-        const accountDropdown = document.getElementById('accountDropdown');
-        const accountChevron = document.getElementById('accountChevron');
-
-        accountToggle.addEventListener('click', function () {
-            accountDropdown.classList.toggle('active');
-            accountChevron.style.transform = accountDropdown.classList.contains('active') ? 'rotate(180deg)' : 'rotate(0deg)';
-        });
-
-        // SIDEBAR toggle
+        // Sidebar Toggle for Mobile
         const sidebarToggle = document.getElementById('sidebarToggle');
         const sidebar = document.getElementById('sidebar');
         const sidebarOverlay = document.getElementById('sidebarOverlay');
@@ -440,6 +578,24 @@
 
         sidebarToggle.addEventListener('click', toggleSidebar);
         sidebarOverlay.addEventListener('click', toggleSidebar);
+
+        // Search shortcut (Ctrl+K)
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'k') {
+                e.preventDefault();
+                const searchInput = document.querySelector('.search-bar input');
+                if (searchInput) searchInput.focus();
+            }
+        });
+
+        // Add active state to current page
+        const currentPath = window.location.pathname;
+        const navLinks = document.querySelectorAll('.nav-item');
+        navLinks.forEach(link => {
+            if (link.getAttribute('href') === currentPath) {
+                link.classList.add('active');
+            }
+        });
     </script>
     @await Component.InvokeAsync("Notyf")
 </body>
