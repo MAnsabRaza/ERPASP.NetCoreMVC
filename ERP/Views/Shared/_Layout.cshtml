@@ -34,6 +34,11 @@
             box-shadow: 4px 0 24px rgba(0, 0, 0, 0.12);
         }
 
+        .userData{
+            z-index: 40;
+            background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+            box-shadow: 4px 0 24px rgba(0, 0, 0, 0.12);
+        }
         /* Navigation Items */
         .nav-item {
             position: relative;
@@ -244,7 +249,7 @@
                     </div>
 
                     <div id="profileDetails" class="profile-dropdown absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden">
-                        <div class="p-4 bg-gradient-to-r from-blue-500 to-purple-600">
+                        <div class="p-4 userData">
                             <p class="text-white font-semibold">@Context.Session.GetString("UserName")</p>
                             <p class="text-blue-100 text-sm">@Context.Session.GetString("RoleName")</p>
                             <p class="text-blue-100 text-xs mt-1">@Context.Session.GetString("CompanyName")</p>
@@ -285,22 +290,96 @@
 
                     <ul class="space-y-1 px-3">
                         <li>
-                            <a href="#" class="nav-item flex items-center px-4 py-3 text-gray-300 rounded-xl group">
+                            <a asp-controller="Home" asp-action="Index" class="nav-item flex items-center px-4 py-3 text-gray-300 rounded-xl group">
                                 <i class="fas fa-home mr-4 text-blue-400 nav-icon text-lg"></i>
                                 <span class="font-medium">Dashboard</span>
                             </a>
                         </li>
                         <li>
-                            <a href="#" class="nav-item flex items-center px-4 py-3 text-gray-300 rounded-xl group">
-                                <i class="fas fa-box mr-4 text-green-400 nav-icon text-lg"></i>
-                                <span class="font-medium">Inventory</span>
-                            </a>
+                            <button id="purchaseToggle" class="nav-item flex items-center justify-between w-full px-4 py-3 text-gray-300 rounded-xl focus:outline-none">
+                                <span class="flex items-center">
+                                    <i class="fas fa-shopping-cart mr-4 text-purple-400 nav-icon text-lg"></i>
+                                    <span class="font-medium">Purchase</span>
+                                </span>
+                                <i id="purchaseChevron" class="fas fa-chevron-down text-gray-400 chevron-rotate"></i>
+                            </button>
+                            <ul id="purchaseDropdown" class="dropdown-menu ml-4 mt-1 space-y-1">
+                                <li>
+                                    <a asp-controller="" asp-action="" class="nested-item flex items-center px-4 py-2 text-gray-400 rounded-lg text-sm">
+                                        <i class="fas fa-file-invoice mr-3 text-xs"></i>Purchase Order
+                                    </a>
+                                </li>
+                                <li>
+                                    <a asp-controller="" asp-action="" class="nested-item flex items-center px-4 py-2 text-gray-400 rounded-lg text-sm">
+                                        <i class="fas fa-shopping-cart mr-3 text-xs"></i>Purchase
+                                    </a>
+                                </li>
+                                <li>
+                                    <a asp-controller="" asp-action="" class="nested-item flex items-center px-4 py-2 text-gray-400 rounded-lg text-sm">
+                                        <i class="fas fa-undo-alt mr-3 text-xs"></i>Purchase Return
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                      
+                        <li>
+                            <button id="salesToggle" class="nav-item flex items-center justify-between w-full px-4 py-3 text-gray-300 rounded-xl focus:outline-none">
+                                <span class="flex items-center">
+                                    <i class="fas fa-hand-holding-usd mr-4 text-yellow-400 nav-icon text-lg"></i>
+                                    <span class="font-medium">Sales</span>
+                                </span>
+                                <i id="salesChevron" class="fas fa-chevron-down text-gray-400 chevron-rotate"></i>
+                            </button>
+                            <ul id="salesDropdown" class="dropdown-menu ml-4 mt-1 space-y-1">
+                                <li>
+                                    <a asp-controller="" asp-action="" class="nested-item flex items-center px-4 py-2 text-gray-400 rounded-lg text-sm">
+                                        <i class="fas fa-receipt mr-3 text-xs"></i>Sales Order
+                                    </a>
+                                </li>
+                                 <li>
+                                    <a asp-controller="" asp-action="" class="nested-item flex items-center px-4 py-2 text-gray-400 rounded-lg text-sm">
+                                        <i class="fas fa-hand-holding-usd mr-3 text-xs"></i>Sales
+                                    </a>
+                                </li>
+                                <li>
+                                    <a asp-controller="" asp-action="" class="nested-item flex items-center px-4 py-2 text-gray-400 rounded-lg text-sm">
+                                        <i class="fas fa-undo mr-3 text-xs"></i>Sales Return
+                                    </a>
+                                </li>
+                            </ul>
                         </li>
                         <li>
-                            <a href="#" class="nav-item flex items-center px-4 py-3 text-gray-300 rounded-xl group">
-                                <i class="fas fa-receipt mr-4 text-purple-400 nav-icon text-lg"></i>
-                                <span class="font-medium">Orders</span>
-                            </a>
+                            <button id="inventoryToggle" class="nav-item flex items-center justify-between w-full px-4 py-3 text-gray-300 rounded-xl focus:outline-none">
+                                <span class="flex items-center">
+                                    <i class="fas fa-box mr-4 text-green-400 nav-icon text-lg"></i>
+                                    <span class="font-medium">Inventory</span>
+                                </span>
+                                <i id="inventoryChevron" class="fas fa-chevron-down text-gray-400 chevron-rotate"></i>
+                            </button>
+                            <ul id="inventoryDropdown" class="dropdown-menu ml-4 mt-1 space-y-1">
+                                <li>
+                                    <a asp-controller="" asp-action="" class="nested-item flex items-center px-4 py-2 text-gray-400 rounded-lg text-sm">
+                                        <i class="fas fa-boxes mr-3 text-xs"></i>Inventory
+                                    </a>
+                                </li>
+                           
+                            </ul>
+                        </li>
+                        <li>
+                            <button id="journalVoucherToggle" class="nav-item flex items-center justify-between w-full px-4 py-3 text-gray-300 rounded-xl focus:outline-none">
+                                <span class="flex items-center">
+                                    <i class="fas fa-sitemap mr-4 text-blue-400 nav-icon text-lg"></i>
+                                    <span class="font-medium">Journal</span>
+                                </span>
+                                <i id="journalVoucherChevron" class="fas fa-chevron-down text-gray-400 chevron-rotate"></i>
+                            </button>
+                            <ul id="journalVoucherDropdown" class="dropdown-menu ml-4 mt-1 space-y-1">
+                                <li>
+                                    <a asp-controller="Journal" asp-action="Journal" class="nested-item flex items-center px-4 py-2 text-gray-400 rounded-lg text-sm">
+                                        <i class="fas fa-sitemap mr-3 text-xs"></i>Journal Voucher
+                                    </a>
+                                </li>
+                            </ul>
                         </li>
                     </ul>
 
@@ -549,6 +628,10 @@
         }
 
         // Setup all dropdowns
+        setupDropdown('purchaseToggle', 'purchaseDropdown', 'purchaseChevron');
+        setupDropdown('salesToggle', 'salesDropdown', 'salesChevron');
+        setupDropdown('inventoryToggle', 'inventoryDropdown', 'inventoryChevron');
+        setupDropdown('journalVoucherToggle', 'journalVoucherDropdown', 'journalVoucherChevron');
         setupDropdown('settingsToggle', 'settingsDropdown', 'settingsChevron');
         setupDropdown('adminToggle', 'adminDropdown', 'adminChevron');
         setupDropdown('itemToggle', 'itemDropdown', 'itemChevron');
