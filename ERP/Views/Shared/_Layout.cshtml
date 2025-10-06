@@ -231,8 +231,10 @@
                 <!-- Profile -->
                 <div class="relative">
                     <div id="profileToggle" class="flex items-center space-x-3 cursor-pointer hover:bg-gray-100 rounded-xl p-2 transition-all">
-                        <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-md">
-                            <i class="fas fa-user text-white"></i>
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center shadow-md">
+                            <img src="data:image/png;base64,@Context.Session.GetString("UserImage")"
+                                 alt="User Image"
+                                 class="w-full h-full object-cover" />
                         </div>
                         <div class="hidden md:block">
                             <p class="text-sm font-semibold text-gray-800">@Context.Session.GetString("UserName")</p>
@@ -266,23 +268,10 @@
                 <!-- User Profile Card -->
                 <div class="p-6 border-b border-gray-700">
                     <div class="flex items-center space-x-4">
-                        <div class="relative">
-                            <div class="w-16 h-16 bg-gradient-to-br from-blue-400 to-purple-600 rounded-2xl flex items-center justify-center overflow-hidden shadow-lg ring-4 ring-blue-500 ring-opacity-30">
-                                @if (Context.Session.GetString("UserImage") != "")
-                                {
-                                    <img src="data:image/png;base64,@Context.Session.GetString("UserImage")"
-                                         alt="User Image"
-                                         class="w-full h-full object-cover" />
-                                }
-                                else
-                                {
-                                    <i class="fas fa-user text-white text-2xl"></i>
-                                }
-                            </div>
-                            <div class="absolute bottom-0 right-0 w-4 h-4 bg-green-400 rounded-full border-2 border-gray-800"></div>
-                        </div>
+</>
+                   
                         <div class="flex-1">
-                            <h3 class="font-bold text-white text-lg">@Context.Session.GetString("UserName")</h3>
+                            <h3 class="font-bold text-white text-lg">@Context.Session.GetString("CompanyName")</h3>
                             <p class="text-sm text-blue-300">@Context.Session.GetString("RoleName")</p>
                         </div>
                     </div>
