@@ -20,7 +20,7 @@
             <div class="flex justify-between items-center">
                 <div>
                     <h2 class="text-2xl font-bold text-blue-800 flex items-center gap-2">
-                        <i class="fa-solid fas fa-truck text-blue-600"></i> Transporter Management
+                        <i class="fa-solid fas fa-truck text-blue-900"></i> Transporter Management
                     </h2>
                     <p class="text-gray-600 mt-1 text-sm">Add and manage your inventory Transporter efficiently</p>
                 </div>
@@ -70,7 +70,7 @@
                 <div>
                     <label class="block font-semibold text-gray-700 mb-1">Status</label>
                     <div class="flex items-center space-x-2 mt-1">
-                        @Html.CheckBoxFor(m => m.status, new { @class = "w-5 h-5 text-blue-600 rounded focus:ring-blue-500" })
+                        @Html.CheckBoxFor(m => m.status, new { @class = "w-5 h-5 text-blue-900 rounded focus:ring-blue-500" })
                         <span class="text-gray-600">Active</span>
                     </div>
                 </div>
@@ -105,7 +105,7 @@
     <div class="shadow-xl rounded-2xl bg-white p-6 border border-gray-200">
         <div class="flex justify-between items-center mb-4">
             <h3 class="text-xl font-semibold text-gray-800 flex items-center gap-2">
-                <i class="fa-solid fa-list text-blue-600"></i> Transporter List
+                <i class="fa-solid fa-list text-blue-900"></i> Transporter List
             </h3>
             <form method="get" asp-action="Transporter" class="flex items-center space-x-2">
                 <div class="relative w-full">
@@ -119,7 +119,7 @@
                     </button>
                 </div>
                 <button type="submit"
-                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        class="px-4 py-2 bg-blue-900 text-white rounded-lg hover:bg-blue-800">
                     <i class="fa fa-search"></i>
                 </button>
             </form>
@@ -127,7 +127,7 @@
 
         <div class="overflow-x-auto">
             <table class="table-auto w-full text-sm border border-gray-200 rounded-lg overflow-hidden">
-                <thead class="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
+                <thead class="bg-gradient-to-r from-blue-800 to-blue-900 text-white">
                     <tr>
                         <th class="p-3 text-left">ID</th>
                         <th class="p-3 text-left">Date</th>

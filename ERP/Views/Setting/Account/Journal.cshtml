@@ -12,12 +12,12 @@
     <div class="border-b border-gray-300 bg-white shadow-sm rounded-xl p-2">
         <nav class="flex space-x-6" aria-label="Tabs">
             <button id="tab-form"
-                    class="px-4 py-2 text-sm font-semibold text-blue-600 border-b-2 border-blue-600"
+                    class="px-4 py-2 text-sm font-semibold text-blue-900 border-b-2 border-blue-900"
                     type="button">
                 <i class="fa-solid fa-plus-circle mr-2"></i> Journal Entry
             </button>
             <button id="tab-list"
-                    class="px-4 py-2 text-sm font-semibold text-gray-500 hover:text-blue-600"
+                    class="px-4 py-2 text-sm font-semibold text-gray-500 hover:text-blue-900"
                     type="button">
                 <i class="fa-solid fa-list mr-2"></i> Journal List
             </button>
@@ -33,7 +33,7 @@
                 <div class="flex justify-between items-center">
                     <div>
                         <h2 class="text-2xl font-bold text-blue-800 flex items-center gap-2">
-                            <i class="fa-solid fas fa-boxes text-blue-600"></i> Journal Voucher
+                            <i class="fa-solid fas fa-boxes text-blue-900"></i> Journal Voucher
                         </h2>
                         <p class="text-gray-600 mt-1 text-sm">Add and manage journal voucher details</p>
                     </div>
@@ -127,7 +127,7 @@
                     </div>
                     <div class="col-span-1">
                         <button type="button" id="btnAddDetail"
-                                class="px-5 py-2 rounded-xl text-sm font-semibold text-white bg-blue-600">
+                                class="px-5 py-2 rounded-xl text-sm font-semibold text-white bg-blue-900">
                             Add
                         </button>
                     </div>
@@ -140,7 +140,7 @@
             <div class="overflow-hidden border rounded-lg mt-6">
                 <div class="max-h-96 overflow-y-auto">
                     <table class="table-auto w-full text-sm" id="detailsTable">
-                        <thead class="bg-blue-600 text-white">
+                        <thead class="bg-gradient-to-r from-blue-800 to-blue-900 text-white">
                             <tr>
                                 <th class="p-3">S.No</th>
                                 <th class="p-3">Date</th>
@@ -160,12 +160,12 @@
     <div id="content-list" class="tab-content hidden shadow-lg rounded-2xl bg-white p-6 border">
         <div class="flex justify-between items-center">
             <div>
-                <h2 class="text-2xl font-bold text-blue-800">
+                <h2 class="text-2xl font-bold text-blue-900">
                     <i class="fa-solid fa-list-ul"></i> Journal List
                 </h2>
             </div>
             <div class="flex items-center space-x-4">
-                <div class="px-5 py-2 rounded-xl text-sm font-semibold text-white bg-blue-600 shadow-md">
+                <div class="px-5 py-2 rounded-xl text-sm font-semibold text-white bg-blue-900 shadow-md">
                     Total Items: @totalJournal
                 </div>
                 <button type="button" id="btn-add-new"
@@ -182,7 +182,7 @@
         <div class="overflow-hidden border rounded-lg mt-6">
             <div class="max-h-96 overflow-y-auto">
                 <table class="table-auto w-full text-sm">
-                    <thead class="bg-blue-600 text-white">
+                    <thead class="bg-gradient-to-r from-blue-800 to-blue-900 text-white">
                         <tr>
                             <th class="p-3">ID</th>
                             <th class="p-3">Date</th>
@@ -247,7 +247,7 @@
                 @for (int i = 1; i <= totalPages; i++)
                 {
                     <a asp-action="Journal" asp-route-page="@i" asp-route-pageSize="@pageSize" asp-route-activeTab="list"
-                       class="px-3 py-1 rounded @(page == i ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-700")">
+                       class="px-3 py-1 rounded @(page == i ? "bg-blue-900 text-white" : "bg-gray-200 text-gray-700")">
                         @i
                     </a>
                 }
@@ -273,15 +273,15 @@
     if (btnAddNew) btnAddNew.addEventListener("click", addNew);
 
     function showFormTab() {
-        tabForm.classList.add("text-blue-600", "border-blue-600");
-        tabList.classList.remove("text-blue-600", "border-blue-600");
+        tabForm.classList.add("text-blue-900", "border-blue-900");
+        tabList.classList.remove("text-blue-900", "border-blue-900");
         contentForm.classList.remove("hidden");
         contentList.classList.add("hidden");
     }
 
     function showListTab() {
-        tabList.classList.add("text-blue-600", "border-blue-600");
-        tabForm.classList.remove("text-blue-600", "border-blue-600");
+        tabList.classList.add("text-blue-900", "border-blue-900");
+        tabForm.classList.remove("text-blue-900", "border-blue-900");
         contentList.classList.remove("hidden");
         contentForm.classList.add("hidden");
     }
