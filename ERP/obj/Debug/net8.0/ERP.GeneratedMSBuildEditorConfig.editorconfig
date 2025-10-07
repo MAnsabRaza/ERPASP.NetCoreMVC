@@ -26,6 +26,14 @@ build_property.GenerateRazorMetadataSourceChecksumAttributes =
 build_property.MSBuildProjectDirectory = D:\AspDotNet\Asp.Net Web Core MVC\ERP\ERP
 build_property._RazorSourceGeneratorDebug = 
 
+[D:/AspDotNet/Asp.Net Web Core MVC/ERP/ERP/Views/AccountPayable/AccountPayable.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFBheWFibGVcQWNjb3VudFBheWFibGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/AspDotNet/Asp.Net Web Core MVC/ERP/ERP/Views/AccountReceivable/AccountReceivable.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFJlY2VpdmFibGVcQWNjb3VudFJlY2VpdmFibGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [D:/AspDotNet/Asp.Net Web Core MVC/ERP/ERP/Views/Auth/ChangePassword.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXV0aFxDaGFuZ2VQYXNzd29yZC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
@@ -50,12 +58,20 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXV0aFxfVmlld1N0YXJ0LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
+[D:/AspDotNet/Asp.Net Web Core MVC/ERP/ERP/Views/CashPayment/CashPayment.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2FzaFBheW1lbnRcQ2FzaFBheW1lbnQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [D:/AspDotNet/Asp.Net Web Core MVC/ERP/ERP/Views/Home/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/AspDotNet/Asp.Net Web Core MVC/ERP/ERP/Views/Home/Privacy.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxQcml2YWN5LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/AspDotNet/Asp.Net Web Core MVC/ERP/ERP/Views/JV/JV.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSlZcSlYuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/AspDotNet/Asp.Net Web Core MVC/ERP/ERP/Views/Setting/Account/AccountType.cshtml]

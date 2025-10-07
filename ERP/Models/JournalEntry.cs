@@ -16,7 +16,7 @@ namespace ERP.Models
         [ForeignKey("userId")]
         public virtual User? User { get; set; }
 
-        public string etype { get; set; } = string.Empty;
+        public string? etype { get; set; } = string.Empty;
         public string description { get; set; } = string.Empty;
         public decimal total_debit { get; set; }
         public decimal total_credit { get; set; }
