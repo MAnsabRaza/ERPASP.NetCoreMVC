@@ -6,7 +6,7 @@ namespace ERP.Models
     {
         public int Id { get; set; }
         public DateOnly current_date { get; set; }
-        public string remark { get; set; }
+        public string? remark { get; set; }
         public string item_name { get; set; }
         public string item_barcode { get; set; }
         public bool status { get; set; }
@@ -26,8 +26,8 @@ namespace ERP.Models
         public decimal purchase_rate { get; set; }
         public decimal sale_rate { get; set; }
         public decimal rate { get; set; }
-        public decimal discount_amount { get; set; }
+        public decimal? discount_amount { get; set; }
         public decimal total_amount { get; set; }
-        public string description { get; set; }
+        public string? description { get; set; }
     }
 }

@@ -145,7 +145,7 @@
                     <div>
                         <label class="block font-semibold text-gray-700 mb-1">Quantity</label>
                         @Html.TextBoxFor(m => m.qty,
-                                 new { @class = "w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400", type = "number", required = "required", placeholder = "Enter Quantity" })
+                                 new { @class = "w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400", id = "qty",type = "number", required = "required", placeholder = "Enter Quantity" })
                     </div>
                     <div>
                         <label class="block font-semibold text-gray-700 mb-1">Purchase Rate</label>
@@ -160,18 +160,19 @@
                     <div>
                         <label class="block font-semibold text-gray-700 mb-1">Rate</label>
                         @Html.TextBoxFor(m => m.rate,
-                                 new { @class = "w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400", type = "number", required = "required", placeholder = "Enter Rate" })
+                                 new { @class = "w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400",id = "rate", type = "number", required = "required", placeholder = "Enter Rate" })
                     </div>
                     <div>
                         <label class="block font-semibold text-gray-700 mb-1">Discount</label>
                         @Html.TextBoxFor(m => m.discount_amount,
-                                 new { @class = "w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400", type = "number", required = "required", placeholder = "Enter Discount" })
+                                 new { @class = "w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400", id = "discount_amount",type = "number", placeholder = "Enter Discount" })
                     </div>
                     <div>
                         <label class="block font-semibold text-gray-700 mb-1">Total Amount</label>
-                        @Html.TextBoxFor(m => m.total_amount,
-                                 new { @class = "w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400", type = "number", required = "required", placeholder = "Total Amount" })
-                    </div>
+@Html.TextBoxFor(m => m.total_amount,
+                                 new { @class = "w-full p-2 border border-gray-300 rounded-lg bg-gray-100", type = "number", id = "total_amount", @readonly = "readonly" })
+
+                          </div>
                 </div>
             </div>
         }
@@ -380,5 +381,15 @@
     } else {
         showFormTab(); // default
     }
+    function calculateTotal() {
+        const qty = parseFloat(document.getElementById("qty").value) || 0;
+        const rate = parseFloat(document.getElementById("rate").value) || 0;
+        const discount = parseFloat(document.getElementById("discount_amount").value) || 0;
+        const total = (qty * rate) - discount;
+        document.getElementById("total_amount").value = total.toFixed(2);
+    }
+    document.getElementById("qty").addEventListener("input", calculateTotal);
+    document.getElementById("rate").addEventListener("input", calculateTotal);
+    document.getElementById("discount_amount").addEventListener("input", calculateTotal);
 </script>
 
