@@ -53,7 +53,9 @@ namespace ERP.Controllers.Finance
                 .Where(c => c.parentAccountId != null)
                 .ToListAsync();
             ViewBag.Journal = journalData;
-            return View("CashPayment", model);
+
+            return View("~/Views/Finance/CashPayment.cshtml", model);
+            //return View("CashPayment", model);
         }
 
         [HttpPost]
@@ -181,7 +183,8 @@ namespace ERP.Controllers.Finance
                 .ToListAsync();
             ViewBag.Journal = journalData;
 
-            return View("CashPayment", model);
+            return View("~/Views/Finance/CashPayment.cshtml", model);
+            //return View("CashPayment", model);
         }
 
         [HttpPost]

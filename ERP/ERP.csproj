@@ -26,7 +26,6 @@
 
   <ItemGroup>
     <Folder Include="Controllers\Inventory\" />
-    <Folder Include="Views\Finance\" />
   </ItemGroup>
 
 </Project>
