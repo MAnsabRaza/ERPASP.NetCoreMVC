@@ -3,18 +3,18 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ERP.Controllers.Purchase
 {
-    public class PurchaseOrderController : Controller
+    public class PurchaseVoucherController : Controller
     {
         private readonly AppDbContext _context;
         private readonly INotyfService _notyf;
-        public PurchaseOrderController(AppDbContext context, INotyfService notyf)
+        public PurchaseVoucherController(AppDbContext context, INotyfService notyf)
         {
             _context = context;
             _notyf = notyf;
         }
-        public IActionResult PurchaseOrder()
+        public IActionResult PurchaseVoucher()
         {
-            return View();
+            return View("~/Views/Purchase/PurchaseVoucher.cshtml");
         }
     }
 }

@@ -74,8 +74,16 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxQcml2YWN5LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/AspDotNet/Asp.Net Web Core MVC/ERP/ERP/Views/Purchase/Purchase.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHVyY2hhc2VcUHVyY2hhc2UuY3NodG1s
+[D:/AspDotNet/Asp.Net Web Core MVC/ERP/ERP/Views/Purchase/PurchaseOrderVoucher.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHVyY2hhc2VcUHVyY2hhc2VPcmRlclZvdWNoZXIuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/AspDotNet/Asp.Net Web Core MVC/ERP/ERP/Views/Purchase/PurchaseReturnVoucher.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHVyY2hhc2VcUHVyY2hhc2VSZXR1cm5Wb3VjaGVyLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/AspDotNet/Asp.Net Web Core MVC/ERP/ERP/Views/Purchase/PurchaseVoucher.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHVyY2hhc2VcUHVyY2hhc2VWb3VjaGVyLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/AspDotNet/Asp.Net Web Core MVC/ERP/ERP/Views/Setting/Account/AccountType.cshtml]

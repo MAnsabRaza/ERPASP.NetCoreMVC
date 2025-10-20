@@ -3,18 +3,18 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ERP.Controllers.Purchase
 {
-    public class PurchaseReturnController : Controller
+    public class PurchaseReturnVoucherController : Controller
     {
         private readonly AppDbContext _context;
         private readonly INotyfService _notyf;
-        public PurchaseReturnController(AppDbContext context, INotyfService notyf)
+        public PurchaseReturnVoucherController(AppDbContext context, INotyfService notyf)
         {
             _context = context;
             _notyf = notyf;
         }
-        public IActionResult PurchaseReturn()
+        public IActionResult PurchaseReturnVoucher()
         {
-            return View();
+            return View("~/Views/Purchase/PurchaseReturnVoucher.cshtml");
         }
     }
 }
