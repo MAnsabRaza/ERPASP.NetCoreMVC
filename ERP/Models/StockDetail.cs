@@ -10,7 +10,7 @@ namespace ERP.Models
         public int stockMasterId { get; set; }
         [ForeignKey("stockMasterId")]
         public virtual StockMaster? StockMaster { get; set; }
-        public int warehouseId { get; set; }
+        public int? warehouseId { get; set; }
         [ForeignKey("warehouseId")]
         public virtual Warehouse? Warehouse{ get; set; }
         public int itemId { get; set; }
@@ -20,8 +20,8 @@ namespace ERP.Models
         public int qty { get; set; }
         public decimal rate { get; set; }
         public decimal amount { get; set; }
-        public decimal discount_percentage { get; set; }
-        public decimal discount_amount { get; set; }
+        public decimal? discount_percentage { get; set; }
+        public decimal? discount_amount { get; set; } = 0;
         public decimal net_amount { get; set; }
 
     }

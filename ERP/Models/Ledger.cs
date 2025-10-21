@@ -20,6 +20,6 @@ namespace ERP.Models
         public decimal debit_amount { get; set; }
         public decimal credit_amount { get; set; }
         public decimal running_balance { get; set; }
-        public string description { get; set; }
+        public string? description { get; set; }
     }
 }
