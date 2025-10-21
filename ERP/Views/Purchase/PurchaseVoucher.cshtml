@@ -90,110 +90,127 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block font-semibold text-gray-700 mb-1">Total Amount</label>
-                        @Html.TextBoxFor(m => m.StockMaster.total_amount, new { @class = "w-full p-2 border rounded-lg", type = "number", step = "0.01", required = "required", @readonly = "readonly" })
-                    </div>
-                    <div>
-                        <label class="block font-semibold text-gray-700 mb-1">Discount Amount</label>
-                        @Html.TextBoxFor(m => m.StockMaster.discount_amount, new { @class = "w-full p-2 border rounded-lg", type = "number", step = "0.01", @onchange = "updateNetAmount()" })
-                    </div>
-                    <div>
-                        <label class="block font-semibold text-gray-700 mb-1">Tax Amount</label>
-                        @Html.TextBoxFor(m => m.StockMaster.tax_amount, new { @class = "w-full p-2 border rounded-lg", type = "number", step = "0.01", @onchange = "updateNetAmount()" })
-                    </div>
-                    <div>
-                        <label class="block font-semibold text-gray-700 mb-1">Net Amount</label>
-                        @Html.TextBoxFor(m => m.StockMaster.net_amount, new { @class = "w-full p-2 border rounded-lg", type = "number", step = "0.01", required = "required", @readonly = "readonly" })
-                    </div>
-                </div>
-                <div class="grid grid-cols-1 gap-6 mt-3">
-                    <div>
                         <label class="block font-semibold text-gray-700 mb-1">Remarks</label>
                         @Html.TextAreaFor(m => m.StockMaster.remarks,
                                  new { @class = "w-full p-2 border rounded-lg", rows = "2", placeholder = "Enter Remarks" })
                     </div>
                 </div>
             </div>
-            <!-- Stock Details -->
+            <!-- Stock Details and Additional Charges Tabs -->
             <div class="shadow-md rounded-2xl bg-white p-6 border mt-4">
-                <h3 class="text-lg font-semibold mb-4">Add Stock Details</h3>
-                <div class="grid grid-cols-12 gap-6 items-end">
-                    <div class="col-span-4">
-                        <label>Warehouse <sup class="text-red-800 text-lg">*</sup></label>
-                        <select id="warehouseId" class="w-full p-2 border rounded-lg">
-                            <option value="">Select Warehouse</option>
-                            @foreach (var warehouse in ViewBag.Warehouses)
-                            {
-                                <option value="@warehouse.Id">@warehouse.warehouse_name</option>
-                            }
-                        </select>
+                <nav class="flex space-x-6 mb-4" aria-label="Detail Tabs">
+                    <button id="tab-stock-details"
+                            class="px-4 py-2 text-sm font-semibold text-blue-900 border-b-2 border-blue-900"
+                            type="button">
+                        <i class="fa-solid fa-box mr-2"></i> Stock Details
+                    </button>
+                    <button id="tab-additional-charges"
+                            class="px-4 py-2 text-sm font-semibold text-gray-500 hover:text-blue-900"
+                            type="button">
+                        <i class="fa-solid fa-money-bill mr-2"></i> Additional Charges
+                    </button>
+                </nav>
+                <div id="content-stock-details" class="detail-tab-content">
+                    <h3 class="text-lg font-semibold mb-4">Add Stock Details</h3>
+                    <div class="grid grid-cols-12 gap-6 items-end">
+                        <div class="col-span-4">
+                            <label>Warehouse <sup class="text-red-800 text-lg">*</sup></label>
+                            <select id="warehouseId" class="w-full p-2 border rounded-lg">
+                                <option value="">Select Warehouse</option>
+                                @foreach (var warehouse in ViewBag.Warehouses)
+                                {
+                                    <option value="@warehouse.Id">@warehouse.warehouse_name</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-span-4">
+                            <label>Item <sup class="text-red-800 text-lg">*</sup></label>
+                            <select id="itemId" class="w-full p-2 border rounded-lg" onchange="fetchPurchaseRate()">
+                                <option value="">Select Item</option>
+                                @foreach (var item in ViewBag.Items)
+                                {
+                                    <option value="@item.Id">@item.item_name</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-span-2">
+                            <label>Rate <sup class="text-red-800 text-lg">*</sup></label>
+                            <input type="number" id="rate" class="w-full p-2 border rounded-lg" step="0.01" min="0" />
+                        </div>
+                        <div class="col-span-2">
+                            <label>Quantity <sup class="text-red-800 text-lg">*</sup></label>
+                            <input type="number" id="qty" class="w-full p-2 border rounded-lg" min="1" />
+                        </div>
+                        <div class="col-span-2">
+                            <label>Amount <sup class="text-red-800 text-lg">*</sup></label>
+                            <input type="number" id="amount" class="w-full p-2 border rounded-lg" step="0.01" min="0" readonly />
+                        </div>
+                        <div class="col-span-3">
+                            <label>Discount Percentage</label>
+                            <input type="number" id="discount_percentage" class="w-full p-2 border rounded-lg" step="0.01" min="0" />
+                        </div>
+                        <div class="col-span-2">
+                            <label>Discount Amount</label>
+                            <input type="number" id="discount_amount" readonly class="w-full p-2 border rounded-lg" step="0.01" min="0" />
+                        </div>
+                        <div class="col-span-3">
+                            <label>Net Amount</label>
+                            <input type="number" id="net_amount" readonly class="w-full p-2 border rounded-lg" step="0.01" min="0" />
+                        </div>
+                        <div class="col-span-2">
+                            <button type="button" id="btnAddDetail"
+                                    class="px-5 py-2 rounded-xl text-sm font-semibold text-white bg-blue-900">
+                                Add
+                            </button>
+                        </div>
                     </div>
-                    <div class="col-span-4">
-                        <label>Item <sup class="text-red-800 text-lg">*</sup></label>
-                        <select id="itemId" class="w-full p-2 border rounded-lg" onchange="fetchPurchaseRate()">
-                            <option value="">Select Item</option>
-                            @foreach (var item in ViewBag.Items)
-                            {
-                                <option value="@item.Id">@item.item_name</option>
-                            }
-                        </select>
+                    <div class="overflow-hidden border rounded-lg mt-6">
+                        <div class="max-h-96 overflow-y-auto">
+                            <table class="table-auto w-full text-sm" id="detailsTable">
+                                <thead class="bg-gradient-to-r from-blue-800 to-blue-900 text-white">
+                                    <tr>
+                                        <th class="p-3">S.No</th>
+                                        <th class="p-3">Date</th>
+                                        <th class="p-3">Warehouse</th>
+                                        <th class="p-3">Item</th>
+                                        <th class="p-3">Quantity</th>
+                                        <th class="p-3">Rate</th>
+                                        <th class="p-3">Amount</th>
+                                        <th class="p-3">Dis Per</th>
+                                        <th class="p-3">Dis Amt</th>
+                                        <th class="p-3">Net Amt</th>
+                                        <th class="p-3">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
                     </div>
-                    <div class="col-span-2">
-                        <label>Rate <sup class="text-red-800 text-lg">*</sup></label>
-                        <input type="number" id="rate" class="w-full p-2 border rounded-lg" step="0.01" min="0" />
-                    </div>
-                    <div class="col-span-2">
-                        <label>Quantity <sup class="text-red-800 text-lg">*</sup></label>
-                        <input type="number" id="qty" class="w-full p-2 border rounded-lg" min="1" />
-                    </div>
-                    <div class="col-span-2">
-                        <label>Amount <sup class="text-red-800 text-lg">*</sup></label>
-                        <input type="number" id="amount" class="w-full p-2 border rounded-lg" step="0.01" min="0" readonly />
-                    </div>
-                    <div class="col-span-3">
-                        <label>Discount Percentage</label>
-                        <input type="number" id="discount_percentage" class="w-full p-2 border rounded-lg" step="0.01" min="0" />
-                    </div>
-                    <div class="col-span-2">
-                        <label>Discount Amount</label>
-                        <input type="number" id="discount_amount" readonly class="w-full p-2 border rounded-lg" step="0.01" min="0" />
-                    </div>
-                    <div class="col-span-3">
-                        <label>Net Amount</label>
-                        <input type="number" id="net_amount" readonly class="w-full p-2 border rounded-lg" step="0.01" min="0" />
-                    </div>
-                    <div class="col-span-2">
-                        <button type="button" id="btnAddDetail"
-                                class="px-5 py-2 rounded-xl text-sm font-semibold text-white bg-blue-900">
-                            Add
-                        </button>
+                </div>
+                <div id="content-additional-charges" class="detail-tab-content hidden">
+                    <h3 class="text-lg font-semibold mb-4">Additional Charges</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div>
+                            <label class="block font-semibold text-gray-700 mb-1">Total Amount</label>
+                            @Html.TextBoxFor(m => m.StockMaster.total_amount, new { @class = "w-full p-2 border rounded-lg", type = "number", step = "0.01", required = "required", @readonly = "readonly" })
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-gray-700 mb-1">Discount Amount</label>
+                            @Html.TextBoxFor(m => m.StockMaster.discount_amount, new { @class = "w-full p-2 border rounded-lg", type = "number", step = "0.01", @onchange = "updateNetAmount()" })
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-gray-700 mb-1">Tax Amount</label>
+                            @Html.TextBoxFor(m => m.StockMaster.tax_amount, new { @class = "w-full p-2 border rounded-lg", type = "number", step = "0.01", @onchange = "updateNetAmount()" })
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-gray-700 mb-1">Net Amount</label>
+                            @Html.TextBoxFor(m => m.StockMaster.net_amount, new { @class = "w-full p-2 border rounded-lg", type = "number", step = "0.01", required = "required", @readonly = "readonly" })
+                        </div>
                     </div>
                 </div>
             </div>
             <!-- Hidden container for posting StockDetail -->
             <div id="detailsContainer"></div>
-            <div class="overflow-hidden border rounded-lg mt-6">
-                <div class="max-h-96 overflow-y-auto">
-                    <table class="table-auto w-full text-sm" id="detailsTable">
-                        <thead class="bg-gradient-to-r from-blue-800 to-blue-900 text-white">
-                            <tr>
-                                <th class="p-3">S.No</th>
-                                <th class="p-3">Date</th>
-                                <th class="p-3">Warehouse</th>
-                                <th class="p-3">Item</th>
-                                <th class="p-3">Quantity</th>
-                                <th class="p-3">Rate</th>
-                                <th class="p-3">Amount</th>
-                                <th class="p-3">Dis Per</th>
-                                <th class="p-3">Dis Amt</th>
-                                <th class="p-3">Net Amt</th>
-                                <th class="p-3">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
-            </div>
         }
     </div>
     <div id="content-list" class="tab-content hidden shadow-lg rounded-2xl bg-white p-6 border">
@@ -275,6 +292,7 @@
     </div>
 </div>
 <script>
+    // Main Tabs
     const tabForm = document.getElementById("tab-form");
     const tabList = document.getElementById("tab-list");
     const contentForm = document.getElementById("content-form");
@@ -288,6 +306,7 @@
         tabList.classList.remove("text-blue-900", "border-blue-900");
         contentForm.classList.remove("hidden");
         contentList.classList.add("hidden");
+        showStockDetailsTab(); // Default to Stock Details tab
     }
     function showListTab() {
         tabList.classList.add("text-blue-900", "border-blue-900");
@@ -309,6 +328,25 @@
     }
     function refreshPage(tab) {
         window.location.href = '@Url.Action("PurchaseVoucher", "Purchase", new { page = ViewBag.Page, pageSize = ViewBag.PageSize })' + '&activeTab=' + tab;
+    }
+    // Detail Tabs
+    const tabStockDetails = document.getElementById("tab-stock-details");
+    const tabAdditionalCharges = document.getElementById("tab-additional-charges");
+    const contentStockDetails = document.getElementById("content-stock-details");
+    const contentAdditionalCharges = document.getElementById("content-additional-charges");
+    tabStockDetails.addEventListener("click", showStockDetailsTab);
+    tabAdditionalCharges.addEventListener("click", showAdditionalChargesTab);
+    function showStockDetailsTab() {
+        tabStockDetails.classList.add("text-blue-900", "border-blue-900");
+        tabAdditionalCharges.classList.remove("text-blue-900", "border-blue-900");
+        contentStockDetails.classList.remove("hidden");
+        contentAdditionalCharges.classList.add("hidden");
+    }
+    function showAdditionalChargesTab() {
+        tabAdditionalCharges.classList.add("text-blue-900", "border-blue-900");
+        tabStockDetails.classList.remove("text-blue-900", "border-blue-900");
+        contentAdditionalCharges.classList.remove("hidden");
+        contentStockDetails.classList.add("hidden");
     }
     // Fetch purchase rate when item is selected
     function fetchPurchaseRate() {
@@ -405,43 +443,43 @@
             totalDiscount += d.discount_amount;
             totalNet += d.net_amount;
             tbody.innerHTML += `
-                        <tr>
-                            <td class="p-3">${i + 1}</td>
-                            <td class="p-3">${d.current_date}</td>
-                            <td class="p-3">${d.warehouseName}</td>
-                            <td class="p-3">${d.itemName}</td>
-                            <td class="p-3">${d.qty}</td>
-                            <td class="p-3">${d.rate.toFixed(2)}</td>
-                            <td class="p-3">${d.amount.toFixed(2)}</td>
-                            <td class="p-3">${d.discount_percentage.toFixed(2)}</td>
-                            <td class="p-3">${d.discount_amount.toFixed(2)}</td>
-                            <td class="p-3">${d.net_amount.toFixed(2)}</td>
-                            <td class="p-3">
-                                <button type="button" onclick="removeDetail(${i})" class="text-red-600">Delete</button>
-                            </td>
-                        </tr>`;
+                            <tr>
+                                <td class="p-3">${i + 1}</td>
+                                <td class="p-3">${d.current_date}</td>
+                                <td class="p-3">${d.warehouseName}</td>
+                                <td class="p-3">${d.itemName}</td>
+                                <td class="p-3">${d.qty}</td>
+                                <td class="p-3">${d.rate.toFixed(2)}</td>
+                                <td class="p-3">${d.amount.toFixed(2)}</td>
+                                <td class="p-3">${d.discount_percentage.toFixed(2)}</td>
+                                <td class="p-3">${d.discount_amount.toFixed(2)}</td>
+                                <td class="p-3">${d.net_amount.toFixed(2)}</td>
+                                <td class="p-3">
+                                    <button type="button" onclick="removeDetail(${i})" class="text-red-600">Delete</button>
+                                </td>
+                            </tr>`;
             container.innerHTML += `
-                        <input type="hidden" name="StockDetail[${i}].warehouseId" value="${d.warehouseId}" />
-                        <input type="hidden" name="StockDetail[${i}].itemId" value="${d.itemId}" />
-                        <input type="hidden" name="StockDetail[${i}].qty" value="${d.qty}" />
-                        <input type="hidden" name="StockDetail[${i}].rate" value="${d.rate}" />
-                        <input type="hidden" name="StockDetail[${i}].amount" value="${d.amount}" />
-                        <input type="hidden" name="StockDetail[${i}].discount_percentage" value="${d.discount_percentage}" />
-                        <input type="hidden" name="StockDetail[${i}].discount_amount" value="${d.discount_amount}" />
-                        <input type="hidden" name="StockDetail[${i}].net_amount" value="${d.net_amount}" />
-                        <input type="hidden" name="StockDetail[${i}].current_date" value="${d.current_date}" />
-                    `;
+                            <input type="hidden" name="StockDetail[${i}].warehouseId" value="${d.warehouseId}" />
+                            <input type="hidden" name="StockDetail[${i}].itemId" value="${d.itemId}" />
+                            <input type="hidden" name="StockDetail[${i}].qty" value="${d.qty}" />
+                            <input type="hidden" name="StockDetail[${i}].rate" value="${d.rate}" />
+                            <input type="hidden" name="StockDetail[${i}].amount" value="${d.amount}" />
+                            <input type="hidden" name="StockDetail[${i}].discount_percentage" value="${d.discount_percentage}" />
+                            <input type="hidden" name="StockDetail[${i}].discount_amount" value="${d.discount_amount}" />
+                            <input type="hidden" name="StockDetail[${i}].net_amount" value="${d.net_amount}" />
+                            <input type="hidden" name="StockDetail[${i}].current_date" value="${d.current_date}" />
+                        `;
         });
         if (details.length > 0) {
             tbody.innerHTML += `
-                        <tr class="bg-gray-100 font-semibold">
-                            <td colspan="6" class="p-3">Total</td>
-                            <td class="p-3 text-blue-700">${totalAmount.toFixed(2)}</td>
-                            <td class="p-3 text-blue-700"></td>
-                            <td class="p-3 text-blue-700">${totalDiscount.toFixed(2)}</td>
-                            <td class="p-3 text-green-700">${totalNet.toFixed(2)}</td>
-                            <td></td>
-                        </tr>`;
+                            <tr class="bg-gray-100 font-semibold">
+                                <td colspan="6" class="p-3">Total</td>
+                                <td class="p-3 text-blue-700">${totalAmount.toFixed(2)}</td>
+                                <td class="p-3 text-blue-700"></td>
+                                <td class="p-3 text-blue-700">${totalDiscount.toFixed(2)}</td>
+                                <td class="p-3 text-green-700">${totalNet.toFixed(2)}</td>
+                                <td></td>
+                            </tr>`;
         }
         document.querySelector('input[name="StockMaster.total_amount"]').value = totalNet.toFixed(2);
         updateNetAmount();
