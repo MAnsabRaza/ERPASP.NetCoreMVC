@@ -2,11 +2,7 @@
 @using System.Text.Json
 @{
     ViewData["Title"] = "Purchase Voucher";
-    //int totalItems = ViewBag.TotalItems;
-    //int page = ViewBag.Page;
-    //int pageSize = ViewBag.PageSize;
     var stockList = ViewBag.StockList as List<ERP.Models.StockMaster>;
-    //int totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
 }
 <div class="space-y-8">
     <div class="border-b border-gray-300 bg-white shadow-sm rounded-xl p-2">
@@ -124,7 +120,7 @@
                 <div class="grid grid-cols-12 gap-6 items-end">
                     <div class="col-span-4">
                         <label>Warehouse <sup class="text-red-800 text-lg">*</sup></label>
-                        <select id="warehouseId" class="w-full p-2 border rounded-lg" >
+                        <select id="warehouseId" class="w-full p-2 border rounded-lg">
                             <option value="">Select Warehouse</option>
                             @foreach (var warehouse in ViewBag.Warehouses)
                             {
@@ -134,7 +130,7 @@
                     </div>
                     <div class="col-span-4">
                         <label>Item <sup class="text-red-800 text-lg">*</sup></label>
-                        <select id="itemId" class="w-full p-2 border rounded-lg">
+                        <select id="itemId" class="w-full p-2 border rounded-lg" onchange="fetchPurchaseRate()">
                             <option value="">Select Item</option>
                             @foreach (var item in ViewBag.Items)
                             {
@@ -150,10 +146,9 @@
                         <label>Quantity <sup class="text-red-800 text-lg">*</sup></label>
                         <input type="number" id="qty" class="w-full p-2 border rounded-lg" min="1" />
                     </div>
-                  
                     <div class="col-span-2">
                         <label>Amount <sup class="text-red-800 text-lg">*</sup></label>
-                        <input type="number" id="amount" class="w-full p-2 border rounded-lg" step="0.01" min="0" />
+                        <input type="number" id="amount" class="w-full p-2 border rounded-lg" step="0.01" min="0" readonly />
                     </div>
                     <div class="col-span-3">
                         <label>Discount Percentage</label>
@@ -210,7 +205,7 @@
             </div>
             <div class="flex items-center space-x-4">
                 <div class="px-5 py-2 rounded-xl text-sm font-semibold text-white bg-blue-900 shadow-md">
-                    Total Items: 
+                    Total Items:
                 </div>
                 <button type="button" id="btn-add-new"
                         class="px-5 py-2 rounded-xl text-sm font-semibold text-white bg-green-600 hover:bg-green-700">
@@ -277,7 +272,6 @@
                 </table>
             </div>
         </div>
-     
     </div>
 </div>
 <script>
@@ -289,27 +283,23 @@
     tabForm.addEventListener("click", showFormTab);
     tabList.addEventListener("click", showListTab);
     if (btnAddNew) btnAddNew.addEventListener("click", addNew);
-
     function showFormTab() {
         tabForm.classList.add("text-blue-900", "border-blue-900");
         tabList.classList.remove("text-blue-900", "border-blue-900");
         contentForm.classList.remove("hidden");
         contentList.classList.add("hidden");
     }
-
     function showListTab() {
         tabList.classList.add("text-blue-900", "border-blue-900");
         tabForm.classList.remove("text-blue-900", "border-blue-900");
         contentList.classList.remove("hidden");
         contentForm.classList.add("hidden");
     }
-
     function addNew() {
         resetForm();
         document.getElementById("stockMasterId").value = "0";
         showFormTab();
     }
-
     function resetForm() {
         document.querySelector("form").reset();
         details = [];
@@ -317,50 +307,69 @@
         clearInputs();
         updateNetAmount();
     }
-
     function refreshPage(tab) {
         window.location.href = '@Url.Action("PurchaseVoucher", "Purchase", new { page = ViewBag.Page, pageSize = ViewBag.PageSize })' + '&activeTab=' + tab;
     }
-
-    // ===================== AUTO CALCULATION SECTION ===================== //
-
+    // Fetch purchase rate when item is selected
+    function fetchPurchaseRate() {
+        const itemId = document.getElementById("itemId").value;
+        const rateInput = document.getElementById("rate");
+        if (itemId) {
+            fetch('@Url.Action("GetPurchaseRate", "PurchaseVoucher")' + '?itemId=' + itemId, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json'
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.purchaseRate !== null) {
+                        rateInput.value = data.purchaseRate.toFixed(2);
+                        calculateAmounts();
+                    } else {
+                        rateInput.value = "";
+                        calculateAmounts();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching purchase rate:', error);
+                    rateInput.value = "";
+                    calculateAmounts();
+                });
+        } else {
+            rateInput.value = "";
+            calculateAmounts();
+        }
+    }
+    // AUTO CALCULATION SECTION
     const qtyInput = document.getElementById("qty");
     const rateInput = document.getElementById("rate");
     const amountInput = document.getElementById("amount");
     const discountPerInput = document.getElementById("discount_percentage");
     const discountAmtInput = document.getElementById("discount_amount");
     const netAmtInput = document.getElementById("net_amount");
-
     qtyInput.addEventListener("input", calculateAmounts);
     rateInput.addEventListener("input", calculateAmounts);
     discountPerInput.addEventListener("input", calculateDiscount);
-
     function calculateAmounts() {
         const qty = parseFloat(qtyInput.value) || 0;
         const rate = parseFloat(rateInput.value) || 0;
         const amount = qty * rate;
         amountInput.value = amount.toFixed(2);
-
-        // Reset discount fields when qty or rate changes
         discountPerInput.value = "";
         discountAmtInput.value = "";
         netAmtInput.value = amount.toFixed(2);
     }
-
     function calculateDiscount() {
         const amount = parseFloat(amountInput.value) || 0;
         const discountPer = parseFloat(discountPerInput.value) || 0;
         const discountAmt = (amount * discountPer) / 100;
         const netAmt = amount - discountAmt;
-
         discountAmtInput.value = discountAmt.toFixed(2);
         netAmtInput.value = netAmt.toFixed(2);
     }
-
-    // ===================== ADDING DETAILS SECTION ===================== //
-
+    // ADDING DETAILS SECTION
     let details = [];
-
     document.getElementById("btnAddDetail").addEventListener("click", function () {
         const warehouseId = document.getElementById("warehouseId").value;
         const warehouseName = document.getElementById("warehouseId").selectedOptions[0]?.text;
@@ -373,86 +382,74 @@
         const discount_amount = parseFloat(discountAmtInput.value) || 0;
         const net_amount = parseFloat(netAmtInput.value) || 0;
         const currentDate = document.querySelector('input[name="StockMaster.current_date"]').value;
-
         if (!warehouseId) return alert("Select Warehouse");
         if (!itemId) return alert("Select Item");
         if (qty <= 0) return alert("Enter valid Quantity");
         if (rate <= 0) return alert("Enter valid Rate");
-
         const detail = { warehouseId, warehouseName, itemId, itemName, qty, rate, amount, discount_percentage, discount_amount, net_amount, current_date: currentDate };
         details.push(detail);
-
         renderTable();
         clearInputs();
         updateNetAmount();
     });
-
     function renderTable() {
         const tbody = document.querySelector("#detailsTable tbody");
         const container = document.getElementById("detailsContainer");
         tbody.innerHTML = "";
         container.innerHTML = "";
-
         let totalAmount = 0;
         let totalDiscount = 0;
         let totalNet = 0;
-
         details.forEach((d, i) => {
             totalAmount += d.amount;
             totalDiscount += d.discount_amount;
             totalNet += d.net_amount;
-
             tbody.innerHTML += `
-                    <tr>
-                        <td class="p-3">${i + 1}</td>
-                        <td class="p-3">${d.current_date}</td>
-                        <td class="p-3">${d.warehouseName}</td>
-                        <td class="p-3">${d.itemName}</td>
-                        <td class="p-3">${d.qty}</td>
-                        <td class="p-3">${d.rate.toFixed(2)}</td>
-                        <td class="p-3">${d.amount.toFixed(2)}</td>
-                        <td class="p-3">${d.discount_percentage.toFixed(2)}</td>
-                        <td class="p-3">${d.discount_amount.toFixed(2)}</td>
-                        <td class="p-3">${d.net_amount.toFixed(2)}</td>
-                        <td class="p-3">
-                            <button type="button" onclick="removeDetail(${i})" class="text-red-600">Delete</button>
-                        </td>
-                    </tr>`;
-
+                        <tr>
+                            <td class="p-3">${i + 1}</td>
+                            <td class="p-3">${d.current_date}</td>
+                            <td class="p-3">${d.warehouseName}</td>
+                            <td class="p-3">${d.itemName}</td>
+                            <td class="p-3">${d.qty}</td>
+                            <td class="p-3">${d.rate.toFixed(2)}</td>
+                            <td class="p-3">${d.amount.toFixed(2)}</td>
+                            <td class="p-3">${d.discount_percentage.toFixed(2)}</td>
+                            <td class="p-3">${d.discount_amount.toFixed(2)}</td>
+                            <td class="p-3">${d.net_amount.toFixed(2)}</td>
+                            <td class="p-3">
+                                <button type="button" onclick="removeDetail(${i})" class="text-red-600">Delete</button>
+                            </td>
+                        </tr>`;
             container.innerHTML += `
-                    <input type="hidden" name="StockDetail[${i}].warehouseId" value="${d.warehouseId}" />
-                    <input type="hidden" name="StockDetail[${i}].itemId" value="${d.itemId}" />
-                    <input type="hidden" name="StockDetail[${i}].qty" value="${d.qty}" />
-                    <input type="hidden" name="StockDetail[${i}].rate" value="${d.rate}" />
-                    <input type="hidden" name="StockDetail[${i}].amount" value="${d.amount}" />
-                    <input type="hidden" name="StockDetail[${i}].discount_percentage" value="${d.discount_percentage}" />
-                    <input type="hidden" name="StockDetail[${i}].discount_amount" value="${d.discount_amount}" />
-                    <input type="hidden" name="StockDetail[${i}].net_amount" value="${d.net_amount}" />
-                    <input type="hidden" name="StockDetail[${i}].current_date" value="${d.current_date}" />
-                `;
+                        <input type="hidden" name="StockDetail[${i}].warehouseId" value="${d.warehouseId}" />
+                        <input type="hidden" name="StockDetail[${i}].itemId" value="${d.itemId}" />
+                        <input type="hidden" name="StockDetail[${i}].qty" value="${d.qty}" />
+                        <input type="hidden" name="StockDetail[${i}].rate" value="${d.rate}" />
+                        <input type="hidden" name="StockDetail[${i}].amount" value="${d.amount}" />
+                        <input type="hidden" name="StockDetail[${i}].discount_percentage" value="${d.discount_percentage}" />
+                        <input type="hidden" name="StockDetail[${i}].discount_amount" value="${d.discount_amount}" />
+                        <input type="hidden" name="StockDetail[${i}].net_amount" value="${d.net_amount}" />
+                        <input type="hidden" name="StockDetail[${i}].current_date" value="${d.current_date}" />
+                    `;
         });
-
         if (details.length > 0) {
             tbody.innerHTML += `
-                    <tr class="bg-gray-100 font-semibold">
-                        <td colspan="6" class="p-3">Total</td>
-                        <td class="p-3 text-blue-700">${totalAmount.toFixed(2)}</td>
-                        <td class="p-3 text-blue-700"></td>
-                        <td class="p-3 text-blue-700">${totalDiscount.toFixed(2)}</td>
-                        <td class="p-3 text-green-700">${totalNet.toFixed(2)}</td>
-                        <td></td>
-                    </tr>`;
+                        <tr class="bg-gray-100 font-semibold">
+                            <td colspan="6" class="p-3">Total</td>
+                            <td class="p-3 text-blue-700">${totalAmount.toFixed(2)}</td>
+                            <td class="p-3 text-blue-700"></td>
+                            <td class="p-3 text-blue-700">${totalDiscount.toFixed(2)}</td>
+                            <td class="p-3 text-green-700">${totalNet.toFixed(2)}</td>
+                            <td></td>
+                        </tr>`;
         }
-
-        document.querySelector('input[name="StockMaster.total_amount"]').value = totalAmount.toFixed(2);
+        document.querySelector('input[name="StockMaster.total_amount"]').value = totalNet.toFixed(2);
         updateNetAmount();
     }
-
     function removeDetail(index) {
         details.splice(index, 1);
         renderTable();
     }
-
     function clearInputs() {
         document.getElementById("warehouseId").value = "";
         document.getElementById("itemId").value = "";
@@ -463,25 +460,32 @@
         discountAmtInput.value = "";
         netAmtInput.value = "";
     }
-
     function updateNetAmount() {
         const totalAmount = parseFloat(document.querySelector('input[name="StockMaster.total_amount"]').value) || 0;
-        const discount = parseFloat(document.querySelector('input[name="StockMaster.discount_amount"]').value) || 0;
-        const tax = parseFloat(document.querySelector('input[name="StockMaster.tax_amount"]').value) || 0;
-        document.querySelector('input[name="StockMaster.net_amount"]').value = (totalAmount - discount + tax).toFixed(2);
+        const discountAmount = parseFloat(document.querySelector('input[name="StockMaster.discount_amount"]').value) || 0;
+        const taxAmount = parseFloat(document.querySelector('input[name="StockMaster.tax_amount"]').value) || 0;
+        const netBeforeTax = totalAmount - discountAmount;
+        const finalNetAmount = netBeforeTax + taxAmount;
+        document.querySelector('input[name="StockMaster.net_amount"]').value = finalNetAmount.toFixed(2);
     }
-
+    document.querySelector('input[name="StockMaster.discount_amount"]').addEventListener('input', updateNetAmount);
+    document.querySelector('input[name="StockMaster.tax_amount"]').addEventListener('input', updateNetAmount);
     function beforeSave() {
         updateNetAmount();
     }
-
     // Load previous data (edit mode)
     @if (Model.StockMaster.Id > 0 && Model.StockDetail != null && Model.StockDetail.Any())
     {
+        var warehouseLookup = ((IEnumerable<ERP.Models.Warehouse>)ViewBag.Warehouses).ToDictionary(w => w.Id, w => w.warehouse_name);
+        var itemLookup = ((IEnumerable<ERP.Models.Item>)ViewBag.Items).ToDictionary(i => i.Id, i => i.item_name);
         var detailsJson = JsonSerializer.Serialize(Model.StockDetail.Select(d => new
         {
             warehouseId = d.warehouseId,
+            warehouseName = warehouseLookup.ContainsKey(d.warehouseId.GetValueOrDefault())
+        ? warehouseLookup[d.warehouseId.GetValueOrDefault()]
+        : "Unknown",
             itemId = d.itemId,
+            itemName = itemLookup.ContainsKey(d.itemId) ? itemLookup[d.itemId] : "Unknown",
             qty = d.qty,
             rate = d.rate,
             amount = d.amount,
@@ -495,7 +499,6 @@
         renderTable();
         </text>
     }
-
     @if (ViewBag.ActiveTab == "list")
     {
         <text>showListTab(); </text>

@@ -32,6 +32,24 @@ namespace ERP.Controllers.Purchase
             ViewBag.Transporters = await _context.Transporter.ToListAsync();
             return View("~/Views/Purchase/PurchaseVoucher.cshtml",model);
         }
+        [HttpGet]
+        public async Task<IActionResult> GetPurchaseRate(int itemId)
+        {
+            try
+            {
+                var item = await _context.Item.FindAsync(itemId);
+                if (item != null)
+                {
+                    return Json(new { purchaseRate = item.purchase_rate });
+                }
+
+                return Json(new { purchaseRate = (decimal?)null });
+            }
+            catch(Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
         [HttpPost]
         public async Task<IActionResult> Create(PurchaseViewModel pvm)
         {
