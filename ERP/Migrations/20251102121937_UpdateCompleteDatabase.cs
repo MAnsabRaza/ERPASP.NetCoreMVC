@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ERP.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class UpdateCompleteDatabase : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -34,7 +34,7 @@ namespace ERP.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     current_date = table.Column<DateTime>(type: "date", nullable: false),
                     brand_name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    brand_description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    brand_description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     status = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
@@ -236,7 +236,7 @@ namespace ERP.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     current_date = table.Column<DateTime>(type: "date", nullable: false),
-                    name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    name = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
                     email = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     address = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     city = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -265,7 +265,7 @@ namespace ERP.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     current_date = table.Column<DateTime>(type: "date", nullable: false),
-                    name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    name = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
                     email = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     address = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     city = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -377,7 +377,7 @@ namespace ERP.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     current_date = table.Column<DateTime>(type: "date", nullable: false),
-                    remark = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    remark = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     item_name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     item_barcode = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     status = table.Column<bool>(type: "bit", nullable: false),
@@ -389,9 +389,9 @@ namespace ERP.Migrations
                     purchase_rate = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     sale_rate = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     rate = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
-                    discount_amount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    discount_amount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: true),
                     total_amount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
-                    description = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    description = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -504,7 +504,7 @@ namespace ERP.Migrations
                     posted_date = table.Column<DateTime>(type: "date", nullable: false),
                     companyId = table.Column<int>(type: "int", nullable: false),
                     userId = table.Column<int>(type: "int", nullable: true),
-                    etype = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    etype = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     total_debit = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     total_credit = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false)
@@ -535,13 +535,13 @@ namespace ERP.Migrations
                     posted_date = table.Column<DateTime>(type: "date", nullable: false),
                     companyId = table.Column<int>(type: "int", nullable: false),
                     userId = table.Column<int>(type: "int", nullable: true),
-                    venderId = table.Column<int>(type: "int", nullable: false),
-                    customerId = table.Column<int>(type: "int", nullable: false),
+                    venderId = table.Column<int>(type: "int", nullable: true),
+                    customerId = table.Column<int>(type: "int", nullable: true),
                     transporterId = table.Column<int>(type: "int", nullable: false),
-                    etype = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    etype = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     total_amount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     discount_amount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
-                    tax_amount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    tax_amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     net_amount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     remarks = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
@@ -586,7 +586,7 @@ namespace ERP.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     current_date = table.Column<DateTime>(type: "date", nullable: true),
-                    journalEntryId = table.Column<int>(type: "int", nullable: true),
+                    journalEntryId = table.Column<int>(type: "int", nullable: false),
                     chartOfAccountId = table.Column<int>(type: "int", nullable: false),
                     debit_amount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     credit_amount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
@@ -620,7 +620,7 @@ namespace ERP.Migrations
                     debit_amount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     credit_amount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     running_balance = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
-                    description = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    description = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -653,13 +653,13 @@ namespace ERP.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     current_date = table.Column<DateTime>(type: "date", nullable: false),
                     stockMasterId = table.Column<int>(type: "int", nullable: false),
-                    warehouseId = table.Column<int>(type: "int", nullable: false),
+                    warehouseId = table.Column<int>(type: "int", nullable: true),
                     itemId = table.Column<int>(type: "int", nullable: false),
                     qty = table.Column<int>(type: "int", nullable: false),
                     rate = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     amount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
-                    discount_percentage = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
-                    discount_amount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    discount_percentage = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: true),
+                    discount_amount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: true),
                     net_amount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false)
                 },
                 constraints: table =>
@@ -681,8 +681,7 @@ namespace ERP.Migrations
                         name: "FK_StockDetail_Warehouse_warehouseId",
                         column: x => x.warehouseId,
                         principalTable: "Warehouse",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateIndex(

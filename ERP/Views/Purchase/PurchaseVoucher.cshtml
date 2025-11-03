@@ -2,24 +2,37 @@
 @using System.Text.Json
 @{
     ViewData["Title"] = "Purchase Voucher";
-    var stockList = ViewBag.StockList as List<ERP.Models.StockMaster>;
+    var purchaseList = ViewBag.Purchase as List<ERP.Models.PurchaseListDto>;
+
+    // Safely cast ViewBag values to int (prevents RuntimeBinderException)
+    int currentPage = (int)(ViewBag.Page ?? 1);
+    int pageSize = (int)(ViewBag.PageSize ?? 5);
+    int totalItems = (int)(ViewBag.TotalItems ?? 0);
+    string activeTab = ViewBag.ActiveTab as string ?? "form";
+
+    int startItem = (currentPage - 1) * pageSize + 1;
+    int endItem = Math.Min(currentPage * pageSize, totalItems);
 }
+
 <div class="space-y-8">
+    <!-- Tabs -->
     <div class="border-b border-gray-300 bg-white shadow-sm rounded-xl p-2">
         <nav class="flex space-x-6" aria-label="Tabs">
             <button id="tab-form"
-                    class="px-4 py-2 text-sm font-semibold text-blue-900 border-b-2 border-blue-900"
+                    class="px-4 py-2 text-sm font-semibold @(activeTab == "form" ? "text-blue-900 border-b-2 border-blue-900" : "text-gray-500 hover:text-blue-900")"
                     type="button">
                 <i class="fa-solid fa-plus-circle mr-2"></i> Purchase Voucher Entry
             </button>
             <button id="tab-list"
-                    class="px-4 py-2 text-sm font-semibold text-gray-500 hover:text-blue-900"
+                    class="px-4 py-2 text-sm font-semibold @(activeTab == "list" ? "text-blue-900 border-b-2 border-blue-900" : "text-gray-500 hover:text-blue-900")"
                     type="button">
                 <i class="fa-solid fa-list mr-2"></i> Purchase Voucher List
             </button>
         </nav>
     </div>
-    <div id="content-form" class="tab-content">
+
+    <!-- Form Tab -->
+    <div id="content-form" class="tab-content @(activeTab == "list" ? "hidden" : "")">
         @using (Html.BeginForm("Create", "PurchaseVoucher", FormMethod.Post))
         {
             @Html.AntiForgeryToken()
@@ -49,38 +62,54 @@
                     </div>
                 </div>
             </div>
+
             <div class="shadow-md rounded-2xl bg-white p-6 border border-gray-200 mt-4">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     @Html.HiddenFor(m => m.StockMaster.companyId)
                     @Html.HiddenFor(m => m.StockMaster.userId)
                     <input type="hidden" name="StockMaster.etype" value="Purchase" />
+
                     <div>
                         <label class="block font-semibold text-gray-700 mb-1">Current Date <sup class="text-red-800 text-lg">*</sup></label>
                         @Html.TextBoxFor(m => m.StockMaster.current_date, "{0:yyyy-MM-dd}",
-                                 new { @class = "w-full p-2 border rounded-lg", type = "date", required = "required" })
+                            new { @class = "w-full p-2 border rounded-lg", type = "date", required = "required" })
                     </div>
                     <div>
                         <label class="block font-semibold text-gray-700 mb-1">Due Date <sup class="text-red-800 text-lg">*</sup></label>
                         @Html.TextBoxFor(m => m.StockMaster.due_date, "{0:yyyy-MM-dd}",
-                                 new { @class = "w-full p-2 border rounded-lg", type = "date", required = "required" })
+                            new { @class = "w-full p-2 border rounded-lg", type = "date", required = "required" })
                     </div>
                     <div>
                         <label class="block font-semibold text-gray-700 mb-1">Posted Date <sup class="text-red-800 text-lg">*</sup></label>
                         @Html.TextBoxFor(m => m.StockMaster.posted_date, "{0:yyyy-MM-dd}",
-                                 new { @class = "w-full p-2 border rounded-lg", type = "date", required = "required" })
+                            new { @class = "w-full p-2 border rounded-lg", type = "date", required = "required" })
                     </div>
+                <div>
+                        <label class="block font-semibold text-gray-700 mb-1">Vender <sup class="text-red-800 text-lg">*</sup>
+                        <a href="javascript:void(0)" onclick="openVenderModal()"
+                           class="inline-flex items-center px-4 py-2 text-sm text-blue-600 font-semibold">
+                            Add Vender
+                        </a>
+                       
+                    </label>
+                        <div class="flex gap-2">
+                            <select id="venderId" name="StockMaster.venderId" class="flex-1 p-2 border rounded-lg" required>
+                                <option value="">Select Vender</option>
+                                @foreach (var vender in ViewBag.Venders)
+                                    {
+                                        <option value="@vender.Id" selected="@(Model.StockMaster.venderId == vender.Id ? "selected" : null)">@vender.name</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
                     <div>
-                        <label class="block font-semibold text-gray-700 mb-1">Vender <sup class="text-red-800 text-lg">*</sup></label>
-                        <select id="venderId" name="StockMaster.venderId" class="w-full p-2 border rounded-lg" required>
-                            <option value="">Select Vender</option>
-                            @foreach (var vender in ViewBag.Venders)
-                            {
-                                <option value="@vender.Id" selected="@(Model.StockMaster.venderId == vender.Id ? "selected" : null)">@vender.name</option>
-                            }
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block font-semibold text-gray-700 mb-1">Transporter <sup class="text-red-800 text-lg">*</sup></label>
+                        <label class="block font-semibold text-gray-700 mb-1">Transporter <sup class="text-red-800 text-lg">*</sup>
+                            <a href="javascript:void(0)" onclick="openTransporterModal()"
+                               class="inline-flex items-center px-4 py-2 text-sm text-blue-600 font-semibold">
+                                Add Transporter
+                            </a>
+                           
+                        </label>
                         <select id="transporterId" name="StockMaster.transporterId" class="w-full p-2 border rounded-lg" required>
                             <option value="">Select Transporter</option>
                             @foreach (var transporter in ViewBag.Transporters)
@@ -92,11 +121,12 @@
                     <div>
                         <label class="block font-semibold text-gray-700 mb-1">Remarks</label>
                         @Html.TextAreaFor(m => m.StockMaster.remarks,
-                                 new { @class = "w-full p-2 border rounded-lg", rows = "2", placeholder = "Enter Remarks" })
+                            new { @class = "w-full p-2 border rounded-lg", rows = "2", placeholder = "Enter Remarks" })
                     </div>
                 </div>
             </div>
-            <!-- Stock Details and Additional Charges Tabs -->
+
+            <!-- Stock Details & Additional Charges -->
             <div class="shadow-md rounded-2xl bg-white p-6 border mt-4">
                 <nav class="flex space-x-6 mb-4" aria-label="Detail Tabs">
                     <button id="tab-stock-details"
@@ -110,24 +140,37 @@
                         <i class="fa-solid fa-money-bill mr-2"></i> Additional Charges
                     </button>
                 </nav>
+
+                <!-- Stock Details -->
                 <div id="content-stock-details" class="detail-tab-content">
                     <h3 class="text-lg font-semibold mb-4">Add Stock Details</h3>
                     <div class="grid grid-cols-12 gap-6 items-end">
                         <div class="col-span-4">
-                            <label>Warehouse <sup class="text-red-800 text-lg">*</sup></label>
+                            <label>Warehouse <sup class="text-red-800 text-lg">*</sup>
+                            <a href="javascript:void(0)" onclick="openWarehouseModal()"
+                               class="inline-flex items-center px-4 py-2 text-sm text-blue-600 font-semibold">
+                                Add Warehouse
+                            </a>
+                          
+                        </label>
                             <select id="warehouseId" class="w-full p-2 border rounded-lg">
                                 <option value="">Select Warehouse</option>
-                                @foreach (var warehouse in ViewBag.Warehouses)
+                                @foreach (var warehouse in ViewBag.Warehouses as IEnumerable<dynamic>)
                                 {
                                     <option value="@warehouse.Id">@warehouse.warehouse_name</option>
                                 }
                             </select>
                         </div>
                         <div class="col-span-4">
-                            <label>Item <sup class="text-red-800 text-lg">*</sup></label>
+                            <label>Item <sup class="text-red-800 text-lg">*</sup>
+                                <a href="javascript:void(0)" onclick="openItemModal()"
+                                   class="inline-flex items-center px-4 py-2 text-sm text-blue-600 font-semibold">
+                                     Add Item
+                                </a>
+                            </label>
                             <select id="itemId" class="w-full p-2 border rounded-lg" onchange="fetchPurchaseRate()">
                                 <option value="">Select Item</option>
-                                @foreach (var item in ViewBag.Items)
+                                @foreach (var item in ViewBag.Items as IEnumerable<dynamic>)
                                 {
                                     <option value="@item.Id">@item.item_name</option>
                                 }
@@ -146,11 +189,11 @@
                             <input type="number" id="amount" class="w-full p-2 border rounded-lg" step="0.01" min="0" readonly />
                         </div>
                         <div class="col-span-3">
-                            <label>Discount Percentage</label>
+                            <label>Discount %</label>
                             <input type="number" id="discount_percentage" class="w-full p-2 border rounded-lg" step="0.01" min="0" />
                         </div>
                         <div class="col-span-2">
-                            <label>Discount Amount</label>
+                            <label>Disc Amt</label>
                             <input type="number" id="discount_amount" readonly class="w-full p-2 border rounded-lg" step="0.01" min="0" />
                         </div>
                         <div class="col-span-3">
@@ -164,6 +207,7 @@
                             </button>
                         </div>
                     </div>
+
                     <div class="overflow-hidden border rounded-lg mt-6">
                         <div class="max-h-96 overflow-y-auto">
                             <table class="table-auto w-full text-sm" id="detailsTable">
@@ -173,10 +217,10 @@
                                         <th class="p-3">Date</th>
                                         <th class="p-3">Warehouse</th>
                                         <th class="p-3">Item</th>
-                                        <th class="p-3">Quantity</th>
+                                        <th class="p-3">Qty</th>
                                         <th class="p-3">Rate</th>
                                         <th class="p-3">Amount</th>
-                                        <th class="p-3">Dis Per</th>
+                                        <th class="p-3">Dis %</th>
                                         <th class="p-3">Dis Amt</th>
                                         <th class="p-3">Net Amt</th>
                                         <th class="p-3">Action</th>
@@ -187,33 +231,42 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Additional Charges -->
                 <div id="content-additional-charges" class="detail-tab-content hidden">
                     <h3 class="text-lg font-semibold mb-4">Additional Charges</h3>
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                         <div>
                             <label class="block font-semibold text-gray-700 mb-1">Total Amount</label>
-                            @Html.TextBoxFor(m => m.StockMaster.total_amount, new { @class = "w-full p-2 border rounded-lg", type = "number", step = "0.01", required = "required", @readonly = "readonly" })
+                            @Html.TextBoxFor(m => m.StockMaster.total_amount,
+                                new { @class = "w-full p-2 border rounded-lg", type = "number", step = "0.01", @readonly = "readonly" })
                         </div>
                         <div>
                             <label class="block font-semibold text-gray-700 mb-1">Discount Amount</label>
-                            @Html.TextBoxFor(m => m.StockMaster.discount_amount, new { @class = "w-full p-2 border rounded-lg", type = "number", step = "0.01", @onchange = "updateNetAmount()" })
+                            @Html.TextBoxFor(m => m.StockMaster.discount_amount,
+                                new { @class = "w-full p-2 border rounded-lg", type = "number", step = "0.01", @onchange = "updateNetAmount()" })
                         </div>
                         <div>
                             <label class="block font-semibold text-gray-700 mb-1">Tax Amount</label>
-                            @Html.TextBoxFor(m => m.StockMaster.tax_amount, new { @class = "w-full p-2 border rounded-lg", type = "number", step = "0.01", @onchange = "updateNetAmount()" })
+                            @Html.TextBoxFor(m => m.StockMaster.tax_amount,
+                                new { @class = "w-full p-2 border rounded-lg", type = "number", step = "0.01", @onchange = "updateNetAmount()" })
                         </div>
                         <div>
                             <label class="block font-semibold text-gray-700 mb-1">Net Amount</label>
-                            @Html.TextBoxFor(m => m.StockMaster.net_amount, new { @class = "w-full p-2 border rounded-lg", type = "number", step = "0.01", required = "required", @readonly = "readonly" })
+                            @Html.TextBoxFor(m => m.StockMaster.net_amount,
+                                new { @class = "w-full p-2 border rounded-lg", type = "number", step = "0.01", @readonly = "readonly" })
                         </div>
                     </div>
                 </div>
             </div>
-            <!-- Hidden container for posting StockDetail -->
+
+            <!-- Hidden inputs for StockDetail -->
             <div id="detailsContainer"></div>
         }
     </div>
-    <div id="content-list" class="tab-content hidden shadow-lg rounded-2xl bg-white p-6 border">
+
+    <!-- List Tab -->
+    <div id="content-list" class="tab-content @(activeTab == "list" ? "" : "hidden") shadow-lg rounded-2xl bg-white p-6 border">
         <div class="flex justify-between items-center">
             <div>
                 <h2 class="text-2xl font-bold text-blue-900">
@@ -222,18 +275,17 @@
             </div>
             <div class="flex items-center space-x-4">
                 <div class="px-5 py-2 rounded-xl text-sm font-semibold text-white bg-blue-900 shadow-md">
-                    Total Items:
+                    Total Items: @totalItems
                 </div>
-                <button type="button" id="btn-add-new"
-                        class="px-5 py-2 rounded-xl text-sm font-semibold text-white bg-green-600 hover:bg-green-700">
+                <button type="button" id="btn-add-new" class="px-5 py-2 rounded-xl text-sm font-semibold text-white bg-green-600 hover:bg-green-700">
                     <i class="fa-solid fa-plus"></i> Add New
                 </button>
-                <button type="button" onclick="refreshPage('list')"
-                        class="px-5 py-2 rounded-xl text-sm font-semibold text-white bg-purple-500 hover:bg-purple-600">
+                <button type="button" onclick="refreshPage('list')" class="px-5 py-2 rounded-xl text-sm font-semibold text-white bg-purple-500 hover:bg-purple-600">
                     <i class="fa-solid fa-arrows-rotate mr-2"></i> Refresh
                 </button>
             </div>
         </div>
+
         <div class="overflow-hidden border rounded-lg mt-6">
             <div class="max-h-96 overflow-y-auto">
                 <table class="table-auto w-full text-sm">
@@ -243,82 +295,136 @@
                             <th class="p-3">Date</th>
                             <th class="p-3">Type</th>
                             <th class="p-3">Remarks</th>
-                            <th class="p-3">Total Amount</th>
-                            <th class="p-3">Net Amount</th>
+                            <th class="p-3">Total</th>
+                            <th class="p-3">Net</th>
                             <th class="p-3">Action</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @if (stockList != null && stockList.Any())
+                        @foreach (var item in purchaseList ?? new List<ERP.Models.PurchaseListDto>())
                         {
-                            foreach (var item in stockList)
-                            {
-                                <tr class="hover:bg-gray-50">
-                                    <td class="p-3">@item.Id</td>
-                                    <td class="p-3">@item.current_date</td>
-                                    <td class="p-3">@item.etype</td>
-                                    <td class="p-3">@item.remarks</td>
-                                    <td class="p-3 text-blue-700">@item.total_amount.ToString("F2")</td>
-                                    <td class="p-3 text-green-700">@item.net_amount.ToString("F2")</td>
-                                    <td class="p-3 space-x-2">
-                                        <a asp-action="PurchaseVoucher" asp-route-id="@item.Id"
-                                           class="px-3 py-1.5 rounded-lg text-xs font-medium bg-blue-100 text-blue-700 hover:bg-blue-200 transition">
-                                            <i class="fa-solid fa-pen"></i> Edit
-                                        </a>
-                                        @using (Html.BeginForm("Delete", "Purchase", FormMethod.Post,
-                                       new { onsubmit = "return confirm('Are you sure?');", @class = "inline" }))
-                                        {
-                                            @Html.AntiForgeryToken()
-                                            @Html.Hidden("id", item.Id)
-                                            <button type="submit"
-                                                    class="px-3 py-1 rounded bg-red-100 text-red-700">
-                                                Delete
-                                            </button>
-                                        }
-                                    </td>
-                                </tr>
-                            }
-                        }
-                        else
-                        {
-                            <tr>
-                                <td colspan="7" class="text-center p-4 text-gray-500">No Purchase Vouchers found.</td>
+                            <tr class="hover:bg-gray-50">
+                                <td class="p-3">@item.Id</td>
+                                <td class="p-3">@item.CurrentDate</td>
+                                <td class="p-3">@item.Etype</td>
+                                <td class="p-3">@item.Remarks</td>
+                                <td class="p-3 text-blue-700">@item.TotalAmount.ToString("F2")</td>
+                                <td class="p-3 text-green-700">@item.NetAmount.ToString("F2")</td>
+                                <td class="p-3 space-x-2">
+                                    <a asp-action="Edit" asp-route-id="@item.Id" asp-route-page="@currentPage" asp-route-pageSize="@pageSize" asp-route-activeTab="form" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-blue-100 text-blue-700 hover:bg-blue-200">
+                                        Edit
+                                    </a>
+                                    @using (Html.BeginForm("Delete", "PurchaseVoucher", FormMethod.Post, new { onsubmit = "return confirm('Are you sure?');", @class = "inline" }))
+                                    {
+                                        @Html.AntiForgeryToken()
+                                        @Html.Hidden("id", item.Id)
+                                        <button type="submit" class="px-3 py-1 rounded bg-red-100 text-red-700 hover:bg-red-200">
+                                            Delete
+                                        </button>
+                                    }
+                                </td>
                             </tr>
                         }
-                    </tbody>
+                        </tbody>
                 </table>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="flex justify-between items-center mt-4">
+            <div>
+                Showing @startItem to @endItem of @totalItems entries
+            </div>
+            <div class="flex space-x-2">
+                @if (currentPage > 1)
+                {
+                    <a href="@Url.Action("PurchaseVoucher", new { page = currentPage - 1, pageSize = pageSize, activeTab = "list" })"
+                       class="px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700">Previous</a>
+                }
+                @if (endItem < totalItems)
+                {
+                    <a href="@Url.Action("PurchaseVoucher", new { page = currentPage + 1, pageSize = pageSize, activeTab = "list" })"
+                       class="px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700">Next</a>
+                }
             </div>
         </div>
     </div>
 </div>
+@await Html.PartialAsync("_VenderModal", new ERP.Models.Vender())
+@await Html.PartialAsync("_TransporterModal", new ERP.Models.Transporter())
+@await Html.PartialAsync("_WarehouseModal", new ERP.Models.Warehouse())
+<div id="itemModalContainer"></div>
 <script>
-    // Main Tabs
+    function openVenderModal() {
+            document.getElementById('venderModal').classList.remove('hidden');
+        }
+
+        function closeVenderModal() {
+            document.getElementById('venderModal').classList.add('hidden');
+        }
+         function openTransporterModal() {
+            document.getElementById('transporterModal').classList.remove('hidden');
+        }
+
+        function closeTransporterModal() {
+            document.getElementById('transporterModal').classList.add('hidden');
+        }
+         function openWarehouseModal() {
+            document.getElementById('warehouseModal').classList.remove('hidden');
+        }
+
+        function closeWarehouseModal() {
+            document.getElementById('warehouseModal').classList.add('hidden');
+        }
+          function openItemModal() {
+        fetch('/PurchaseVoucher/ItemModal')
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('itemModalContainer').innerHTML = html;
+                document.getElementById('itemModal').classList.remove('hidden');
+            })
+            .catch(err => console.error('Modal load failed:', err));
+    }
+
+    function closeItemModal() {
+        document.getElementById('itemModal')?.closest('#itemModalContainer')?.remove();
+    }
+    // === TAB LOGIC ===
     const tabForm = document.getElementById("tab-form");
     const tabList = document.getElementById("tab-list");
     const contentForm = document.getElementById("content-form");
     const contentList = document.getElementById("content-list");
     const btnAddNew = document.getElementById("btn-add-new");
-    tabForm.addEventListener("click", showFormTab);
-    tabList.addEventListener("click", showListTab);
+
+    tabForm.addEventListener("click", () => showTab("form"));
+    tabList.addEventListener("click", () => showTab("list"));
     if (btnAddNew) btnAddNew.addEventListener("click", addNew);
-    function showFormTab() {
-        tabForm.classList.add("text-blue-900", "border-blue-900");
-        tabList.classList.remove("text-blue-900", "border-blue-900");
-        contentForm.classList.remove("hidden");
-        contentList.classList.add("hidden");
-        showStockDetailsTab(); // Default to Stock Details tab
+
+    function showTab(tab) {
+        if (tab === "form") {
+            tabForm.classList.add("text-blue-900", "border-blue-900");
+            tabForm.classList.remove("text-gray-500");
+            tabList.classList.remove("text-blue-900", "border-blue-900");
+            tabList.classList.add("text-gray-500");
+            contentForm.classList.remove("hidden");
+            contentList.classList.add("hidden");
+            showDetailTab("stock-details");
+        } else {
+            tabList.classList.add("text-blue-900", "border-blue-900");
+            tabList.classList.remove("text-gray-500");
+            tabForm.classList.remove("text-blue-900", "border-blue-900");
+            tabForm.classList.add("text-gray-500");
+            contentList.classList.remove("hidden");
+            contentForm.classList.add("hidden");
+        }
     }
-    function showListTab() {
-        tabList.classList.add("text-blue-900", "border-blue-900");
-        tabForm.classList.remove("text-blue-900", "border-blue-900");
-        contentList.classList.remove("hidden");
-        contentForm.classList.add("hidden");
-    }
+
     function addNew() {
         resetForm();
         document.getElementById("stockMasterId").value = "0";
-        showFormTab();
+        showTab("form");
     }
+
     function resetForm() {
         document.querySelector("form").reset();
         details = [];
@@ -326,69 +432,67 @@
         clearInputs();
         updateNetAmount();
     }
+
     function refreshPage(tab) {
-        window.location.href = '@Url.Action("PurchaseVoucher", "Purchase", new { page = ViewBag.Page, pageSize = ViewBag.PageSize })' + '&activeTab=' + tab;
+        window.location.href = '@Url.Action("PurchaseVoucher")?page=@currentPage&pageSize=@pageSize&activeTab=' + tab;
     }
-    // Detail Tabs
+
+    // === DETAIL TABS ===
     const tabStockDetails = document.getElementById("tab-stock-details");
     const tabAdditionalCharges = document.getElementById("tab-additional-charges");
     const contentStockDetails = document.getElementById("content-stock-details");
     const contentAdditionalCharges = document.getElementById("content-additional-charges");
-    tabStockDetails.addEventListener("click", showStockDetailsTab);
-    tabAdditionalCharges.addEventListener("click", showAdditionalChargesTab);
-    function showStockDetailsTab() {
-        tabStockDetails.classList.add("text-blue-900", "border-blue-900");
-        tabAdditionalCharges.classList.remove("text-blue-900", "border-blue-900");
-        contentStockDetails.classList.remove("hidden");
-        contentAdditionalCharges.classList.add("hidden");
+
+    tabStockDetails.addEventListener("click", () => showDetailTab("stock-details"));
+    tabAdditionalCharges.addEventListener("click", () => showDetailTab("additional-charges"));
+
+    function showDetailTab(tab) {
+        if (tab === "stock-details") {
+            tabStockDetails.classList.add("text-blue-900", "border-blue-900");
+            tabAdditionalCharges.classList.remove("text-blue-900", "border-blue-900");
+            contentStockDetails.classList.remove("hidden");
+            contentAdditionalCharges.classList.add("hidden");
+        } else {
+            tabAdditionalCharges.classList.add("text-blue-900", "border-blue-900");
+            tabStockDetails.classList.remove("text-blue-900", "border-blue-900");
+            contentAdditionalCharges.classList.remove("hidden");
+            contentStockDetails.classList.add("hidden");
+        }
     }
-    function showAdditionalChargesTab() {
-        tabAdditionalCharges.classList.add("text-blue-900", "border-blue-900");
-        tabStockDetails.classList.remove("text-blue-900", "border-blue-900");
-        contentAdditionalCharges.classList.remove("hidden");
-        contentStockDetails.classList.add("hidden");
-    }
-    // Fetch purchase rate when item is selected
+
+    // === FETCH PURCHASE RATE ===
     function fetchPurchaseRate() {
         const itemId = document.getElementById("itemId").value;
         const rateInput = document.getElementById("rate");
-        if (itemId) {
-            fetch('@Url.Action("GetPurchaseRate", "PurchaseVoucher")' + '?itemId=' + itemId, {
-                method: 'GET',
-                headers: {
-                    'Accept': 'application/json'
-                }
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.purchaseRate !== null) {
-                        rateInput.value = data.purchaseRate.toFixed(2);
-                        calculateAmounts();
-                    } else {
-                        rateInput.value = "";
-                        calculateAmounts();
-                    }
-                })
-                .catch(error => {
-                    console.error('Error fetching purchase rate:', error);
-                    rateInput.value = "";
-                    calculateAmounts();
-                });
-        } else {
+        if (!itemId) {
             rateInput.value = "";
             calculateAmounts();
+            return;
         }
+        fetch(`@Url.Action("GetPurchaseRate", "PurchaseVoucher")?itemId=${itemId}`)
+            .then(r => r.json())
+            .then(data => {
+                rateInput.value = data.purchaseRate ? data.purchaseRate.toFixed(2) : "";
+                calculateAmounts();
+            })
+            .catch(() => {
+                rateInput.value = "";
+                calculateAmounts();
+            });
     }
-    // AUTO CALCULATION SECTION
+
+    // === CALCULATIONS ===
     const qtyInput = document.getElementById("qty");
     const rateInput = document.getElementById("rate");
     const amountInput = document.getElementById("amount");
     const discountPerInput = document.getElementById("discount_percentage");
     const discountAmtInput = document.getElementById("discount_amount");
     const netAmtInput = document.getElementById("net_amount");
+
     qtyInput.addEventListener("input", calculateAmounts);
     rateInput.addEventListener("input", calculateAmounts);
     discountPerInput.addEventListener("input", calculateDiscount);
+
     function calculateAmounts() {
         const qty = parseFloat(qtyInput.value) || 0;
         const rate = parseFloat(rateInput.value) || 0;
@@ -398,17 +502,18 @@
         discountAmtInput.value = "";
         netAmtInput.value = amount.toFixed(2);
     }
+
     function calculateDiscount() {
         const amount = parseFloat(amountInput.value) || 0;
-        const discountPer = parseFloat(discountPerInput.value) || 0;
-        const discountAmt = (amount * discountPer) / 100;
-        const netAmt = amount - discountAmt;
-        discountAmtInput.value = discountAmt.toFixed(2);
-        netAmtInput.value = netAmt.toFixed(2);
+        const per = parseFloat(discountPerInput.value) || 0;
+        const disc = (amount * per) / 100;
+        discountAmtInput.value = disc.toFixed(2);
+        netAmtInput.value = (amount - disc).toFixed(2);
     }
-    // ADDING DETAILS SECTION
+
+    // === ADD DETAIL ===
     let details = [];
-    document.getElementById("btnAddDetail").addEventListener("click", function () {
+    document.getElementById("btnAddDetail").addEventListener("click", () => {
         const warehouseId = document.getElementById("warehouseId").value;
         const warehouseName = document.getElementById("warehouseId").selectedOptions[0]?.text;
         const itemId = document.getElementById("itemId").value;
@@ -420,110 +525,112 @@
         const discount_amount = parseFloat(discountAmtInput.value) || 0;
         const net_amount = parseFloat(netAmtInput.value) || 0;
         const currentDate = document.querySelector('input[name="StockMaster.current_date"]').value;
+
         if (!warehouseId) return alert("Select Warehouse");
         if (!itemId) return alert("Select Item");
         if (qty <= 0) return alert("Enter valid Quantity");
         if (rate <= 0) return alert("Enter valid Rate");
-        const detail = { warehouseId, warehouseName, itemId, itemName, qty, rate, amount, discount_percentage, discount_amount, net_amount, current_date: currentDate };
-        details.push(detail);
+
+        details.push({ warehouseId, warehouseName, itemId, itemName, qty, rate, amount, discount_percentage, discount_amount, net_amount, current_date: currentDate });
         renderTable();
         clearInputs();
         updateNetAmount();
     });
+
     function renderTable() {
         const tbody = document.querySelector("#detailsTable tbody");
         const container = document.getElementById("detailsContainer");
         tbody.innerHTML = "";
         container.innerHTML = "";
-        let totalAmount = 0;
-        let totalDiscount = 0;
-        let totalNet = 0;
+
+        let totalAmount = 0, totalDiscount = 0, totalNet = 0;
+
         details.forEach((d, i) => {
             totalAmount += d.amount;
             totalDiscount += d.discount_amount;
             totalNet += d.net_amount;
+
             tbody.innerHTML += `
-                            <tr>
-                                <td class="p-3">${i + 1}</td>
-                                <td class="p-3">${d.current_date}</td>
-                                <td class="p-3">${d.warehouseName}</td>
-                                <td class="p-3">${d.itemName}</td>
-                                <td class="p-3">${d.qty}</td>
-                                <td class="p-3">${d.rate.toFixed(2)}</td>
-                                <td class="p-3">${d.amount.toFixed(2)}</td>
-                                <td class="p-3">${d.discount_percentage.toFixed(2)}</td>
-                                <td class="p-3">${d.discount_amount.toFixed(2)}</td>
-                                <td class="p-3">${d.net_amount.toFixed(2)}</td>
-                                <td class="p-3">
-                                    <button type="button" onclick="removeDetail(${i})" class="text-red-600">Delete</button>
-                                </td>
-                            </tr>`;
+                <tr>
+                    <td class="p-3">${i + 1}</td>
+                    <td class="p-3">${d.current_date}</td>
+                    <td class="p-3">${d.warehouseName}</td>
+                    <td class="p-3">${d.itemName}</td>
+                    <td class="p-3">${d.qty}</td>
+                    <td class="p-3">${d.rate.toFixed(2)}</td>
+                    <td class="p-3">${d.amount.toFixed(2)}</td>
+                    <td class="p-3">${d.discount_percentage.toFixed(2)}</td>
+                    <td class="p-3">${d.discount_amount.toFixed(2)}</td>
+                    <td class="p-3">${d.net_amount.toFixed(2)}</td>
+                    <td class="p-3"><button type="button" onclick="removeDetail(${i})" class="text-red-600 hover:underline">Delete</button></td>
+                </tr>`;
+
             container.innerHTML += `
-                            <input type="hidden" name="StockDetail[${i}].warehouseId" value="${d.warehouseId}" />
-                            <input type="hidden" name="StockDetail[${i}].itemId" value="${d.itemId}" />
-                            <input type="hidden" name="StockDetail[${i}].qty" value="${d.qty}" />
-                            <input type="hidden" name="StockDetail[${i}].rate" value="${d.rate}" />
-                            <input type="hidden" name="StockDetail[${i}].amount" value="${d.amount}" />
-                            <input type="hidden" name="StockDetail[${i}].discount_percentage" value="${d.discount_percentage}" />
-                            <input type="hidden" name="StockDetail[${i}].discount_amount" value="${d.discount_amount}" />
-                            <input type="hidden" name="StockDetail[${i}].net_amount" value="${d.net_amount}" />
-                            <input type="hidden" name="StockDetail[${i}].current_date" value="${d.current_date}" />
-                        `;
+                <input type="hidden" name="StockDetail[${i}].warehouseId" value="${d.warehouseId}" />
+                <input type="hidden" name="StockDetail[${i}].itemId" value="${d.itemId}" />
+                <input type="hidden" name="StockDetail[${i}].qty" value="${d.qty}" />
+                <input type="hidden" name="StockDetail[${i}].rate" value="${d.rate}" />
+                <input type="hidden" name="StockDetail[${i}].amount" value="${d.amount}" />
+                <input type="hidden" name="StockDetail[${i}].discount_percentage" value="${d.discount_percentage}" />
+                <input type="hidden" name="StockDetail[${i}].discount_amount" value="${d.discount_amount}" />
+                <input type="hidden" name="StockDetail[${i}].net_amount" value="${d.net_amount}" />
+                <input type="hidden" name="StockDetail[${i}].current_date" value="${d.current_date}" />
+            `;
         });
+
         if (details.length > 0) {
             tbody.innerHTML += `
-                            <tr class="bg-gray-100 font-semibold">
-                                <td colspan="6" class="p-3">Total</td>
-                                <td class="p-3 text-blue-700">${totalAmount.toFixed(2)}</td>
-                                <td class="p-3 text-blue-700"></td>
-                                <td class="p-3 text-blue-700">${totalDiscount.toFixed(2)}</td>
-                                <td class="p-3 text-green-700">${totalNet.toFixed(2)}</td>
-                                <td></td>
-                            </tr>`;
+                <tr class="bg-gray-100 font-semibold">
+                    <td colspan="6" class="p-3">Total</td>
+                    <td class="p-3 text-blue-700">${totalAmount.toFixed(2)}</td>
+                    <td></td>
+                    <td class="p-3 text-blue-700">${totalDiscount.toFixed(2)}</td>
+                    <td class="p-3 text-green-700">${totalNet.toFixed(2)}</td>
+                    <td></td>
+                </tr>`;
         }
+
         document.querySelector('input[name="StockMaster.total_amount"]').value = totalNet.toFixed(2);
         updateNetAmount();
     }
-    function removeDetail(index) {
-        details.splice(index, 1);
+
+    function removeDetail(i) {
+        details.splice(i, 1);
         renderTable();
     }
+
     function clearInputs() {
-        document.getElementById("warehouseId").value = "";
-        document.getElementById("itemId").value = "";
-        qtyInput.value = "";
-        rateInput.value = "";
-        amountInput.value = "";
-        discountPerInput.value = "";
-        discountAmtInput.value = "";
-        netAmtInput.value = "";
+        ["warehouseId", "itemId", "qty", "rate", "amount", "discount_percentage", "discount_amount", "net_amount"].forEach(id => {
+            document.getElementById(id).value = "";
+        });
     }
+
     function updateNetAmount() {
-        const totalAmount = parseFloat(document.querySelector('input[name="StockMaster.total_amount"]').value) || 0;
-        const discountAmount = parseFloat(document.querySelector('input[name="StockMaster.discount_amount"]').value) || 0;
-        const taxAmount = parseFloat(document.querySelector('input[name="StockMaster.tax_amount"]').value) || 0;
-        const netBeforeTax = totalAmount - discountAmount;
-        const finalNetAmount = netBeforeTax + taxAmount;
-        document.querySelector('input[name="StockMaster.net_amount"]').value = finalNetAmount.toFixed(2);
+        const total = parseFloat(document.querySelector('input[name="StockMaster.total_amount"]').value) || 0;
+        const disc = parseFloat(document.querySelector('input[name="StockMaster.discount_amount"]').value) || 0;
+        const tax = parseFloat(document.querySelector('input[name="StockMaster.tax_amount"]').value) || 0;
+        const net = total - disc + tax;
+        document.querySelector('input[name="StockMaster.net_amount"]').value = net.toFixed(2);
     }
-    document.querySelector('input[name="StockMaster.discount_amount"]').addEventListener('input', updateNetAmount);
-    document.querySelector('input[name="StockMaster.tax_amount"]').addEventListener('input', updateNetAmount);
+
     function beforeSave() {
         updateNetAmount();
     }
-    // Load previous data (edit mode)
-    @if (Model.StockMaster.Id > 0 && Model.StockDetail != null && Model.StockDetail.Any())
+
+    // === EDIT MODE: Load existing details ===
+    @if (Model.StockMaster.Id > 0 && Model.StockDetail?.Any() == true)
     {
-        var warehouseLookup = ((IEnumerable<ERP.Models.Warehouse>)ViewBag.Warehouses).ToDictionary(w => w.Id, w => w.warehouse_name);
-        var itemLookup = ((IEnumerable<ERP.Models.Item>)ViewBag.Items).ToDictionary(i => i.Id, i => i.item_name);
-        var detailsJson = JsonSerializer.Serialize(Model.StockDetail.Select(d => new
+        var warehouses = ViewBag.Warehouses as IEnumerable<dynamic>;
+        var items = ViewBag.Items as IEnumerable<dynamic>;
+        var warehouseDict = warehouses?.ToDictionary(w => (int)w.Id, w => (string)w.warehouse_name) ?? new Dictionary<int, string>();
+        var itemDict = items?.ToDictionary(i => (int)i.Id, i => (string)i.item_name) ?? new Dictionary<int, string>();
+
+        var jsonDetails = JsonSerializer.Serialize(Model.StockDetail.Select(d => new
         {
             warehouseId = d.warehouseId,
-            warehouseName = warehouseLookup.ContainsKey(d.warehouseId.GetValueOrDefault())
-        ? warehouseLookup[d.warehouseId.GetValueOrDefault()]
-        : "Unknown",
+            warehouseName = warehouseDict.ContainsKey(d.warehouseId ?? 0) ? warehouseDict[d.warehouseId ?? 0] : "Unknown",
             itemId = d.itemId,
-            itemName = itemLookup.ContainsKey(d.itemId) ? itemLookup[d.itemId] : "Unknown",
+            itemName = itemDict.ContainsKey(d.itemId) ? itemDict[d.itemId] : "Unknown",
             qty = d.qty,
             rate = d.rate,
             amount = d.amount,
@@ -532,17 +639,13 @@
             net_amount = d.net_amount,
             current_date = d.current_date.ToString("yyyy-MM-dd")
         }));
+
         <text>
-            details = @Html.Raw(detailsJson);
+        details = @Html.Raw(jsonDetails);
         renderTable();
         </text>
     }
-    @if (ViewBag.ActiveTab == "list")
-    {
-        <text>showListTab(); </text>
-    }
-    else
-    {
-        <text>showFormTab(); </text>
-    }
+
+    // === INITIAL TAB ===
+    showTab('@activeTab');
 </script>

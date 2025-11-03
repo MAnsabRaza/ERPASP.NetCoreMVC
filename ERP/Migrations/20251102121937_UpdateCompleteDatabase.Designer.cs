@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ERP.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251005144952_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20251102121937_UpdateCompleteDatabase")]
+    partial class UpdateCompleteDatabase
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -96,7 +96,6 @@ namespace ERP.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("brand_description")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("brand_name")
@@ -295,7 +294,8 @@ namespace ERP.Migrations
 
                     b.Property<string>("name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
 
                     b.Property<string>("phone")
                         .HasColumnType("nvarchar(max)");
@@ -328,10 +328,9 @@ namespace ERP.Migrations
                         .HasColumnType("date");
 
                     b.Property<string>("description")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<decimal>("discount_amount")
+                    b.Property<decimal?>("discount_amount")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
@@ -355,7 +354,6 @@ namespace ERP.Migrations
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("remark")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("sale_rate")
@@ -413,7 +411,7 @@ namespace ERP.Migrations
                     b.Property<string>("description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("journalEntryId")
+                    b.Property<int>("journalEntryId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -447,7 +445,6 @@ namespace ERP.Migrations
                         .HasColumnType("date");
 
                     b.Property<string>("etype")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("posted_date")
@@ -499,7 +496,6 @@ namespace ERP.Migrations
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("description")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("journalEntryId")
@@ -676,11 +672,11 @@ namespace ERP.Migrations
                     b.Property<DateTime>("current_date")
                         .HasColumnType("date");
 
-                    b.Property<decimal>("discount_amount")
+                    b.Property<decimal?>("discount_amount")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<decimal>("discount_percentage")
+                    b.Property<decimal?>("discount_percentage")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
@@ -701,7 +697,7 @@ namespace ERP.Migrations
                     b.Property<int>("stockMasterId")
                         .HasColumnType("int");
 
-                    b.Property<int>("warehouseId")
+                    b.Property<int?>("warehouseId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -729,7 +725,7 @@ namespace ERP.Migrations
                     b.Property<DateTime>("current_date")
                         .HasColumnType("date");
 
-                    b.Property<int>("customerId")
+                    b.Property<int?>("customerId")
                         .HasColumnType("int");
 
                     b.Property<decimal>("discount_amount")
@@ -741,7 +737,8 @@ namespace ERP.Migrations
 
                     b.Property<string>("etype")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<decimal>("net_amount")
                         .HasPrecision(18, 2)
@@ -755,7 +752,6 @@ namespace ERP.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("tax_amount")
-                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("total_amount")
@@ -768,7 +764,7 @@ namespace ERP.Migrations
                     b.Property<int?>("userId")
                         .HasColumnType("int");
 
-                    b.Property<int>("venderId")
+                    b.Property<int?>("venderId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -961,7 +957,8 @@ namespace ERP.Migrations
 
                     b.Property<string>("name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
 
                     b.Property<string>("phone")
                         .HasColumnType("nvarchar(max)");
@@ -1125,7 +1122,8 @@ namespace ERP.Migrations
                     b.HasOne("ERP.Models.JournalEntry", "JournalEntry")
                         .WithMany()
                         .HasForeignKey("journalEntryId")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
 
                     b.Navigation("ChartOfAccount");
 
@@ -1247,9 +1245,7 @@ namespace ERP.Migrations
 
                     b.HasOne("ERP.Models.Warehouse", "Warehouse")
                         .WithMany()
-                        .HasForeignKey("warehouseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("warehouseId");
 
                     b.Navigation("Item");
 
@@ -1269,8 +1265,7 @@ namespace ERP.Migrations
                     b.HasOne("ERP.Models.Customer", "Customer")
                         .WithMany()
                         .HasForeignKey("customerId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("ERP.Models.Transporter", "Transporter")
                         .WithMany()
@@ -1286,8 +1281,7 @@ namespace ERP.Migrations
                     b.HasOne("ERP.Models.Vender", "Vender")
                         .WithMany()
                         .HasForeignKey("venderId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Company");
 

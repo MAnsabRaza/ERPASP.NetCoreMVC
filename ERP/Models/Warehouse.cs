@@ -5,7 +5,8 @@ namespace ERP.Models
     public class Warehouse
     {
         public int Id { get; set; }
-        public DateOnly current_date { get; set; }
+
+        public DateOnly current_date { get; set; }= DateOnly.FromDateTime(DateTime.Today);
         public string warehouse_name { get; set; }
         public string? warehouse_description { get; set; }
         public string address { get; set; }

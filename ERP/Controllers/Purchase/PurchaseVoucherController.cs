@@ -2,8 +2,9 @@
 using ERP.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Threading.Tasks;
+using System.Drawing.Printing;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace ERP.Controllers.Purchase
 {
@@ -18,7 +19,7 @@ namespace ERP.Controllers.Purchase
             _notyf = notyf;
         }
 
-        public async Task<IActionResult> PurchaseVoucher()
+        public async Task<IActionResult> PurchaseVoucher(int page = 1, int pageSize = 5, string activeTab = "form")
         {
             var model = new PurchaseViewModel
             {
@@ -30,13 +31,44 @@ namespace ERP.Controllers.Purchase
                 },
                 StockDetail = new List<StockDetail>()
             };
+
+            int totalPurchase = await _context.StockMaster
+                .CountAsync(d => d.etype == "Purchase");
+
+            var purchaseDetail = await _context.StockMaster
+                .Where(j => j.etype == "Purchase")
+                .OrderBy(j => j.Id)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(j => new PurchaseListDto
+                {
+                    Id = j.Id,
+                    CurrentDate = j.current_date,
+                    Etype = j.etype,
+                    Remarks = j.remarks,
+                    TotalAmount = j.total_amount,
+                    NetAmount = j.net_amount,
+                    VenderName = j.Vender != null ? j.Vender.name : null,
+                    TransporterNo = j.Transporter != null ? j.Transporter.transporter_no : null
+                })
+                .ToListAsync();
+
+            // Pass pagination info
+            ViewBag.TotalItems = totalPurchase;
+            ViewBag.Page = page;
+            ViewBag.PageSize = pageSize;
+            ViewBag.ActiveTab = activeTab;
+
+            // Dropdowns
             ViewBag.Warehouses = await _context.Warehouse.ToListAsync();
             ViewBag.Items = await _context.Item.ToListAsync();
             ViewBag.Venders = await _context.Vender.ToListAsync();
             ViewBag.Transporters = await _context.Transporter.ToListAsync();
+
+            ViewBag.Purchase = purchaseDetail; // List<PurchaseListDto>
+
             return View("~/Views/Purchase/PurchaseVoucher.cshtml", model);
         }
-
         [HttpGet]
         public async Task<IActionResult> GetPurchaseRate(int itemId)
         {
@@ -77,10 +109,15 @@ namespace ERP.Controllers.Purchase
 
                 try
                 {
-                    // Define Chart of Account IDs for Inventory and Accounts Payable
-                    const int inventoryAccountId = 1; // ChartOfAccountId for Inventory
-                    const int accountsPayableAccountId = 2; // ChartOfAccountId for Accounts Payable
-
+                    var inventoryAccount = await _context.ChartOfAccount.FirstOrDefaultAsync(c => c.name == "Inventory");
+                    var accountsPayableAccount = await _context.ChartOfAccount.FirstOrDefaultAsync(c => c.name == "Account Payable");
+                    if (inventoryAccount == null || accountsPayableAccount == null)
+                    {
+                        _notyf.Error("Required chart of accounts (Inventory or Accounts Payable) not found.");
+                        return BadRequest("Required chart of accounts not found for the company.");
+                    }
+                    int inventoryAccountId = inventoryAccount.Id;
+                    int accountsPayableAccountId = accountsPayableAccount.Id;
                     if (pvm.StockMaster.Id > 0)
                     {
                         // Update existing purchase
@@ -351,36 +388,31 @@ namespace ERP.Controllers.Purchase
                 var purchase = await _context.StockMaster.FindAsync(id);
                 if (purchase != null)
                 {
-                    // Update vendor balance
-                    var vendor = await _context.Vender
-                        .FirstOrDefaultAsync(v => v.Id == purchase.venderId);
+                    var vendor = await _context.Vender.FirstOrDefaultAsync(v => v.Id == purchase.venderId);
                     if (vendor != null)
                     {
                         vendor.current_balance -= purchase.net_amount;
                         _context.Update(vendor);
                     }
 
-                    // Remove JournalEntry, JournalDetail, and Ledger entries
                     var journalEntry = await _context.JournalEntry
                         .FirstOrDefaultAsync(je => je.etype == "purchase" && je.description == $"Purchase Entry for StockMaster {id}");
                     if (journalEntry != null)
                     {
-                        var journalDetails = _context.JournalDetail
-                            .Where(jd => jd.journalEntryId == journalEntry.Id);
-                        var ledgerEntries = _context.Ledger
-                            .Where(l => l.journalEntryId == journalEntry.Id);
+                        var journalDetails = _context.JournalDetail.Where(jd => jd.journalEntryId == journalEntry.Id);
+                        var ledgerEntries = _context.Ledger.Where(l => l.journalEntryId == journalEntry.Id);
                         _context.JournalDetail.RemoveRange(journalDetails);
                         _context.Ledger.RemoveRange(ledgerEntries);
                         _context.JournalEntry.Remove(journalEntry);
                     }
 
-                    // Remove StockDetail and StockMaster
                     var details = _context.StockDetail.Where(d => d.stockMasterId == id);
                     _context.StockDetail.RemoveRange(details);
                     _context.StockMaster.Remove(purchase);
 
                     await _context.SaveChangesAsync();
                     await transaction.CommitAsync();
+
                     _notyf.Success("Purchase Voucher Deleted Successfully");
                 }
                 return RedirectToAction("PurchaseVoucher");
@@ -391,5 +423,80 @@ namespace ERP.Controllers.Purchase
                 return BadRequest(ex.Message);
             }
         }
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id,int page = 1, int pageSize = 5)
+        {
+            var purchase = await _context.StockMaster
+                   .Include(u=>u.User)
+                   .Include(v=>v.Vender)
+                     .Include(t=>t.Transporter)
+                  .Include(j => j.Company)
+                  .FirstOrDefaultAsync(j => j.Id == id);
+
+            if (purchase == null)
+            {
+                return NotFound();
+            }
+            var purchaseDetail = await _context.StockDetail
+              .Include(it => it.Item)
+              .Include(w=>w.Warehouse)
+              .Where(d => d.stockMasterId == id)
+              .ToListAsync();
+            var model = new PurchaseViewModel
+            {
+                StockMaster = purchase,
+                StockDetail = purchaseDetail
+            };
+
+            int totalPurchase = await _context.StockMaster
+                .CountAsync(d => d.etype == "Purchase");
+
+            var purchaseData= await _context.StockMaster
+                .Where(j => j.etype == "Purchase")
+                .OrderBy(j => j.Id)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(j => new PurchaseListDto
+                {
+                    Id = j.Id,
+                    CurrentDate = j.current_date,
+                    Etype = j.etype,
+                    Remarks = j.remarks,
+                    TotalAmount = j.total_amount,
+                    NetAmount = j.net_amount,
+                    VenderName = j.Vender != null ? j.Vender.name : null,
+                    TransporterNo = j.Transporter != null ? j.Transporter.transporter_no : null
+                })
+                .ToListAsync();
+
+            ViewBag.TotalItems = totalPurchase;
+            ViewBag.Page = page;
+            ViewBag.PageSize = pageSize;
+
+            
+            ViewBag.Warehouses = await _context.Warehouse.ToListAsync();
+            ViewBag.Items = await _context.Item.ToListAsync();
+            ViewBag.Venders = await _context.Vender.ToListAsync();
+            ViewBag.Transporters = await _context.Transporter.ToListAsync();
+
+            ViewBag.Purchase = purchaseData; 
+
+            return View("~/Views/Purchase/PurchaseVoucher.cshtml", model);
+        }
+        [HttpGet]
+        public async Task<IActionResult> ItemModal()
+        {
+            var model = new Item
+            {
+                current_date = DateOnly.FromDateTime(DateTime.Now)
+            };
+
+            ViewBag.categoryList = await _context.Category.Where(c => c.status == true).ToListAsync();
+            ViewBag.brandList = await _context.Brand.Where(b => b.status == true).ToListAsync();
+            ViewBag.uomList = await _context.UOM.Where(u => u.status == true).ToListAsync();
+            ViewBag.subCategoryList = await _context.SubCategory.Where(sb => sb.status == true).ToListAsync();
+            return PartialView("~/Views/Shared/_ItemModal.cshtml", model);
+        }
+
     }
 }

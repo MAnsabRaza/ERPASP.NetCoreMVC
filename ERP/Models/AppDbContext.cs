@@ -82,7 +82,7 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Item>().Property(i => i.total_amount).HasPrecision(18, 2);
         modelBuilder.Entity<StockMaster>().Property(s => s.total_amount).HasPrecision(18, 2);
         modelBuilder.Entity<StockMaster>().Property(s => s.discount_amount).HasPrecision(18, 2);
-        modelBuilder.Entity<StockMaster>().Property(s => s.tax_amount).HasPrecision(18, 2);
+//        modelBuilder.Entity<StockMaster>().Property(s => s.tax_amount).HasPrecision(18, 2);
         modelBuilder.Entity<StockMaster>().Property(s => s.net_amount).HasPrecision(18, 2);
         modelBuilder.Entity<StockDetail>().Property(s => s.rate).HasPrecision(18, 2);
         modelBuilder.Entity<StockDetail>().Property(s => s.amount).HasPrecision(18, 2);
