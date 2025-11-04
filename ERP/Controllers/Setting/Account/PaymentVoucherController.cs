@@ -26,6 +26,7 @@ namespace ERP.Controllers.Setting.Account
             var paymentVoucherList=await query.
                 Include(c=>c.Company).
                 Include(v=>v.Vender).
+                Include(c=>c.Customer).
                 Include(b=>b.Bank).
                 OrderBy(pv=>pv.Id).Skip((page-1)*pageSize).Take(pageSize).
                 ToListAsync();
@@ -41,6 +42,7 @@ namespace ERP.Controllers.Setting.Account
             ViewBag.PaymentVoucher=paymentVoucherList;
             ViewBag.companyList = await _context.Company.ToListAsync();
             ViewBag.venderList = await _context.Vender.ToListAsync();
+            ViewBag.customerList = await _context.Customer.ToListAsync();
             ViewBag.bankList=await _context.Bank.ToListAsync();
             return View("~/Views/Setting/Account/PaymentVoucher.cshtml", model);
             //return View("PaymentVoucher",model);
@@ -62,6 +64,7 @@ namespace ERP.Controllers.Setting.Account
             var paymentVoucherList = await query.
                 Include(c => c.Company).
                 Include(v => v.Vender).
+                Include(c => c.Customer).
                 Include(b => b.Bank).
                 OrderBy(pv => pv.Id).Skip((page - 1) * pageSize).Take(pageSize).
                 ToListAsync();
@@ -75,6 +78,9 @@ namespace ERP.Controllers.Setting.Account
                 ToListAsync();
             ViewBag.venderList = await _context.Vender.
                 Where(v => v.status == true).
+                ToListAsync();
+            ViewBag.customerList = await _context.Customer.
+                Where(c => c.status == true).
                 ToListAsync();
             ViewBag.bankList = await _context.Bank.
                 Where(b => b.status == true).
@@ -119,6 +125,7 @@ namespace ERP.Controllers.Setting.Account
                         existingPayment.status = paymentVoucher.status;
                         existingPayment.companyId=companyId;
                         existingPayment.venderId=paymentVoucher.venderId;
+                        existingPayment.customerId = paymentVoucher.customerId;
                         existingPayment.bankAccountId = paymentVoucher.bankAccountId;
                         _context.Update(existingPayment);
                         await _context.SaveChangesAsync();

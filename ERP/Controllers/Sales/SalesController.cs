@@ -219,9 +219,7 @@ namespace ERP.Controllers.Sales
                 return BadRequest(ex.Message);
             }
         }
-
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(PurchaseViewModel pvm)
         {
             try
@@ -260,7 +258,7 @@ namespace ERP.Controllers.Sales
 
                 try
                 {
-                    // Get required chart of accounts
+                    // Get Chart of Accounts
                     var cashInHand = await _context.ChartOfAccount
                         .FirstOrDefaultAsync(c => c.name == "Cash in hand" && c.companyId == companyId);
                     var salesRevenue = await _context.ChartOfAccount
@@ -269,33 +267,34 @@ namespace ERP.Controllers.Sales
                     if (cashInHand == null || salesRevenue == null)
                     {
                         _notyf.Error("Required chart of accounts (Cash in hand or Sales Revenue) not found.");
+                        await transaction.RollbackAsync();
                         return BadRequest("Required chart of accounts not found for the company.");
                     }
 
                     int cashInHandId = cashInHand.Id;
                     int salesRevenueId = salesRevenue.Id;
 
+                    // ========== UPDATE EXISTING SALES ==========
                     if (pvm.StockMaster.Id > 0)
                     {
-                        // ========== UPDATE EXISTING SALES ==========
                         var existingSales = await _context.StockMaster
                             .FirstOrDefaultAsync(x => x.Id == pvm.StockMaster.Id);
 
                         if (existingSales == null)
                         {
                             _notyf.Error("Sales voucher not found");
+                            await transaction.RollbackAsync();
                             return NotFound();
                         }
 
-                        // Store old values for adjustments
+                        // Store old values
                         decimal oldNetAmount = existingSales.net_amount;
                         int? oldCustomerId = existingSales.customerId;
 
-                        // Update customer balance (remove old amount from old customer)
+                        // Adjust old customer balance
                         if (oldCustomerId.HasValue)
                         {
-                            var oldCustomer = await _context.Customer
-                                .FirstOrDefaultAsync(v => v.Id == oldCustomerId);
+                            var oldCustomer = await _context.Customer.FirstOrDefaultAsync(v => v.Id == oldCustomerId);
                             if (oldCustomer != null)
                             {
                                 oldCustomer.current_balance -= oldNetAmount;
@@ -303,9 +302,8 @@ namespace ERP.Controllers.Sales
                             }
                         }
 
-                        // Add new amount to new customer
-                        var newCustomer = await _context.Customer
-                            .FirstOrDefaultAsync(v => v.Id == pvm.StockMaster.customerId);
+                        // Adjust new customer balance
+                        var newCustomer = await _context.Customer.FirstOrDefaultAsync(v => v.Id == pvm.StockMaster.customerId);
                         if (newCustomer != null)
                         {
                             newCustomer.current_balance += pvm.StockMaster.net_amount;
@@ -327,13 +325,12 @@ namespace ERP.Controllers.Sales
                         existingSales.remarks = pvm.StockMaster.remarks;
 
                         _context.Update(existingSales);
+                        await _context.SaveChangesAsync();
 
-                        // Remove existing StockDetail
-                        var existingDetails = _context.StockDetail
-                            .Where(d => d.stockMasterId == existingSales.Id);
+                        // Remove old StockDetail, Journal, and Ledger
+                        var existingDetails = _context.StockDetail.Where(d => d.stockMasterId == existingSales.Id);
                         _context.StockDetail.RemoveRange(existingDetails);
 
-                        // Remove existing JournalEntry, JournalDetail, and Ledger entries
                         var existingJournalEntry = await _context.JournalEntry
                             .FirstOrDefaultAsync(je => je.etype == "Sales" &&
                                 je.description == $"Sales Entry for StockMaster {existingSales.Id}");
@@ -342,13 +339,15 @@ namespace ERP.Controllers.Sales
                         {
                             var existingJournalDetails = _context.JournalDetail
                                 .Where(jd => jd.journalEntryId == existingJournalEntry.Id);
-                            var existingLedgerEntries = _context.Ledger
+                            var existingLedgers = _context.Ledger
                                 .Where(l => l.journalEntryId == existingJournalEntry.Id);
 
                             _context.JournalDetail.RemoveRange(existingJournalDetails);
-                            _context.Ledger.RemoveRange(existingLedgerEntries);
+                            _context.Ledger.RemoveRange(existingLedgers);
                             _context.JournalEntry.Remove(existingJournalEntry);
                         }
+
+                        await _context.SaveChangesAsync();
 
                         // Create new JournalEntry
                         var journalEntry = new JournalEntry
@@ -366,68 +365,68 @@ namespace ERP.Controllers.Sales
                         _context.JournalEntry.Add(journalEntry);
                         await _context.SaveChangesAsync();
 
-                        // Create JournalDetail entries
+                        // JournalDetail entries
                         var journalDetails = new List<JournalDetail>
-                        {
-                            new JournalDetail
-                            {
-                                current_date = pvm.StockMaster.current_date,
-                                journalEntryId = journalEntry.Id,
-                                chartOfAccountId = cashInHandId,
-                                debit_amount = pvm.StockMaster.net_amount,
-                                credit_amount = 0.00m,
-                                description = "Sales Receivable"
-                            },
-                            new JournalDetail
-                            {
-                                current_date = pvm.StockMaster.current_date,
-                                journalEntryId = journalEntry.Id,
-                                chartOfAccountId = salesRevenueId,
-                                debit_amount = 0.00m,
-                                credit_amount = pvm.StockMaster.net_amount,
-                                description = "Sales Revenue"
-                            }
-                        };
+                {
+                    new JournalDetail
+                    {
+                        current_date = pvm.StockMaster.current_date,
+                        journalEntryId = journalEntry.Id,
+                        chartOfAccountId = cashInHandId,
+                        debit_amount = pvm.StockMaster.net_amount,
+                        credit_amount = 0.00m,
+                        description = "Sales Receivable"
+                    },
+                    new JournalDetail
+                    {
+                        current_date = pvm.StockMaster.current_date,
+                        journalEntryId = journalEntry.Id,
+                        chartOfAccountId = salesRevenueId,
+                        debit_amount = 0.00m,
+                        credit_amount = pvm.StockMaster.net_amount,
+                        description = "Sales Revenue"
+                    }
+                };
                         _context.JournalDetail.AddRange(journalDetails);
 
-                        // Create Ledger entries
-                        var cashRunningBalance = await _context.Ledger
+                        // Ledger entries
+                        decimal cashRunningBalance = await _context.Ledger
                             .Where(l => l.chartOfAccountId == cashInHandId && l.companyId == companyId)
                             .OrderByDescending(l => l.Id)
                             .Select(l => l.running_balance)
                             .FirstOrDefaultAsync();
 
-                        var revenueRunningBalance = await _context.Ledger
+                        decimal revenueRunningBalance = await _context.Ledger
                             .Where(l => l.chartOfAccountId == salesRevenueId && l.companyId == companyId)
                             .OrderByDescending(l => l.Id)
                             .Select(l => l.running_balance)
                             .FirstOrDefaultAsync();
 
                         var ledgerEntries = new List<Ledger>
-                        {
-                            new Ledger
-                            {
-                                current_date = pvm.StockMaster.current_date,
-                                companyId = companyId,
-                                chartOfAccountId = cashInHandId,
-                                journalEntryId = journalEntry.Id,
-                                debit_amount = pvm.StockMaster.net_amount,
-                                credit_amount = 0.00m,
-                                running_balance = cashRunningBalance + pvm.StockMaster.net_amount,
-                                description = "Sales Receivable"
-                            },
-                            new Ledger
-                            {
-                                current_date = pvm.StockMaster.current_date,
-                                companyId = companyId,
-                                chartOfAccountId = salesRevenueId,
-                                journalEntryId = journalEntry.Id,
-                                debit_amount = 0.00m,
-                                credit_amount = pvm.StockMaster.net_amount,
-                                running_balance = revenueRunningBalance + pvm.StockMaster.net_amount,
-                                description = "Sales Revenue"
-                            }
-                        };
+                {
+                    new Ledger
+                    {
+                        current_date = pvm.StockMaster.current_date,
+                        companyId = companyId,
+                        chartOfAccountId = cashInHandId,
+                        journalEntryId = journalEntry.Id,
+                        debit_amount = pvm.StockMaster.net_amount,
+                        credit_amount = 0.00m,
+                        running_balance = cashRunningBalance + pvm.StockMaster.net_amount,
+                        description = "Sales Receivable"
+                    },
+                    new Ledger
+                    {
+                        current_date = pvm.StockMaster.current_date,
+                        companyId = companyId,
+                        chartOfAccountId = salesRevenueId,
+                        journalEntryId = journalEntry.Id,
+                        debit_amount = 0.00m,
+                        credit_amount = pvm.StockMaster.net_amount,
+                        running_balance = revenueRunningBalance + pvm.StockMaster.net_amount,
+                        description = "Sales Revenue"
+                    }
+                };
                         _context.Ledger.AddRange(ledgerEntries);
 
                         // Add new StockDetail
@@ -444,15 +443,13 @@ namespace ERP.Controllers.Sales
                     }
                     else
                     {
-                        // ========== CREATE NEW SALES ==========
-                        pvm.StockMaster.etype = "Sales";
-
+                        
+                        pvm.StockMaster.venderId = null;
+                        pvm.StockMaster.transporterId=null;
                         _context.StockMaster.Add(pvm.StockMaster);
-                        await _context.SaveChangesAsync();
+                        await _context.SaveChangesAsync(); 
 
-                        // Update customer balance
-                        var customer = await _context.Customer
-                            .FirstOrDefaultAsync(v => v.Id == pvm.StockMaster.customerId);
+                        var customer = await _context.Customer.FirstOrDefaultAsync(v => v.Id == pvm.StockMaster.customerId);
                         if (customer != null)
                         {
                             customer.current_balance += pvm.StockMaster.net_amount;
@@ -475,68 +472,68 @@ namespace ERP.Controllers.Sales
                         _context.JournalEntry.Add(journalEntry);
                         await _context.SaveChangesAsync();
 
-                        // Create JournalDetail entries
+                        // JournalDetail entries
                         var journalDetails = new List<JournalDetail>
-                        {
-                            new JournalDetail
-                            {
-                                current_date = pvm.StockMaster.current_date,
-                                journalEntryId = journalEntry.Id,
-                                chartOfAccountId = cashInHandId,
-                                debit_amount = pvm.StockMaster.net_amount,
-                                credit_amount = 0.00m,
-                                description = "Sales Receivable"
-                            },
-                            new JournalDetail
-                            {
-                                current_date = pvm.StockMaster.current_date,
-                                journalEntryId = journalEntry.Id,
-                                chartOfAccountId = salesRevenueId,
-                                debit_amount = 0.00m,
-                                credit_amount = pvm.StockMaster.net_amount,
-                                description = "Sales Revenue"
-                            }
-                        };
+                {
+                    new JournalDetail
+                    {
+                        current_date = pvm.StockMaster.current_date,
+                        journalEntryId = journalEntry.Id,
+                        chartOfAccountId = cashInHandId,
+                        debit_amount = pvm.StockMaster.net_amount,
+                        credit_amount = 0.00m,
+                        description = "Sales Receivable"
+                    },
+                    new JournalDetail
+                    {
+                        current_date = pvm.StockMaster.current_date,
+                        journalEntryId = journalEntry.Id,
+                        chartOfAccountId = salesRevenueId,
+                        debit_amount = 0.00m,
+                        credit_amount = pvm.StockMaster.net_amount,
+                        description = "Sales Revenue"
+                    }
+                };
                         _context.JournalDetail.AddRange(journalDetails);
 
-                        // Create Ledger entries
-                        var cashRunningBalance = await _context.Ledger
+                        // Ledger entries
+                        decimal cashRunningBalance = await _context.Ledger
                             .Where(l => l.chartOfAccountId == cashInHandId && l.companyId == companyId)
                             .OrderByDescending(l => l.Id)
                             .Select(l => l.running_balance)
                             .FirstOrDefaultAsync();
 
-                        var revenueRunningBalance = await _context.Ledger
+                        decimal revenueRunningBalance = await _context.Ledger
                             .Where(l => l.chartOfAccountId == salesRevenueId && l.companyId == companyId)
                             .OrderByDescending(l => l.Id)
                             .Select(l => l.running_balance)
                             .FirstOrDefaultAsync();
 
                         var ledgerEntries = new List<Ledger>
-                        {
-                            new Ledger
-                            {
-                                current_date = pvm.StockMaster.current_date,
-                                companyId = companyId,
-                                chartOfAccountId = cashInHandId,
-                                journalEntryId = journalEntry.Id,
-                                debit_amount = pvm.StockMaster.net_amount,
-                                credit_amount = 0.00m,
-                                running_balance = cashRunningBalance + pvm.StockMaster.net_amount,
-                                description = "Sales Receivable"
-                            },
-                            new Ledger
-                            {
-                                current_date = pvm.StockMaster.current_date,
-                                companyId = companyId,
-                                chartOfAccountId = salesRevenueId,
-                                journalEntryId = journalEntry.Id,
-                                debit_amount = 0.00m,
-                                credit_amount = pvm.StockMaster.net_amount,
-                                running_balance = revenueRunningBalance + pvm.StockMaster.net_amount,
-                                description = "Sales Revenue"
-                            }
-                        };
+                {
+                    new Ledger
+                    {
+                        current_date = pvm.StockMaster.current_date,
+                        companyId = companyId,
+                        chartOfAccountId = cashInHandId,
+                        journalEntryId = journalEntry.Id,
+                        debit_amount = pvm.StockMaster.net_amount,
+                        credit_amount = 0.00m,
+                        running_balance = cashRunningBalance + pvm.StockMaster.net_amount,
+                        description = "Sales Receivable"
+                    },
+                    new Ledger
+                    {
+                        current_date = pvm.StockMaster.current_date,
+                        companyId = companyId,
+                        chartOfAccountId = salesRevenueId,
+                        journalEntryId = journalEntry.Id,
+                        debit_amount = 0.00m,
+                        credit_amount = pvm.StockMaster.net_amount,
+                        running_balance = revenueRunningBalance + pvm.StockMaster.net_amount,
+                        description = "Sales Revenue"
+                    }
+                };
                         _context.Ledger.AddRange(ledgerEntries);
 
                         // Add StockDetail
@@ -567,5 +564,6 @@ namespace ERP.Controllers.Sales
                 return BadRequest($"{ex.Message} - {inner}");
             }
         }
+
     }
 }

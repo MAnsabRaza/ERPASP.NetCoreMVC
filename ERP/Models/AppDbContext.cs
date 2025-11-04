@@ -181,6 +181,11 @@ public class AppDbContext : DbContext
             .WithMany()
             .HasForeignKey(p => p.bankAccountId)
             .OnDelete(DeleteBehavior.NoAction);
+        modelBuilder.Entity<PaymentVoucher>()
+            .HasOne(p => p.Customer)
+            .WithMany()
+            .HasForeignKey(p => p.customerId)
+            .OnDelete(DeleteBehavior.NoAction);
 
         modelBuilder.Entity<Ledger>()
             .HasOne(l => l.Company)

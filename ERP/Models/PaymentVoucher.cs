@@ -18,11 +18,15 @@ namespace ERP.Models
         [ForeignKey("companyId")]
         public virtual Company? Company { get; set; }
 
-        public int venderId { get; set; }
+        public int? venderId { get; set; }
         [ForeignKey("venderId")]
         public virtual Vender? Vender { get; set; }
 
-        public int bankAccountId { get; set; }
+        public int? customerId { get; set; }
+        [ForeignKey("customerId")]
+        public virtual Customer? Customer{ get; set; }
+
+        public int? bankAccountId { get; set; }
         [ForeignKey("bankAccountId")]
         public virtual Bank? Bank { get; set; }
     }

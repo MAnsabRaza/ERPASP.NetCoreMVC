@@ -27,7 +27,7 @@ namespace ERP.Models
         [ForeignKey("customerId")]
         public virtual Customer? Customer { get; set; }
 
-        public int transporterId { get; set; }
+        public int? transporterId { get; set; }
         [ForeignKey("transporterId")]
         public virtual Transporter? Transporter { get; set; }
 

@@ -1,5 +1,101 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
-}
+﻿@* Views/Shared/_CustomerModal.cshtml *@
+@model ERP.Models.Customer
+
+<div id="customerModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-screen overflow-y-auto">
+
+        @using (Html.BeginForm("Create", "Customer", FormMethod.Post, new { id = "customerForm" }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(m => m.Id)
+            @Html.HiddenFor(m => m.companyId)
+
+            <!-- Header -->
+            <div class="bg-gradient-to-r from-blue-50 to-blue-100 p-5 rounded-t-2xl flex justify-between items-center">
+                <h3 class="text-2xl font-bold text-blue-900 flex items-center gap-2">
+                    Add New Customer
+                </h3>
+                <button type="button" onclick="closeCustomerModal()" class="text-gray-600 hover:text-gray-900">
+                    Close
+                </button>
+            </div>
+
+            <!-- Body -->
+            <div class="p-6 space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">Current Date *</label>
+                        @Html.TextBoxFor(m => m.current_date, "{0:yyyy-MM-dd}",
+                        new { @class = "w-full p-2.5 border border-gray-300 rounded-lg", type = "date", required = "required" })
+                </div>
+                <div>
+                    <label class="block font-semibold text-gray-700 mb-1">Customer Name *</label>
+                    @Html.TextBoxFor(m => m.name,
+                                        new { @class = "w-full p-2.5 border border-gray-300 rounded-lg", required = "required", placeholder = "Enter name" })
+                </div>
+                <div>
+                    <label class="block font-semibold text-gray-700 mb-1">Email *</label>
+                    @Html.TextBoxFor(m => m.email,
+                                        new { @class = "w-full p-2.5 border border-gray-300 rounded-lg", required = "required", type = "email", placeholder = "Enter email" })
+                </div>
+                <div>
+                    <label class="block font-semibold text-gray-700 mb-1">Phone *</label>
+                    @Html.TextBoxFor(m => m.phone,
+                                        new { @class = "w-full p-2.5 border border-gray-300 rounded-lg", required = "required", placeholder = "Enter phone" })
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                    <label class="block font-semibold text-gray-700 mb-1">Country *</label>
+                    @Html.TextBoxFor(m => m.country,
+                                        new { @class = "w-full p-2.5 border border-gray-300 rounded-lg", required = "required", placeholder = "Enter country" })
+                </div>
+                <div>
+                    <label class="block font-semibold text-gray-700 mb-1">City *</label>
+                    @Html.TextBoxFor(m => m.city,
+                                        new { @class = "w-full p-2.5 border border-gray-300 rounded-lg", required = "required", placeholder = "Enter city" })
+                </div>
+                <div>
+                    <label class="block font-semibold text-gray-700 mb-1">Address *</label>
+                    @Html.TextAreaFor(m => m.address,
+                                        new { @class = "w-full p-2.5 border border-gray-300 rounded-lg", rows = "3", required = "required", placeholder = "Enter address" })
+                </div>
+            </div>
+
+          
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <div class="flex items-center space-x-2 mt-6">
+                    <label class="flex items-center">
+                        @Html.CheckBoxFor(m => m.status, new { @class = "w-5 h-5 text-blue-900 rounded" })
+                        <span class="ml-2 text-gray-700 font-medium">Active</span>
+                    </label>
+                </div>
+                 <div>
+                    <label class="block font-semibold text-gray-700 mb-1">Credit Limit</label>
+                    @Html.TextBoxFor(m => m.credit_limit,
+                                        new { @class = "w-full p-2.5 border border-gray-300 rounded-lg", type = "number", step = "0.01", placeholder = "0.00" })
+                </div>
+                <div>
+                    <label class="block font-semibold text-gray-700 mb-1">Current Balance</label>
+                    @Html.TextBoxFor(m => m.current_balance,
+                                        new { @class = "w-full p-2.5 border border-gray-300 rounded-lg bg-gray-100", @readonly = "readonly", value = "0.00" })
+                </div>
+               
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="bg-gray-50 p-5 rounded-b-2xl flex justify-end space-x-3 border-t">
+            <button type="button" onclick="closeCustomerModal()"
+                    class="px-6 py-2.5 rounded-xl text-sm font-semibold text-gray-700 bg-gray-300 hover:bg-gray-400 transition">
+                Close
+            </button>
+            <button type="submit"
+                    class="px-6 py-2.5 rounded-xl text-sm font-semibold text-white bg-green-600 hover:bg-green-700 shadow-md transition">
+                Save Customer
+            </button>
+        </div>
+                }
+    </div>
+</div>
