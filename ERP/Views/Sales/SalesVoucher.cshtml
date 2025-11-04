@@ -74,43 +74,68 @@
                         <label class="block font-semibold text-gray-700 mb-1">Current Date <sup class="text-red-800 text-lg">*</sup></label>
                         @Html.TextBoxFor(m => m.StockMaster.current_date, "{0:yyyy-MM-dd}",
                         new { @class = "w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500", type = "date", required = "required" })
-                    </div>
-                    <div>
-                        <label class="block font-semibold text-gray-700 mb-1">Due Date <sup class="text-red-800 text-lg">*</sup></label>
-                        @Html.TextBoxFor(m => m.StockMaster.due_date, "{0:yyyy-MM-dd}",
-                        new { @class = "w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500", type = "date", required = "required" })
-                    </div>
-                    <div>
-                        <label class="block font-semibold text-gray-700 mb-1">Posted Date <sup class="text-red-800 text-lg">*</sup></label>
-                        @Html.TextBoxFor(m => m.StockMaster.posted_date, "{0:yyyy-MM-dd}",
-                        new { @class = "w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500", type = "date", required = "required" })
-                    </div>
-                    <div>
-                        <label class="block font-semibold text-gray-700 mb-1">
-                            Customer <sup class="text-red-800 text-lg">*</sup>
-                            <a href="javascript:void(0)" onclick="openCustomerModal()"
-                               class="inline-flex items-center px-3 py-1 text-xs text-blue-600 font-semibold hover:text-blue-800">
-                                <i class="fa-solid fa-plus mr-1"></i> Add New
-                            </a>
-                        </label>
-                        <div class="flex gap-2">
-                            <select id="customerId" name="StockMaster.customerId" 
-                                    class="flex-1 p-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
-                                <option value="">Select Customer</option>
-                                @foreach (var customer in ViewBag.Customers)
-                                {
-                                    <option value="@customer.Id" selected="@(Model.StockMaster.customerId == customer.Id ? "selected" : null)">@customer.name</option>
-                                }
-                            </select>
-                        </div>
-                    </div>
-                    <div class="md:col-span-2">
-                        <label class="block font-semibold text-gray-700 mb-1">Remarks</label>
-                        @Html.TextAreaFor(m => m.StockMaster.remarks,
-                        new { @class = "w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500", rows = "2", placeholder = "Enter Remarks" })
-                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-gray-700 mb-1">Due Date <sup class="text-red-800 text-lg">*</sup></label>
+                    @Html.TextBoxFor(m => m.StockMaster.due_date, "{0:yyyy-MM-dd}",
+                                        new { @class = "w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500", type = "date", required = "required" })
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-gray-700 mb-1">Posted Date <sup class="text-red-800 text-lg">*</sup></label>
+                    @Html.TextBoxFor(m => m.StockMaster.posted_date, "{0:yyyy-MM-dd}",
+                                        new { @class = "w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500", type = "date", required = "required" })
                 </div>
             </div>
+
+            <!-- 👇 Customer + Payment + Remarks on the same line -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+                <!-- Customer -->
+                <div>
+                    <label class="block font-semibold text-gray-700 mb-1">
+                        Customer <sup class="text-red-800 text-lg">*</sup>
+                        <a href="javascript:void(0)" onclick="openCustomerModal()"
+                           class="inline-flex items-center px-3 py-1 text-xs text-blue-600 font-semibold hover:text-blue-800">
+                            <i class="fa-solid fa-plus mr-1"></i> Add New
+                        </a>
+                    </label>
+
+                    <select id="customerId" name="StockMaster.customerId"
+                            class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <option value="">Select Customer</option>
+                        @foreach (var customer in ViewBag.Customers)
+                            {
+                                <option value="@customer.Id" selected="@(Model.StockMaster.customerId == customer.Id ? "selected" : null)">
+                                    @customer.name
+                                </option>
+                            }
+                        </select>
+                    </div>
+
+                    <!-- Payment Method -->
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">Payment Method</label>
+                        @Html.DropDownListFor(m => m.PaymentVoucher.method,
+                        new List<SelectListItem>
+                                        {
+                                        new SelectListItem { Text = "Cash", Value = "cash" },
+                                        new SelectListItem { Text = "Card", Value = "card" },
+                                        new SelectListItem { Text = "Bank Transfer", Value = "bankTransfer" },
+                                        },
+                                        "Select Payment Method",
+                                        new { @class = "w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none", required = "required" })
+                </div>
+
+                <!-- Remarks -->
+                <div>
+                    <label class="block font-semibold text-gray-700 mb-1">Remarks</label>
+                    @Html.TextAreaFor(m => m.StockMaster.remarks,
+                                        new { @class = "w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 resize-none", rows = "2", placeholder = "Enter Remarks" })
+                </div>
+            </div>
+        </div>
+
 
             <!-- Stock Details & Additional Charges -->
             <div class="shadow-md rounded-2xl bg-white p-6 border mt-4">

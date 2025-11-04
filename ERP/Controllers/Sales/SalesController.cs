@@ -187,7 +187,9 @@ namespace ERP.Controllers.Sales
                         _context.Update(customer);
                     }
                 }
-
+                var paymentVoucher = await _context.PaymentVoucher.FirstOrDefaultAsync(p => p.customerId == sales.customerId && p.amount == sales.net_amount);
+                if (paymentVoucher != null)
+                    _context.PaymentVoucher.Remove(paymentVoucher);
                 // Delete journal entries
                 var journalEntry = await _context.JournalEntry
                     .FirstOrDefaultAsync(je => je.etype == "Sales" && je.description == $"Sales Entry for StockMaster {id}");
@@ -326,6 +328,16 @@ namespace ERP.Controllers.Sales
 
                         _context.Update(existingSales);
                         await _context.SaveChangesAsync();
+                        var paymentVoucher = await _context.PaymentVoucher.FirstOrDefaultAsync(p => p.customerId == oldCustomerId && p.amount == oldNetAmount);
+                        if (paymentVoucher != null)
+                        {
+                            paymentVoucher.customerId = pvm.StockMaster.customerId;
+                            paymentVoucher.amount = pvm.StockMaster.net_amount;
+                            paymentVoucher.companyId = companyId;
+                            paymentVoucher.status = true;
+                            _context.Update(paymentVoucher);
+                        }
+
 
                         // Remove old StockDetail, Journal, and Ledger
                         var existingDetails = _context.StockDetail.Where(d => d.stockMasterId == existingSales.Id);
@@ -455,6 +467,14 @@ namespace ERP.Controllers.Sales
                             customer.current_balance += pvm.StockMaster.net_amount;
                             _context.Update(customer);
                         }
+                        pvm.PaymentVoucher.venderId = null;
+                        pvm.PaymentVoucher.bankAccountId = null;
+                        pvm.PaymentVoucher.companyId = companyId;
+                        pvm.PaymentVoucher.customerId = pvm.StockMaster.customerId;
+                        pvm.PaymentVoucher.status = true;
+                        pvm.PaymentVoucher.amount= pvm.StockMaster.net_amount;
+                        _context.PaymentVoucher.Add(pvm.PaymentVoucher);
+                        await _context.SaveChangesAsync();
 
                         // Create JournalEntry
                         var journalEntry = new JournalEntry
