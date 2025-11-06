@@ -45,6 +45,7 @@ namespace ERP.Models
 
         [Column(TypeName = "decimal(18,2)")]
         public decimal net_amount { get; set; }
+        public virtual ICollection<StockDetail> StockDetail { get; set; } = new List<StockDetail>();
 
         public string remarks { get; set; } = string.Empty;
 

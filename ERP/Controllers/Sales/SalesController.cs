@@ -2,6 +2,8 @@
 using ERP.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Rotativa.AspNetCore;
+using Rotativa.AspNetCore.Options;
 
 namespace ERP.Controllers.Sales
 {
@@ -583,6 +585,43 @@ namespace ERP.Controllers.Sales
                 var inner = ex.InnerException != null ? ex.InnerException.Message : "";
                 return BadRequest($"{ex.Message} - {inner}");
             }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> PrintSalesVoucher(int id)
+        {
+            var sales = await _context.StockMaster
+                .Include(s => s.Customer)
+                .Include(s => s.StockDetail)
+                    .ThenInclude(d => d.Item)
+                .Include(s => s.StockDetail)
+                    .ThenInclude(d => d.Warehouse)
+                .FirstOrDefaultAsync(s => s.Id == id && s.etype == "Sales");
+
+            if (sales == null)
+            {
+                _notyf.Error("Sales voucher not found.");
+                return NotFound();
+            }
+
+            var model = new PurchaseViewModel
+            {
+                StockMaster = sales,
+                StockDetail = sales.StockDetail.ToList()
+            };
+
+            // Supply lookup data for your view
+            ViewData["Warehouses"] = await _context.Warehouse.ToListAsync();
+            ViewData["Items"] = await _context.Item.ToListAsync();
+            ViewData["Customers"] = await _context.Customer.ToListAsync();
+
+            return new ViewAsPdf("_PrintSalesVoucher", model)
+            {
+                FileName = $"Sales_Voucher_{id}.pdf",
+                PageSize = Size.A4,
+                PageOrientation = Orientation.Portrait,
+                PageMargins = { Left = 15, Right = 15, Top = 20, Bottom = 20 }
+            };
         }
 
     }

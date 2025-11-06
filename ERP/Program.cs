@@ -1,11 +1,12 @@
-﻿using ERP.Middleware;
+﻿using AspNetCoreHero.ToastNotification;
+using AspNetCoreHero.ToastNotification.Extensions;
+using ERP.Middleware;
 using ERP.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using AspNetCoreHero.ToastNotification;
+using Rotativa.AspNetCore;
 using System.Text;
-using AspNetCoreHero.ToastNotification.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -80,7 +81,7 @@ app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseNotyf();
-
+RotativaConfiguration.Setup(app.Environment.WebRootPath, "Rotativa"); 
 // Add custom JWT middleware (if defined in your project)
 app.UseMiddleware<JwtMiddleware>();
 

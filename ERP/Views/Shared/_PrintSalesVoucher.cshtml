@@ -1,0 +1,200 @@
+﻿@model ERP.Models.PurchaseViewModel
+
+@{
+    var warehouses = ViewData["Warehouses"] as List<ERP.Models.Warehouse>;
+    var items = ViewData["Items"] as List<ERP.Models.Item>;
+    var customers = ViewData["Customers"] as List<ERP.Models.Customer>;
+
+    int sno = 1;
+    decimal totalAmount = 0, totalDiscount = 0, totalNet = 0;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Sales Voucher #@Model.StockMaster.Id</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            margin: 30px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #1e40af;
+            padding-bottom: 10px;
+        }
+
+            .header h1 {
+                margin: 0;
+                font-size: 28px;
+                color: #1e40af;
+            }
+
+        .info {
+            margin: 20px 0;
+            line-height: 1.8;
+            font-size: 13px;
+        }
+
+            .info strong {
+                color: #1e40af;
+            }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 25px;
+        }
+
+        th {
+            background-color: #1e40af;
+            color: white;
+            padding: 12px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        td {
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .total-row {
+            font-weight: bold;
+            background-color: #f0f8ff;
+            font-size: 14px;
+        }
+
+        .summary {
+            margin-top: 30px;
+            float: right;
+            text-align: right;
+            font-size: 14px;
+        }
+
+            .summary p {
+                margin: 8px 0;
+            }
+
+        .footer {
+            margin-top: 60px;
+            text-align: center;
+            font-size: 10px;
+            color: #666;
+            border-top: 1px solid #eee;
+            padding-top: 10px;
+        }
+
+        .company {
+            font-weight: bold;
+            color: #1e40af;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>SALES VOUCHER</h1>
+        <p style="margin: 5px 0; font-size: 16px;">
+            <strong>Voucher No:</strong> #@Model.StockMaster.Id
+        </p>
+    </div>
+
+    <div class="info">
+        <strong>Date:</strong> @Model.StockMaster.current_date.ToString("dd-MMM-yyyy")<br />
+        <strong>Customer:</strong>
+        @(customers?.FirstOrDefault(c => c.Id == Model.StockMaster.customerId)?.name ?? "Walk-in Customer")<br />
+        <strong>Remarks:</strong> @(string.IsNullOrEmpty(Model.StockMaster.remarks) ? "—" : Model.StockMaster.remarks)
+    </div>
+
+    @if (Model.StockDetail?.Any() == true)
+    {
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Warehouse</th>
+                    <th>Item</th>
+                    <th class="text-right">Qty</th>
+                    <th class="text-right">Rate</th>
+                    <th class="text-right">Amount</th>
+                    <th class="text-right">Disc %</th>
+                    <th class="text-right">Disc Amt</th>
+                    <th class="text-right">Net Amt</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var d in Model.StockDetail)
+                {
+                    var warehouse = warehouses?.FirstOrDefault(w => w.Id == d.warehouseId);
+                    var item = items?.FirstOrDefault(i => i.Id == d.itemId);
+
+                    if (warehouse != null && item != null)
+                    {
+                        var amt = d.amount ;
+                        var discAmt = d.discount_amount ?? 0;
+                        var netAmt = d.net_amount;
+
+                        totalAmount += amt;
+                        totalDiscount += discAmt;
+                        totalNet += netAmt;
+
+                        <tr>
+                            <td class="text-center">@(sno++)</td>
+                            <td>@warehouse.warehouse_name</td>
+                            <td>@item.item_name</td>
+                            <td class="text-right">@d.qty</td>
+                            <td class="text-right">@d.rate.ToString("N2")</td>
+                            <td class="text-right">@amt.ToString("N2")</td>
+                            <td class="text-right">@d.discount_percentage?.ToString("N2")</td>
+                            <td class="text-right">@discAmt.ToString("N2")</td>
+                            <td class="text-right">@netAmt.ToString("N2")</td>
+                        </tr>
+                    }
+                }
+                <tr class="total-row">
+                    <td colspan="5" class="text-right"><strong>Total</strong></td>
+                    <td class="text-right"><strong>@totalAmount.ToString("N2")</strong></td>
+                    <td></td>
+                    <td class="text-right"><strong>@totalDiscount.ToString("N2")</strong></td>
+                    <td class="text-right"><strong>@totalNet.ToString("N2")</strong></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="summary">
+            <p><strong>Total Amount:</strong> @Model.StockMaster.total_amount.ToString("N2")</p>
+            <p><strong>Discount:</strong> @Model.StockMaster.discount_amount.ToString("N2")</p>
+            <p><strong>Tax:</strong> @Model.StockMaster.tax_amount.ToString("N2")</p>
+            <p style="font-size: 18px; color: #1e40af; border-top: 2px solid #1e40af; padding-top: 8px;">
+                <strong>Net Amount: @Model.StockMaster.net_amount.ToString("N2")</strong>
+            </p>
+        </div>
+    }
+    else
+    {
+        <p style="text-align: center; color: red; font-size: 16px; margin: 50px;">
+            No items found in this voucher.
+        </p>
+    }
+
+    <div class="footer">
+        <p>Printed on @DateTime.Now.ToString("dd-MMM-yyyy hh:mm tt")</p>
+        <p class="company">© 2025 Tech Innovators Ltd. All rights reserved.</p>
+        <p>Powered by <strong>ERP System v2.0</strong></p>
+    </div>
+
+</body>
+</html>

@@ -587,3 +587,4 @@ F:\AspDotNet\Asp.Net Web Core MVC\ERP\ERP\obj\Debug\net8.0\refint\ERP.dll
 F:\AspDotNet\Asp.Net Web Core MVC\ERP\ERP\obj\Debug\net8.0\ERP.pdb
 F:\AspDotNet\Asp.Net Web Core MVC\ERP\ERP\obj\Debug\net8.0\ERP.genruntimeconfig.cache
 F:\AspDotNet\Asp.Net Web Core MVC\ERP\ERP\obj\Debug\net8.0\ref\ERP.dll
+F:\AspDotNet\Asp.Net Web Core MVC\ERP\ERP\bin\Debug\net8.0\Rotativa.AspNetCore.dll
