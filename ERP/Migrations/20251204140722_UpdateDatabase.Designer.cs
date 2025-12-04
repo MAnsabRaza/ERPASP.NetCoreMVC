@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ERP.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251102121937_UpdateCompleteDatabase")]
-    partial class UpdateCompleteDatabase
+    [Migration("20251204140722_UpdateDatabase")]
+    partial class UpdateDatabase
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -559,7 +559,7 @@ namespace ERP.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int>("bankAccountId")
+                    b.Property<int?>("bankAccountId")
                         .HasColumnType("int");
 
                     b.Property<int>("companyId")
@@ -568,6 +568,9 @@ namespace ERP.Migrations
                     b.Property<DateTime>("current_date")
                         .HasColumnType("date");
 
+                    b.Property<int?>("customerId")
+                        .HasColumnType("int");
+
                     b.Property<string>("method")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -575,7 +578,7 @@ namespace ERP.Migrations
                     b.Property<bool>("status")
                         .HasColumnType("bit");
 
-                    b.Property<int>("venderId")
+                    b.Property<int?>("venderId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("voucher_date")
@@ -586,6 +589,8 @@ namespace ERP.Migrations
                     b.HasIndex("bankAccountId");
 
                     b.HasIndex("companyId");
+
+                    b.HasIndex("customerId");
 
                     b.HasIndex("venderId");
 
@@ -657,60 +662,6 @@ namespace ERP.Migrations
                     b.ToTable("Role");
                 });
 
-            modelBuilder.Entity("ERP.Models.StockDetail", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("amount")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime>("current_date")
-                        .HasColumnType("date");
-
-                    b.Property<decimal?>("discount_amount")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal?>("discount_percentage")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("itemId")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("net_amount")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("qty")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("rate")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("stockMasterId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("warehouseId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("itemId");
-
-                    b.HasIndex("stockMasterId");
-
-                    b.HasIndex("warehouseId");
-
-                    b.ToTable("StockDetail");
-                });
-
             modelBuilder.Entity("ERP.Models.StockMaster", b =>
                 {
                     b.Property<int>("Id")
@@ -758,7 +709,7 @@ namespace ERP.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int>("transporterId")
+                    b.Property<int?>("transporterId")
                         .HasColumnType("int");
 
                     b.Property<int?>("userId")
@@ -1180,8 +1131,7 @@ namespace ERP.Migrations
                     b.HasOne("ERP.Models.Bank", "Bank")
                         .WithMany()
                         .HasForeignKey("bankAccountId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.HasOne("ERP.Models.Company", "Company")
                         .WithMany()
@@ -1189,15 +1139,21 @@ namespace ERP.Migrations
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
+                    b.HasOne("ERP.Models.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("customerId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
                     b.HasOne("ERP.Models.Vender", "Vender")
                         .WithMany()
                         .HasForeignKey("venderId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.Navigation("Bank");
 
                     b.Navigation("Company");
+
+                    b.Navigation("Customer");
 
                     b.Navigation("Vender");
                 });
@@ -1229,31 +1185,6 @@ namespace ERP.Migrations
                     b.Navigation("Role");
                 });
 
-            modelBuilder.Entity("ERP.Models.StockDetail", b =>
-                {
-                    b.HasOne("ERP.Models.Item", "Item")
-                        .WithMany()
-                        .HasForeignKey("itemId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("ERP.Models.StockMaster", "StockMaster")
-                        .WithMany()
-                        .HasForeignKey("stockMasterId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ERP.Models.Warehouse", "Warehouse")
-                        .WithMany()
-                        .HasForeignKey("warehouseId");
-
-                    b.Navigation("Item");
-
-                    b.Navigation("StockMaster");
-
-                    b.Navigation("Warehouse");
-                });
-
             modelBuilder.Entity("ERP.Models.StockMaster", b =>
                 {
                     b.HasOne("ERP.Models.Company", "Company")
@@ -1270,8 +1201,7 @@ namespace ERP.Migrations
                     b.HasOne("ERP.Models.Transporter", "Transporter")
                         .WithMany()
                         .HasForeignKey("transporterId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("ERP.Models.User", "User")
                         .WithMany()

@@ -154,7 +154,7 @@ namespace ERP.Controllers.Purchase
 
                             // Remove existing StockDetail
                             var existingDetails = _context.StockDetail
-                                .Where(d => d.stockMasterId == existingPurchase.Id);
+                                .Where(d => d.StockMasterId == existingPurchase.Id);
                             _context.StockDetail.RemoveRange(existingDetails);
 
                             // Remove existing JournalEntry, JournalDetail, and Ledger entries
@@ -250,7 +250,7 @@ namespace ERP.Controllers.Purchase
                             // Add new StockDetail
                             foreach (var d in pvm.StockDetail)
                             {
-                                d.stockMasterId = existingPurchase.Id;
+                                d.StockMasterId = existingPurchase.Id;
                                 _context.StockDetail.Add(d);
                             }
 
@@ -354,7 +354,7 @@ namespace ERP.Controllers.Purchase
                         // Add StockDetail
                         foreach (var d in pvm.StockDetail)
                         {
-                            d.stockMasterId = pvm.StockMaster.Id;
+                            d.StockMasterId = pvm.StockMaster.Id;
                             _context.StockDetail.Add(d);
                         }
 
@@ -406,7 +406,7 @@ namespace ERP.Controllers.Purchase
                         _context.JournalEntry.Remove(journalEntry);
                     }
 
-                    var details = _context.StockDetail.Where(d => d.stockMasterId == id);
+                    var details = _context.StockDetail.Where(d => d.StockMasterId == id);
                     _context.StockDetail.RemoveRange(details);
                     _context.StockMaster.Remove(purchase);
 
@@ -424,12 +424,12 @@ namespace ERP.Controllers.Purchase
             }
         }
         [HttpGet]
-        public async Task<IActionResult> Edit(int id,int page = 1, int pageSize = 5)
+        public async Task<IActionResult> Edit(int id, int page = 1, int pageSize = 5)
         {
             var purchase = await _context.StockMaster
-                   .Include(u=>u.User)
-                   .Include(v=>v.Vender)
-                     .Include(t=>t.Transporter)
+                   .Include(u => u.User)
+                   .Include(v => v.Vender)
+                     .Include(t => t.Transporter)
                   .Include(j => j.Company)
                   .FirstOrDefaultAsync(j => j.Id == id);
 
@@ -439,8 +439,8 @@ namespace ERP.Controllers.Purchase
             }
             var purchaseDetail = await _context.StockDetail
               .Include(it => it.Item)
-              .Include(w=>w.Warehouse)
-              .Where(d => d.stockMasterId == id)
+              .Include(w => w.Warehouse)
+              .Where(d => d.StockMasterId == id)
               .ToListAsync();
             var model = new PurchaseViewModel
             {
@@ -451,7 +451,7 @@ namespace ERP.Controllers.Purchase
             int totalPurchase = await _context.StockMaster
                 .CountAsync(d => d.etype == "Purchase");
 
-            var purchaseData= await _context.StockMaster
+            var purchaseData = await _context.StockMaster
                 .Where(j => j.etype == "Purchase")
                 .OrderBy(j => j.Id)
                 .Skip((page - 1) * pageSize)
@@ -473,13 +473,13 @@ namespace ERP.Controllers.Purchase
             ViewBag.Page = page;
             ViewBag.PageSize = pageSize;
 
-            
+
             ViewBag.Warehouses = await _context.Warehouse.ToListAsync();
             ViewBag.Items = await _context.Item.ToListAsync();
             ViewBag.Venders = await _context.Vender.ToListAsync();
             ViewBag.Transporters = await _context.Transporter.ToListAsync();
 
-            ViewBag.Purchase = purchaseData; 
+            ViewBag.Purchase = purchaseData;
 
             return View("~/Views/Purchase/PurchaseVoucher.cshtml", model);
         }

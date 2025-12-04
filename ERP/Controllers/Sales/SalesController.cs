@@ -104,7 +104,7 @@ namespace ERP.Controllers.Sales
             var salesDetail = await _context.StockDetail
                 .Include(it => it.Item)
                 .Include(w => w.Warehouse)
-                .Where(d => d.stockMasterId == id)
+                .Where(d => d.StockMasterId == id)
                 .ToListAsync();
 
             var model = new PurchaseViewModel
@@ -207,7 +207,7 @@ namespace ERP.Controllers.Sales
                 }
 
                 // Delete stock details and master
-                var details = _context.StockDetail.Where(d => d.stockMasterId == id);
+                var details = _context.StockDetail.Where(d => d.StockMasterId == id);
                 _context.StockDetail.RemoveRange(details);
                 _context.StockMaster.Remove(sales);
 
@@ -342,7 +342,7 @@ namespace ERP.Controllers.Sales
 
 
                         // Remove old StockDetail, Journal, and Ledger
-                        var existingDetails = _context.StockDetail.Where(d => d.stockMasterId == existingSales.Id);
+                        var existingDetails = _context.StockDetail.Where(d => d.StockMasterId == existingSales.Id);
                         _context.StockDetail.RemoveRange(existingDetails);
 
                         var existingJournalEntry = await _context.JournalEntry
@@ -446,7 +446,7 @@ namespace ERP.Controllers.Sales
                         // Add new StockDetail
                         foreach (var d in pvm.StockDetail)
                         {
-                            d.stockMasterId = existingSales.Id;
+                            d.StockMasterId = existingSales.Id;
                             _context.StockDetail.Add(d);
                         }
 
@@ -457,11 +457,11 @@ namespace ERP.Controllers.Sales
                     }
                     else
                     {
-                        
+
                         pvm.StockMaster.venderId = null;
-                        pvm.StockMaster.transporterId=null;
+                        pvm.StockMaster.transporterId = null;
                         _context.StockMaster.Add(pvm.StockMaster);
-                        await _context.SaveChangesAsync(); 
+                        await _context.SaveChangesAsync();
 
                         var customer = await _context.Customer.FirstOrDefaultAsync(v => v.Id == pvm.StockMaster.customerId);
                         if (customer != null)
@@ -474,7 +474,7 @@ namespace ERP.Controllers.Sales
                         pvm.PaymentVoucher.companyId = companyId;
                         pvm.PaymentVoucher.customerId = pvm.StockMaster.customerId;
                         pvm.PaymentVoucher.status = true;
-                        pvm.PaymentVoucher.amount= pvm.StockMaster.net_amount;
+                        pvm.PaymentVoucher.amount = pvm.StockMaster.net_amount;
                         _context.PaymentVoucher.Add(pvm.PaymentVoucher);
                         await _context.SaveChangesAsync();
 
@@ -561,7 +561,7 @@ namespace ERP.Controllers.Sales
                         // Add StockDetail
                         foreach (var d in pvm.StockDetail)
                         {
-                            d.stockMasterId = pvm.StockMaster.Id;
+                            d.StockMasterId = pvm.StockMaster.Id;
                             _context.StockDetail.Add(d);
                         }
 

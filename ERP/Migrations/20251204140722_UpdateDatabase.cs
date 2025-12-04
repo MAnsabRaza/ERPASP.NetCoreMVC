@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ERP.Migrations
 {
     /// <inheritdoc />
-    public partial class UpdateCompleteDatabase : Migration
+    public partial class UpdateDatabase : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -433,8 +433,9 @@ namespace ERP.Migrations
                     method = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     status = table.Column<bool>(type: "bit", nullable: false),
                     companyId = table.Column<int>(type: "int", nullable: false),
-                    venderId = table.Column<int>(type: "int", nullable: false),
-                    bankAccountId = table.Column<int>(type: "int", nullable: false)
+                    venderId = table.Column<int>(type: "int", nullable: true),
+                    customerId = table.Column<int>(type: "int", nullable: true),
+                    bankAccountId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -448,6 +449,11 @@ namespace ERP.Migrations
                         name: "FK_PaymentVoucher_Company_companyId",
                         column: x => x.companyId,
                         principalTable: "Company",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_PaymentVoucher_Customer_customerId",
+                        column: x => x.customerId,
+                        principalTable: "Customer",
                         principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_PaymentVoucher_Vender_venderId",
@@ -537,7 +543,7 @@ namespace ERP.Migrations
                     userId = table.Column<int>(type: "int", nullable: true),
                     venderId = table.Column<int>(type: "int", nullable: true),
                     customerId = table.Column<int>(type: "int", nullable: true),
-                    transporterId = table.Column<int>(type: "int", nullable: false),
+                    transporterId = table.Column<int>(type: "int", nullable: true),
                     etype = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     total_amount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     discount_amount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
@@ -645,45 +651,6 @@ namespace ERP.Migrations
                         onDelete: ReferentialAction.Restrict);
                 });
 
-            migrationBuilder.CreateTable(
-                name: "StockDetail",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    current_date = table.Column<DateTime>(type: "date", nullable: false),
-                    stockMasterId = table.Column<int>(type: "int", nullable: false),
-                    warehouseId = table.Column<int>(type: "int", nullable: true),
-                    itemId = table.Column<int>(type: "int", nullable: false),
-                    qty = table.Column<int>(type: "int", nullable: false),
-                    rate = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
-                    amount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
-                    discount_percentage = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: true),
-                    discount_amount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: true),
-                    net_amount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_StockDetail", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_StockDetail_Item_itemId",
-                        column: x => x.itemId,
-                        principalTable: "Item",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_StockDetail_StockMaster_stockMasterId",
-                        column: x => x.stockMasterId,
-                        principalTable: "StockMaster",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_StockDetail_Warehouse_warehouseId",
-                        column: x => x.warehouseId,
-                        principalTable: "Warehouse",
-                        principalColumn: "Id");
-                });
-
             migrationBuilder.CreateIndex(
                 name: "IX_Bank_companyId",
                 table: "Bank",
@@ -780,6 +747,11 @@ namespace ERP.Migrations
                 column: "companyId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_PaymentVoucher_customerId",
+                table: "PaymentVoucher",
+                column: "customerId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_PaymentVoucher_venderId",
                 table: "PaymentVoucher",
                 column: "venderId");
@@ -798,21 +770,6 @@ namespace ERP.Migrations
                 name: "IX_Permission_roleId",
                 table: "Permission",
                 column: "roleId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_StockDetail_itemId",
-                table: "StockDetail",
-                column: "itemId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_StockDetail_stockMasterId",
-                table: "StockDetail",
-                column: "stockMasterId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_StockDetail_warehouseId",
-                table: "StockDetail",
-                column: "warehouseId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_StockMaster_companyId",
@@ -869,6 +826,9 @@ namespace ERP.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "Item");
+
+            migrationBuilder.DropTable(
                 name: "JournalDetail");
 
             migrationBuilder.DropTable(
@@ -881,7 +841,19 @@ namespace ERP.Migrations
                 name: "Permission");
 
             migrationBuilder.DropTable(
-                name: "StockDetail");
+                name: "StockMaster");
+
+            migrationBuilder.DropTable(
+                name: "Warehouse");
+
+            migrationBuilder.DropTable(
+                name: "Brand");
+
+            migrationBuilder.DropTable(
+                name: "SubCategory");
+
+            migrationBuilder.DropTable(
+                name: "UOM");
 
             migrationBuilder.DropTable(
                 name: "ChartOfAccount");
@@ -896,37 +868,10 @@ namespace ERP.Migrations
                 name: "Component");
 
             migrationBuilder.DropTable(
-                name: "Item");
-
-            migrationBuilder.DropTable(
-                name: "StockMaster");
-
-            migrationBuilder.DropTable(
-                name: "Warehouse");
-
-            migrationBuilder.DropTable(
-                name: "AccountType");
-
-            migrationBuilder.DropTable(
-                name: "Module");
-
-            migrationBuilder.DropTable(
-                name: "Brand");
-
-            migrationBuilder.DropTable(
-                name: "SubCategory");
-
-            migrationBuilder.DropTable(
-                name: "UOM");
-
-            migrationBuilder.DropTable(
                 name: "Customer");
 
             migrationBuilder.DropTable(
                 name: "Transporter");
-
-            migrationBuilder.DropTable(
-                name: "User");
 
             migrationBuilder.DropTable(
                 name: "Vender");
@@ -935,10 +880,19 @@ namespace ERP.Migrations
                 name: "Category");
 
             migrationBuilder.DropTable(
-                name: "Role");
+                name: "AccountType");
+
+            migrationBuilder.DropTable(
+                name: "User");
+
+            migrationBuilder.DropTable(
+                name: "Module");
 
             migrationBuilder.DropTable(
                 name: "Company");
+
+            migrationBuilder.DropTable(
+                name: "Role");
         }
     }
 }

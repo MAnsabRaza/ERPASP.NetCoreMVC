@@ -667,6 +667,9 @@ namespace ERP.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("StockMasterId")
+                        .HasColumnType("int");
+
                     b.Property<decimal>("amount")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
@@ -696,17 +699,14 @@ namespace ERP.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int>("stockMasterId")
-                        .HasColumnType("int");
-
                     b.Property<int?>("warehouseId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("itemId");
+                    b.HasIndex("StockMasterId");
 
-                    b.HasIndex("stockMasterId");
+                    b.HasIndex("itemId");
 
                     b.HasIndex("warehouseId");
 
@@ -1238,16 +1238,16 @@ namespace ERP.Migrations
 
             modelBuilder.Entity("ERP.Models.StockDetail", b =>
                 {
+                    b.HasOne("ERP.Models.StockMaster", "StockMaster")
+                        .WithMany("StockDetail")
+                        .HasForeignKey("StockMasterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("ERP.Models.Item", "Item")
                         .WithMany()
                         .HasForeignKey("itemId")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("ERP.Models.StockMaster", "StockMaster")
-                        .WithMany()
-                        .HasForeignKey("stockMasterId")
-                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("ERP.Models.Warehouse", "Warehouse")
@@ -1348,6 +1348,11 @@ namespace ERP.Migrations
                         .IsRequired();
 
                     b.Navigation("Company");
+                });
+
+            modelBuilder.Entity("ERP.Models.StockMaster", b =>
+                {
+                    b.Navigation("StockDetail");
                 });
 #pragma warning restore 612, 618
         }

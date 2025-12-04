@@ -36,7 +36,7 @@
         @using (Html.BeginForm("Create", "Sales", FormMethod.Post))
         {
             @Html.AntiForgeryToken()
-            @Html.HiddenFor(m => m.StockMaster.Id, new { id = "stockMasterId" })
+            @Html.HiddenFor(m => m.StockMaster.Id, new { id = "StockMasterId" })
             
             <div class="shadow-lg rounded-2xl bg-gradient-to-r from-blue-50 to-blue-100 p-6 border border-gray-200">
                 <div class="flex justify-between items-center">
@@ -473,7 +473,7 @@
 
     function addNew() {
         resetForm();
-        document.getElementById("stockMasterId").value = "0";
+        document.getElementById("StockMasterId").value = "0";
         showTab("form");
     }
 
@@ -669,9 +669,9 @@
         updateNetAmount();
     }
         function printPage() {
-        const stockMasterId = document.getElementById("stockMasterId").value;
-        if (parseInt(stockMasterId) > 0) {
-            window.open(`/Sales/PrintSalesVoucher?id=${stockMasterId}`, '_blank');
+        const StockMasterId = document.getElementById("StockMasterId").value;
+        if (parseInt(StockMasterId) > 0) {
+            window.open(`/Sales/PrintSalesVoucher?id=${StockMasterId}`, '_blank');
         } else {
             alert("Please save the voucher first to print.");
         }

@@ -36,7 +36,7 @@
         @using (Html.BeginForm("Create", "PurchaseVoucher", FormMethod.Post))
         {
             @Html.AntiForgeryToken()
-            @Html.HiddenFor(m => m.StockMaster.Id, new { id = "stockMasterId" })
+            @Html.HiddenFor(m => m.StockMaster.Id, new { id = "StockMasterId" })
             <div class="shadow-lg rounded-2xl bg-gradient-to-r from-blue-50 to-blue-100 p-6 border border-gray-200">
                 <div class="flex justify-between items-center">
                     <div>
@@ -421,7 +421,7 @@
 
     function addNew() {
         resetForm();
-        document.getElementById("stockMasterId").value = "0";
+        document.getElementById("StockMasterId").value = "0";
         showTab("form");
     }
 

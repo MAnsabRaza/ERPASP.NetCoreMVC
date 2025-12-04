@@ -213,7 +213,7 @@ namespace ERP.Controllers.Purchase
 
             // Remove existing details
             var existingDetails = _context.StockDetail
-                .Where(d => d.stockMasterId == existingPurchaseReturn.Id);
+                .Where(d => d.StockMasterId == existingPurchaseReturn.Id);
             _context.StockDetail.RemoveRange(existingDetails);
 
             // Remove existing journal entries
@@ -240,7 +240,7 @@ namespace ERP.Controllers.Purchase
             // Add new stock details
             foreach (var detail in pvm.StockDetail)
             {
-                detail.stockMasterId = existingPurchaseReturn.Id;
+                detail.StockMasterId = existingPurchaseReturn.Id;
                 _context.StockDetail.Add(detail);
             }
         }
@@ -272,12 +272,12 @@ namespace ERP.Controllers.Purchase
             // Add stock details
             foreach (var detail in pvm.StockDetail)
             {
-                detail.stockMasterId = pvm.StockMaster.Id;
+                detail.StockMasterId = pvm.StockMaster.Id;
                 _context.StockDetail.Add(detail);
             }
         }
 
-        private async Task CreateJournalEntries(PurchaseViewModel pvm, int stockMasterId,
+        private async Task CreateJournalEntries(PurchaseViewModel pvm, int StockMasterId,
             int companyId, int userId, int inventoryAccountId, int accountsPayableAccountId)
         {
             // Create JournalEntry
@@ -289,7 +289,7 @@ namespace ERP.Controllers.Purchase
                 companyId = companyId,
                 userId = userId,
                 etype = "PurchaseReturn",
-                description = $"Purchase Return Entry for StockMaster {stockMasterId}",
+                description = $"Purchase Return Entry for StockMaster {StockMasterId}",
                 total_debit = pvm.StockMaster.net_amount,
                 total_credit = pvm.StockMaster.net_amount
             };
@@ -410,7 +410,7 @@ namespace ERP.Controllers.Purchase
                 }
 
                 // Delete stock details
-                var details = _context.StockDetail.Where(d => d.stockMasterId == id);
+                var details = _context.StockDetail.Where(d => d.StockMasterId == id);
                 _context.StockDetail.RemoveRange(details);
 
                 // Delete stock master
@@ -448,7 +448,7 @@ namespace ERP.Controllers.Purchase
             var purchaseReturnDetail = await _context.StockDetail
                 .Include(it => it.Item)
                 .Include(w => w.Warehouse)
-                .Where(d => d.stockMasterId == id)
+                .Where(d => d.StockMasterId == id)
                 .ToListAsync();
 
             var model = new PurchaseViewModel

@@ -236,10 +236,10 @@ public class AppDbContext : DbContext
             .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<StockDetail>()
-            .HasOne(sd => sd.StockMaster)
-            .WithMany()
-            .HasForeignKey(sd => sd.stockMasterId)
-            .OnDelete(DeleteBehavior.Cascade);
+       .HasOne(sd => sd.StockMaster)
+       .WithMany(sm => sm.StockDetail)  // now correctly references the collection
+       .HasForeignKey(sd => sd.StockMasterId)
+       .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<StockDetail>()
             .HasOne(sd => sd.Item)

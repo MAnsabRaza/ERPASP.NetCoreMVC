@@ -8,9 +8,10 @@ namespace ERP.Models
         public int Id { get; set; }
         public DateOnly current_date { get; set; }
 
-        public int stockMasterId { get; set; }
-        [ForeignKey("stockMasterId")]
-        public virtual StockMaster? StockMaster { get; set; }
+        public int StockMasterId { get; set; }
+        [ForeignKey("StockMasterId")]
+        public StockMaster StockMaster { get; set; }
+
 
         public int? warehouseId { get; set; }
         [ForeignKey("warehouseId")]
