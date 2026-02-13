@@ -2,6 +2,9 @@
 using ERP.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Drawing.Printing;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace ERP.Controllers.Purchase
 {
@@ -29,12 +32,12 @@ namespace ERP.Controllers.Purchase
                 StockDetail = new List<StockDetail>()
             };
 
-            int totalPurchaseReturn = await _context.StockMaster
+            int totalPurchase = await _context.StockMaster
                 .CountAsync(d => d.etype == "PurchaseReturn");
 
-            var purchaseReturnDetail = await _context.StockMaster
+            var purchaseDetail = await _context.StockMaster
                 .Where(j => j.etype == "PurchaseReturn")
-                .OrderByDescending(j => j.Id)
+                .OrderBy(j => j.Id)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .Select(j => new PurchaseListDto
@@ -50,19 +53,22 @@ namespace ERP.Controllers.Purchase
                 })
                 .ToListAsync();
 
-            ViewBag.TotalItems = totalPurchaseReturn;
+            // Pass pagination info
+            ViewBag.TotalItems = totalPurchase;
             ViewBag.Page = page;
             ViewBag.PageSize = pageSize;
             ViewBag.ActiveTab = activeTab;
+
+            // Dropdowns
             ViewBag.Warehouses = await _context.Warehouse.ToListAsync();
             ViewBag.Items = await _context.Item.ToListAsync();
             ViewBag.Venders = await _context.Vender.ToListAsync();
             ViewBag.Transporters = await _context.Transporter.ToListAsync();
-            ViewBag.PurchaseReturn = purchaseReturnDetail;
+
+            ViewBag.Purchase = purchaseDetail; // List<PurchaseListDto>
 
             return View("~/Views/Purchase/PurchaseReturnVoucher.cshtml", model);
         }
-
         [HttpGet]
         public async Task<IActionResult> GetPurchaseRate(int itemId)
         {
@@ -81,16 +87,36 @@ namespace ERP.Controllers.Purchase
             }
         }
 
+        [HttpGet]
+        public async Task<IActionResult> CheckItemQuantity(int itemId, decimal qty)
+        {
+            try
+            {
+                var item = await _context.Item.FindAsync(itemId);
+                if (item == null)
+                    return Json(new { success = false, message = $"Item not found in database." });
+
+                if (item.qty <= 0)
+                    return Json(new { success = false, message = $"'{item.item_name}' has zero quantity in stock." });
+
+                if (qty > item.qty)
+                    return Json(new { success = false, message = $"'{item.item_name}' available quantity is {item.qty}." });
+
+                return Json(new { success = true, message = $"Item added successfully." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(PurchaseViewModel pvm)
         {
             try
             {
-                // Validate session
                 var companyIdString = HttpContext.Session.GetString("companyId");
                 var userIdString = HttpContext.Session.GetString("userId");
-
                 if (string.IsNullOrEmpty(companyIdString) || string.IsNullOrEmpty(userIdString))
                 {
                     _notyf.Error("Session expired. Please log in again.");
@@ -99,54 +125,353 @@ namespace ERP.Controllers.Purchase
 
                 int companyId = int.Parse(companyIdString);
                 int userId = int.Parse(userIdString);
-
                 pvm.StockMaster.companyId = companyId;
                 pvm.StockMaster.userId = userId;
 
-                using var transaction = await _context.Database.BeginTransactionAsync();
-
-                try
+                // ════════════════════════════════════════════
+                // ✅ Server-side Quantity Validation
+                // ════════════════════════════════════════════
+                foreach (var detail in pvm.StockDetail)
                 {
-                    // Get chart of accounts
-                    var inventoryAccount = await _context.ChartOfAccount
-                        .FirstOrDefaultAsync(c => c.name == "Inventory" && c.companyId == companyId);
-                    var accountsPayableAccount = await _context.ChartOfAccount
-                        .FirstOrDefaultAsync(c => c.name == "Account Payable" && c.companyId == companyId);
+                    var item = await _context.Item
+                        .FirstOrDefaultAsync(i => i.Id == detail.itemId);
 
-                    if (inventoryAccount == null || accountsPayableAccount == null)
+                    if (item == null)
                     {
-                        _notyf.Error("Required chart of accounts not found. Please set up Inventory and Account Payable accounts.");
+                        _notyf.Error($"Item ID {detail.itemId} not found in database.");
                         return RedirectToAction("PurchaseReturnVoucher");
                     }
-
-                    int inventoryAccountId = inventoryAccount.Id;
-                    int accountsPayableAccountId = accountsPayableAccount.Id;
-
-                    if (pvm.StockMaster.Id > 0)
+                    if (item.qty <= 0)
                     {
-                        // UPDATE EXISTING PURCHASE RETURN
-                        await UpdatePurchaseReturn(pvm, companyId, userId, inventoryAccountId, accountsPayableAccountId);
+                        _notyf.Error($"'{item.item_name}' has zero quantity in stock.");
+                        return RedirectToAction("PurchaseReturnVoucher");
                     }
+                    if (detail.qty > item.qty)
+                    {
+                        _notyf.Error($"'{item.item_name}' available quantity is {item.qty}.");
+                        return RedirectToAction("PurchaseReturnVoucher");
+                    }
+                }
+
+                using var transaction = await _context.Database.BeginTransactionAsync();
+                try
+                {
+                    // ── Chart of Accounts fetch ──
+                    var purchaseReturnAccount = await _context.ChartOfAccount
+                        .FirstOrDefaultAsync(c => c.name == "Purchase Return");
+                    var accountsPayableAccount = await _context.ChartOfAccount
+                        .FirstOrDefaultAsync(c => c.name == "Accounts Payable");
+
+                    if (purchaseReturnAccount == null || accountsPayableAccount == null)
+                    {
+                        _notyf.Error("Chart of accounts not found.");
+                        return BadRequest("Chart of accounts not found.");
+                    }
+
+                    int purchaseReturnAccountId = purchaseReturnAccount.Id;
+                    int accountsPayableId = accountsPayableAccount.Id;
+
+                    async Task<decimal> GetRunningBalance(int chartOfAccountId)
+                    {
+                        return await _context.Ledger
+                            .Where(l => l.chartOfAccountId == chartOfAccountId
+                                     && l.companyId == companyId)
+                            .OrderByDescending(l => l.Id)
+                            .Select(l => l.running_balance)
+                            .FirstOrDefaultAsync();
+                    }
+
+                    // ════════════════════════════════════
+                    // CREATE NEW PURCHASE RETURN
+                    // ════════════════════════════════════
+                    if (pvm.StockMaster.Id == 0)
+                    {
+                        // STEP 1: StockMaster insert
+                        pvm.StockMaster.customerId = null;
+                        _context.StockMaster.Add(pvm.StockMaster);
+                        await _context.SaveChangesAsync();
+
+                        // STEP 2: StockDetail + Item qty GHATAO ✅
+                        foreach (var detail in pvm.StockDetail)
+                        {
+                            detail.StockMasterId = pvm.StockMaster.Id;
+                            _context.StockDetail.Add(detail);
+
+                            var item = await _context.Item
+                                .FirstOrDefaultAsync(i => i.Id == detail.itemId);
+                            if (item != null)
+                            {
+                                item.qty -= detail.qty; // ✅ GHATAO (return = stock kam)
+                                _context.Update(item);
+                            }
+                        }
+
+                        // STEP 3: Vendor balance GHATAO ✅
+                        var vendor = await _context.Vender
+                            .FirstOrDefaultAsync(v => v.Id == pvm.StockMaster.venderId);
+                        if (vendor != null)
+                        {
+                            vendor.current_balance -= pvm.StockMaster.net_amount; // ✅
+                            _context.Update(vendor);
+                        }
+
+                        // STEP 4: JournalEntry insert
+                        var journalEntry = new JournalEntry
+                        {
+                            current_date = pvm.StockMaster.current_date,
+                            due_date = pvm.StockMaster.due_date,
+                            posted_date = pvm.StockMaster.posted_date,
+                            companyId = companyId,
+                            userId = userId,
+                            etype = "PurchaseReturn",
+                            description = $"Purchase Return Entry for StockMaster {pvm.StockMaster.Id}",
+                            total_debit = pvm.StockMaster.net_amount,
+                            total_credit = pvm.StockMaster.net_amount
+                        };
+                        _context.JournalEntry.Add(journalEntry);
+                        await _context.SaveChangesAsync();
+
+                        // STEP 5: JournalDetail
+                        // ✅ DEBIT  → Accounts Payable   (liability kam hogi)
+                        // ✅ CREDIT → Purchase Return     (contra expense)
+                        _context.JournalDetail.AddRange(new List<JournalDetail>
+                {
+                    new JournalDetail
+                    {
+                        current_date     = pvm.StockMaster.current_date,
+                        journalEntryId   = journalEntry.Id,
+                        chartOfAccountId = accountsPayableId,      // ✅ AP DEBIT
+                        debit_amount     = pvm.StockMaster.net_amount,
+                        credit_amount    = 0.00m,
+                        description      = "Payable Reduced on Return"
+                    },
+                    new JournalDetail
+                    {
+                        current_date     = pvm.StockMaster.current_date,
+                        journalEntryId   = journalEntry.Id,
+                        chartOfAccountId = purchaseReturnAccountId, // ✅ PR CREDIT
+                        debit_amount     = 0.00m,
+                        credit_amount    = pvm.StockMaster.net_amount,
+                        description      = "Purchase Return Amount"
+                    }
+                });
+
+                        // STEP 6: Ledger
+                        decimal payableRunning = await GetRunningBalance(accountsPayableId);
+                        decimal purchaseReturnRunning = await GetRunningBalance(purchaseReturnAccountId);
+
+                        _context.Ledger.AddRange(new List<Ledger>
+                {
+                    new Ledger
+                    {
+                        current_date     = pvm.StockMaster.current_date,
+                        companyId        = companyId,
+                        chartOfAccountId = accountsPayableId,
+                        journalEntryId   = journalEntry.Id,
+                        debit_amount     = pvm.StockMaster.net_amount,
+                        credit_amount    = 0.00m,
+                        running_balance  = payableRunning - pvm.StockMaster.net_amount, // ✅ liability kam
+                        description      = "Payable Reduced on Return"
+                    },
+                    new Ledger
+                    {
+                        current_date     = pvm.StockMaster.current_date,
+                        companyId        = companyId,
+                        chartOfAccountId = purchaseReturnAccountId,
+                        journalEntryId   = journalEntry.Id,
+                        debit_amount     = 0.00m,
+                        credit_amount    = pvm.StockMaster.net_amount,
+                        running_balance  = purchaseReturnRunning + pvm.StockMaster.net_amount,
+                        description      = "Purchase Return Amount"
+                    }
+                });
+
+                        await _context.SaveChangesAsync();
+                        await transaction.CommitAsync();
+                        _notyf.Success("Purchase Return Created Successfully");
+                    }
+
+                    // ════════════════════════════════════
+                    // UPDATE EXISTING PURCHASE RETURN
+                    // ════════════════════════════════════
                     else
                     {
-                        // CREATE NEW PURCHASE RETURN
-                        await CreateNewPurchaseReturn(pvm, companyId, userId, inventoryAccountId, accountsPayableAccountId);
+                        var existingPurchase = await _context.StockMaster
+                            .FirstOrDefaultAsync(x => x.Id == pvm.StockMaster.Id);
+
+                        if (existingPurchase == null)
+                        {
+                            _notyf.Error("Purchase Return not found.");
+                            return NotFound();
+                        }
+
+                        decimal oldNetAmount = existingPurchase.net_amount;
+
+                        // STEP 1: Purani StockDetail fetch
+                        var oldDetails = await _context.StockDetail
+                            .Where(d => d.StockMasterId == existingPurchase.Id)
+                            .ToListAsync();
+
+                        // ✅ STEP 2: Purane return ko REVERSE karo (qty wapas badhao)
+                        foreach (var oldDetail in oldDetails)
+                        {
+                            var oldItem = await _context.Item
+                                .FirstOrDefaultAsync(i => i.Id == oldDetail.itemId);
+                            if (oldItem != null)
+                            {
+                                oldItem.qty += oldDetail.qty; // ✅ return undo karo
+                                _context.Update(oldItem);
+                            }
+                        }
+
+                        // STEP 3: Purani StockDetail delete
+                        _context.StockDetail.RemoveRange(oldDetails);
+
+                        // STEP 4: StockMaster update
+                        existingPurchase.current_date = pvm.StockMaster.current_date;
+                        existingPurchase.posted_date = pvm.StockMaster.posted_date;
+                        existingPurchase.due_date = pvm.StockMaster.due_date;
+                        existingPurchase.userId = userId;
+                        existingPurchase.companyId = companyId;
+                        existingPurchase.venderId = pvm.StockMaster.venderId;
+                        existingPurchase.transporterId = pvm.StockMaster.transporterId;
+                        existingPurchase.etype = pvm.StockMaster.etype;
+                        existingPurchase.total_amount = pvm.StockMaster.total_amount;
+                        existingPurchase.discount_amount = pvm.StockMaster.discount_amount;
+                        existingPurchase.tax_amount = pvm.StockMaster.tax_amount;
+                        existingPurchase.net_amount = pvm.StockMaster.net_amount;
+                        existingPurchase.remarks = pvm.StockMaster.remarks;
+                        _context.Update(existingPurchase);
+
+                        // STEP 5: Vendor balance update
+                        var vendor = await _context.Vender
+                            .FirstOrDefaultAsync(v => v.Id == pvm.StockMaster.venderId);
+                        if (vendor != null)
+                        {
+                            // ✅ purana return hatao, naya return lagao
+                            vendor.current_balance = vendor.current_balance
+                                                   + oldNetAmount
+                                                   - pvm.StockMaster.net_amount;
+                            _context.Update(vendor);
+                        }
+
+                        // ✅ STEP 6: Naye items ki qty GHATAO
+                        foreach (var newDetail in pvm.StockDetail)
+                        {
+                            var item = await _context.Item
+                                .FirstOrDefaultAsync(i => i.Id == newDetail.itemId);
+                            if (item != null)
+                            {
+                                item.qty -= newDetail.qty; // ✅ naya return apply
+                                _context.Update(item);
+                            }
+                        }
+
+                        // STEP 7: Naye StockDetail add
+                        foreach (var detail in pvm.StockDetail)
+                        {
+                            detail.StockMasterId = existingPurchase.Id;
+                            _context.StockDetail.Add(detail);
+                        }
+
+                        // STEP 8: Purani JournalEntry/Detail/Ledger delete
+                        var existingJournalEntry = await _context.JournalEntry
+                            .FirstOrDefaultAsync(je => je.description ==
+                                $"Purchase Return Entry for StockMaster {existingPurchase.Id}");
+
+                        if (existingJournalEntry != null)
+                        {
+                            _context.JournalDetail.RemoveRange(
+                                _context.JournalDetail.Where(jd =>
+                                    jd.journalEntryId == existingJournalEntry.Id));
+                            _context.Ledger.RemoveRange(
+                                _context.Ledger.Where(l =>
+                                    l.journalEntryId == existingJournalEntry.Id));
+                            _context.JournalEntry.Remove(existingJournalEntry);
+                        }
+
+                        await _context.SaveChangesAsync();
+
+                        // STEP 9: Naya JournalEntry
+                        var journalEntry = new JournalEntry
+                        {
+                            current_date = pvm.StockMaster.current_date,
+                            due_date = pvm.StockMaster.due_date,
+                            posted_date = pvm.StockMaster.posted_date,
+                            companyId = companyId,
+                            userId = userId,
+                            etype = "PurchaseReturn",
+                            description = $"Purchase Return Entry for StockMaster {existingPurchase.Id}",
+                            total_debit = pvm.StockMaster.net_amount,
+                            total_credit = pvm.StockMaster.net_amount
+                        };
+                        _context.JournalEntry.Add(journalEntry);
+                        await _context.SaveChangesAsync();
+
+                        // STEP 10: JournalDetail
+                        _context.JournalDetail.AddRange(new List<JournalDetail>
+                {
+                    new JournalDetail
+                    {
+                        current_date     = pvm.StockMaster.current_date,
+                        journalEntryId   = journalEntry.Id,
+                        chartOfAccountId = accountsPayableId,
+                        debit_amount     = pvm.StockMaster.net_amount,
+                        credit_amount    = 0.00m,
+                        description      = "Payable Reduced on Return"
+                    },
+                    new JournalDetail
+                    {
+                        current_date     = pvm.StockMaster.current_date,
+                        journalEntryId   = journalEntry.Id,
+                        chartOfAccountId = purchaseReturnAccountId,
+                        debit_amount     = 0.00m,
+                        credit_amount    = pvm.StockMaster.net_amount,
+                        description      = "Purchase Return Amount"
+                    }
+                });
+
+                        // STEP 11: Ledger
+                        decimal payableRunning = await GetRunningBalance(accountsPayableId);
+                        decimal purchaseReturnRunning = await GetRunningBalance(purchaseReturnAccountId);
+
+                        _context.Ledger.AddRange(new List<Ledger>
+                {
+                    new Ledger
+                    {
+                        current_date     = pvm.StockMaster.current_date,
+                        companyId        = companyId,
+                        chartOfAccountId = accountsPayableId,
+                        journalEntryId   = journalEntry.Id,
+                        debit_amount     = pvm.StockMaster.net_amount,
+                        credit_amount    = 0.00m,
+                        running_balance  = payableRunning - pvm.StockMaster.net_amount,
+                        description      = "Payable Reduced on Return"
+                    },
+                    new Ledger
+                    {
+                        current_date     = pvm.StockMaster.current_date,
+                        companyId        = companyId,
+                        chartOfAccountId = purchaseReturnAccountId,
+                        journalEntryId   = journalEntry.Id,
+                        debit_amount     = 0.00m,
+                        credit_amount    = pvm.StockMaster.net_amount,
+                        running_balance  = purchaseReturnRunning + pvm.StockMaster.net_amount,
+                        description      = "Purchase Return Amount"
+                    }
+                });
+
+                        await _context.SaveChangesAsync();
+                        await transaction.CommitAsync();
+                        _notyf.Success("Purchase Return Updated Successfully");
                     }
 
-                    await _context.SaveChangesAsync();
-                    await transaction.CommitAsync();
-
-                    _notyf.Success(pvm.StockMaster.Id > 0
-                        ? "Purchase Return Voucher Updated Successfully"
-                        : "Purchase Return Voucher Created Successfully");
-
-                    return RedirectToAction("PurchaseReturnVoucher", new { activeTab = "list" });
+                    return RedirectToAction("PurchaseReturnVoucher");
                 }
                 catch (Exception ex)
                 {
                     await transaction.RollbackAsync();
-                    _notyf.Error($"Transaction Error: {ex.Message}");
-                    throw;
+                    throw new Exception($"Error saving purchase return: {ex.Message}", ex);
                 }
             }
             catch (Exception ex)
@@ -156,313 +481,107 @@ namespace ERP.Controllers.Purchase
                 return BadRequest($"{ex.Message} - {inner}");
             }
         }
-
-        private async Task UpdatePurchaseReturn(PurchaseViewModel pvm, int companyId, int userId,
-            int inventoryAccountId, int accountsPayableAccountId)
-        {
-            var existingPurchaseReturn = await _context.StockMaster
-                .FirstOrDefaultAsync(x => x.Id == pvm.StockMaster.Id);
-
-            if (existingPurchaseReturn == null)
-            {
-                throw new Exception("Purchase Return not found");
-            }
-
-            decimal oldNetAmount = existingPurchaseReturn.net_amount;
-            int? oldVenderId = existingPurchaseReturn.venderId;
-
-            // Update StockMaster
-            existingPurchaseReturn.current_date = pvm.StockMaster.current_date;
-            existingPurchaseReturn.posted_date = pvm.StockMaster.posted_date;
-            existingPurchaseReturn.due_date = pvm.StockMaster.due_date;
-            existingPurchaseReturn.userId = userId;
-            existingPurchaseReturn.companyId = companyId;
-            existingPurchaseReturn.venderId = pvm.StockMaster.venderId;
-            existingPurchaseReturn.transporterId = pvm.StockMaster.transporterId;
-            existingPurchaseReturn.etype = "PurchaseReturn";
-            existingPurchaseReturn.total_amount = pvm.StockMaster.total_amount;
-            existingPurchaseReturn.discount_amount = pvm.StockMaster.discount_amount;
-            existingPurchaseReturn.tax_amount = pvm.StockMaster.tax_amount;
-            existingPurchaseReturn.net_amount = pvm.StockMaster.net_amount;
-            existingPurchaseReturn.remarks = pvm.StockMaster.remarks;
-
-            _context.Update(existingPurchaseReturn);
-
-            // Update vendor balances (reverse old, apply new)
-            if (oldVenderId.HasValue)
-            {
-                var oldVendor = await _context.Vender.FindAsync(oldVenderId.Value);
-                if (oldVendor != null)
-                {
-                    // Reverse old entry: subtract the old return amount
-                    oldVendor.current_balance -= oldNetAmount;
-                    _context.Update(oldVendor);
-                }
-            }
-
-            if (pvm.StockMaster.venderId.HasValue)
-            {
-                var newVendor = await _context.Vender.FindAsync(pvm.StockMaster.venderId.Value);
-                if (newVendor != null)
-                {
-                    // Apply new entry: add the new return amount
-                    newVendor.current_balance += pvm.StockMaster.net_amount;
-                    _context.Update(newVendor);
-                }
-            }
-
-            // Remove existing details
-            var existingDetails = _context.StockDetail
-                .Where(d => d.StockMasterId == existingPurchaseReturn.Id);
-            _context.StockDetail.RemoveRange(existingDetails);
-
-            // Remove existing journal entries
-            var existingJournalEntry = await _context.JournalEntry
-                .FirstOrDefaultAsync(je => je.etype == "PurchaseReturn"
-                    && je.description.Contains($"StockMaster {existingPurchaseReturn.Id}"));
-
-            if (existingJournalEntry != null)
-            {
-                var existingJournalDetails = _context.JournalDetail
-                    .Where(jd => jd.journalEntryId == existingJournalEntry.Id);
-                var existingLedgerEntries = _context.Ledger
-                    .Where(l => l.journalEntryId == existingJournalEntry.Id);
-
-                _context.JournalDetail.RemoveRange(existingJournalDetails);
-                _context.Ledger.RemoveRange(existingLedgerEntries);
-                _context.JournalEntry.Remove(existingJournalEntry);
-            }
-
-            // Create new journal entries
-            await CreateJournalEntries(pvm, existingPurchaseReturn.Id, companyId, userId,
-                inventoryAccountId, accountsPayableAccountId);
-
-            // Add new stock details
-            foreach (var detail in pvm.StockDetail)
-            {
-                detail.StockMasterId = existingPurchaseReturn.Id;
-                _context.StockDetail.Add(detail);
-            }
-        }
-
-        private async Task CreateNewPurchaseReturn(PurchaseViewModel pvm, int companyId, int userId,
-            int inventoryAccountId, int accountsPayableAccountId)
-        {
-            // Add StockMaster
-            pvm.StockMaster.customerId = null;
-            pvm.StockMaster.etype = "PurchaseReturn";
-            _context.StockMaster.Add(pvm.StockMaster);
-            await _context.SaveChangesAsync();
-
-            // Update vendor balance - INCREASE balance (we're returning goods, vendor owes us less)
-            if (pvm.StockMaster.venderId.HasValue)
-            {
-                var vendor = await _context.Vender.FindAsync(pvm.StockMaster.venderId.Value);
-                if (vendor != null)
-                {
-                    vendor.current_balance += pvm.StockMaster.net_amount;
-                    _context.Update(vendor);
-                }
-            }
-
-            // Create journal entries
-            await CreateJournalEntries(pvm, pvm.StockMaster.Id, companyId, userId,
-                inventoryAccountId, accountsPayableAccountId);
-
-            // Add stock details
-            foreach (var detail in pvm.StockDetail)
-            {
-                detail.StockMasterId = pvm.StockMaster.Id;
-                _context.StockDetail.Add(detail);
-            }
-        }
-
-        private async Task CreateJournalEntries(PurchaseViewModel pvm, int StockMasterId,
-            int companyId, int userId, int inventoryAccountId, int accountsPayableAccountId)
-        {
-            // Create JournalEntry
-            var journalEntry = new JournalEntry
-            {
-                current_date = pvm.StockMaster.current_date,
-                due_date = pvm.StockMaster.due_date,
-                posted_date = pvm.StockMaster.posted_date,
-                companyId = companyId,
-                userId = userId,
-                etype = "PurchaseReturn",
-                description = $"Purchase Return Entry for StockMaster {StockMasterId}",
-                total_debit = pvm.StockMaster.net_amount,
-                total_credit = pvm.StockMaster.net_amount
-            };
-            _context.JournalEntry.Add(journalEntry);
-            await _context.SaveChangesAsync();
-
-            // CORRECTED ACCOUNTING LOGIC FOR PURCHASE RETURN:
-            // Debit: Accounts Payable (decrease liability)
-            // Credit: Inventory (decrease asset)
-
-            // Create JournalDetail entries
-            var journalDetails = new List<JournalDetail>
-            {
-                new JournalDetail
-                {
-                    current_date = pvm.StockMaster.current_date,
-                    journalEntryId = journalEntry.Id,
-                    chartOfAccountId = accountsPayableAccountId,
-                    debit_amount = pvm.StockMaster.net_amount,
-                    credit_amount = 0.00m,
-                    description = "Purchase Return - Reduce Liability"
-                },
-                new JournalDetail
-                {
-                    current_date = pvm.StockMaster.current_date,
-                    journalEntryId = journalEntry.Id,
-                    chartOfAccountId = inventoryAccountId,
-                    debit_amount = 0.00m,
-                    credit_amount = pvm.StockMaster.net_amount,
-                    description = "Purchase Return - Reduce Inventory"
-                }
-            };
-            _context.JournalDetail.AddRange(journalDetails);
-
-            // Get current running balances
-            var inventoryBalance = await _context.Ledger
-                .Where(l => l.chartOfAccountId == inventoryAccountId && l.companyId == companyId)
-                .OrderByDescending(l => l.Id)
-                .Select(l => l.running_balance)
-                .FirstOrDefaultAsync();
-
-            var payableBalance = await _context.Ledger
-                .Where(l => l.chartOfAccountId == accountsPayableAccountId && l.companyId == companyId)
-                .OrderByDescending(l => l.Id)
-                .Select(l => l.running_balance)
-                .FirstOrDefaultAsync();
-
-            // Create Ledger entries
-            var ledgerEntries = new List<Ledger>
-            {
-                new Ledger
-                {
-                    current_date = pvm.StockMaster.current_date,
-                    companyId = companyId,
-                    chartOfAccountId = accountsPayableAccountId,
-                    journalEntryId = journalEntry.Id,
-                    debit_amount = pvm.StockMaster.net_amount,
-                    credit_amount = 0.00m,
-                    running_balance = payableBalance - pvm.StockMaster.net_amount,
-                    description = "Purchase Return - Reduce Liability"
-                },
-                new Ledger
-                {
-                    current_date = pvm.StockMaster.current_date,
-                    companyId = companyId,
-                    chartOfAccountId = inventoryAccountId,
-                    journalEntryId = journalEntry.Id,
-                    debit_amount = 0.00m,
-                    credit_amount = pvm.StockMaster.net_amount,
-                    running_balance = inventoryBalance - pvm.StockMaster.net_amount,
-                    description = "Purchase Return - Reduce Inventory"
-                }
-            };
-            _context.Ledger.AddRange(ledgerEntries);
-        }
-
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
             try
             {
                 using var transaction = await _context.Database.BeginTransactionAsync();
 
-                var purchaseReturn = await _context.StockMaster.FindAsync(id);
-                if (purchaseReturn == null)
+                var purchase = await _context.StockMaster.FindAsync(id);
+                if (purchase != null)
                 {
-                    _notyf.Error("Purchase Return not found");
-                    return RedirectToAction("PurchaseReturnVoucher");
-                }
-
-                // Reverse vendor balance
-                if (purchaseReturn.venderId.HasValue)
-                {
-                    var vendor = await _context.Vender.FindAsync(purchaseReturn.venderId.Value);
+                    // STEP 1: Vendor balance update
+                    var vendor = await _context.Vender
+                        .FirstOrDefaultAsync(v => v.Id == purchase.venderId);
                     if (vendor != null)
                     {
-                        vendor.current_balance -= purchaseReturn.net_amount;
+                        vendor.current_balance -= purchase.net_amount;
                         _context.Update(vendor);
                     }
+
+                    // STEP 2: StockDetail fetch karo
+                    var details = await _context.StockDetail
+                        .Where(d => d.StockMasterId == id)
+                        .ToListAsync();
+
+                    // ✅ STEP 3: Har item ki qty WAPAS GHATAO
+                    foreach (var detail in details)
+                    {
+                        var item = await _context.Item
+                            .FirstOrDefaultAsync(i => i.Id == detail.itemId);
+                        if (item != null)
+                        {
+                            item.qty -= detail.qty; // jo purchase ki thi woh wapas hatao
+                            _context.Update(item);
+                        }
+                    }
+
+                    // STEP 4: StockDetail delete karo
+                    _context.StockDetail.RemoveRange(details);
+
+                    // STEP 5: JournalEntry, JournalDetail, Ledger delete
+                    var journalEntry = await _context.JournalEntry
+                        .FirstOrDefaultAsync(je => je.etype == "PurchaseReturn"
+                            && je.description == $"Purchase Return Entry for StockMaster {id}");
+                    if (journalEntry != null)
+                    {
+                        _context.JournalDetail.RemoveRange(
+                            _context.JournalDetail.Where(jd =>
+                                jd.journalEntryId == journalEntry.Id));
+                        _context.Ledger.RemoveRange(
+                            _context.Ledger.Where(l =>
+                                l.journalEntryId == journalEntry.Id));
+                        _context.JournalEntry.Remove(journalEntry);
+                    }
+
+                    // STEP 6: StockMaster delete
+                    _context.StockMaster.Remove(purchase);
+
+                    await _context.SaveChangesAsync();
+                    await transaction.CommitAsync();
+                    _notyf.Success("Purchase Return Voucher Deleted Successfully");
                 }
 
-                // Delete journal entries
-                var journalEntry = await _context.JournalEntry
-                    .FirstOrDefaultAsync(je => je.etype == "PurchaseReturn"
-                        && je.description.Contains($"StockMaster {id}"));
-
-                if (journalEntry != null)
-                {
-                    var journalDetails = _context.JournalDetail
-                        .Where(jd => jd.journalEntryId == journalEntry.Id);
-                    var ledgerEntries = _context.Ledger
-                        .Where(l => l.journalEntryId == journalEntry.Id);
-
-                    _context.JournalDetail.RemoveRange(journalDetails);
-                    _context.Ledger.RemoveRange(ledgerEntries);
-                    _context.JournalEntry.Remove(journalEntry);
-                }
-
-                // Delete stock details
-                var details = _context.StockDetail.Where(d => d.StockMasterId == id);
-                _context.StockDetail.RemoveRange(details);
-
-                // Delete stock master
-                _context.StockMaster.Remove(purchaseReturn);
-
-                await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
-
-                _notyf.Success("Purchase Return Voucher Deleted Successfully");
-                return RedirectToAction("PurchaseReturnVoucher", new { activeTab = "list" });
+                return RedirectToAction("PurchaseReturnVoucher");
             }
             catch (Exception ex)
             {
                 _notyf.Error($"An Error Occurred: {ex.Message}");
-                return RedirectToAction("PurchaseReturnVoucher", new { activeTab = "list" });
+                return BadRequest(ex.Message);
             }
         }
-
         [HttpGet]
         public async Task<IActionResult> Edit(int id, int page = 1, int pageSize = 5)
         {
-            var purchaseReturn = await _context.StockMaster
-                .Include(u => u.User)
-                .Include(v => v.Vender)
-                .Include(t => t.Transporter)
-                .Include(j => j.Company)
-                .FirstOrDefaultAsync(j => j.Id == id);
+            var purchase = await _context.StockMaster
+                   .Include(u => u.User)
+                   .Include(v => v.Vender)
+                     .Include(t => t.Transporter)
+                  .Include(j => j.Company)
+                  .FirstOrDefaultAsync(j => j.Id == id);
 
-            if (purchaseReturn == null)
+            if (purchase == null)
             {
-                _notyf.Error("Purchase Return not found");
-                return RedirectToAction("PurchaseReturnVoucher");
+                return NotFound();
             }
-
-            var purchaseReturnDetail = await _context.StockDetail
-                .Include(it => it.Item)
-                .Include(w => w.Warehouse)
-                .Where(d => d.StockMasterId == id)
-                .ToListAsync();
-
+            var purchaseDetail = await _context.StockDetail
+              .Include(it => it.Item)
+              .Include(w => w.Warehouse)
+              .Where(d => d.StockMasterId == id)
+              .ToListAsync();
             var model = new PurchaseViewModel
             {
-                StockMaster = purchaseReturn,
-                StockDetail = purchaseReturnDetail
+                StockMaster = purchase,
+                StockDetail = purchaseDetail
             };
 
             int totalPurchase = await _context.StockMaster
                 .CountAsync(d => d.etype == "PurchaseReturn");
 
-            var purchaseReturnData = await _context.StockMaster
+            var purchaseData = await _context.StockMaster
                 .Where(j => j.etype == "PurchaseReturn")
-                .OrderByDescending(j => j.Id)
+                .OrderBy(j => j.Id)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .Select(j => new PurchaseListDto
@@ -481,16 +600,17 @@ namespace ERP.Controllers.Purchase
             ViewBag.TotalItems = totalPurchase;
             ViewBag.Page = page;
             ViewBag.PageSize = pageSize;
-            ViewBag.ActiveTab = "form";
+
+
             ViewBag.Warehouses = await _context.Warehouse.ToListAsync();
             ViewBag.Items = await _context.Item.ToListAsync();
             ViewBag.Venders = await _context.Vender.ToListAsync();
             ViewBag.Transporters = await _context.Transporter.ToListAsync();
-            ViewBag.PurchaseReturn = purchaseReturnData;
+
+            ViewBag.Purchase = purchaseData;
 
             return View("~/Views/Purchase/PurchaseReturnVoucher.cshtml", model);
         }
-
         [HttpGet]
         public async Task<IActionResult> ItemModal()
         {
@@ -503,8 +623,8 @@ namespace ERP.Controllers.Purchase
             ViewBag.brandList = await _context.Brand.Where(b => b.status == true).ToListAsync();
             ViewBag.uomList = await _context.UOM.Where(u => u.status == true).ToListAsync();
             ViewBag.subCategoryList = await _context.SubCategory.Where(sb => sb.status == true).ToListAsync();
-
             return PartialView("~/Views/Shared/_ItemModal.cshtml", model);
         }
+
     }
 }

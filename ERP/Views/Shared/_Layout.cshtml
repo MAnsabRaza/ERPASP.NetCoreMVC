@@ -304,11 +304,11 @@
                                 <i id="purchaseChevron" class="fas fa-chevron-down text-gray-400 chevron-rotate"></i>
                             </button>
                             <ul id="purchaseDropdown" class="dropdown-menu ml-4 mt-1 space-y-1">
-                                <li>
+                                @* <li>
                                     <a asp-controller="PurchaseOrderVoucher" asp-action="PurchaseOrderVoucher" class="nested-item flex items-center px-4 py-2 text-gray-400 rounded-lg text-sm">
                                         <i class="fas fa-file-invoice mr-3 text-xs"></i>Purchase Order
                                     </a>
-                                </li>
+                                </li> *@
                                 <li>
                                     <a asp-controller="PurchaseVoucher" asp-action="PurchaseVoucher" class="nested-item flex items-center px-4 py-2 text-gray-400 rounded-lg text-sm">
                                         <i class="fas fa-shopping-cart mr-3 text-xs"></i>Purchase
@@ -342,7 +342,7 @@
                                     </a>
                                 </li>
                                 <li>
-                                    <a asp-controller="SalesReturn" asp-action="SalesReturn" class="nested-item flex items-center px-4 py-2 text-gray-400 rounded-lg text-sm">
+                                    <a asp-controller="SalesReturn" asp-action="SalesReturnVoucher" class="nested-item flex items-center px-4 py-2 text-gray-400 rounded-lg text-sm">
                                         <i class="fas fa-undo mr-3 text-xs"></i>Sales Return
                                     </a>
                                 </li>
