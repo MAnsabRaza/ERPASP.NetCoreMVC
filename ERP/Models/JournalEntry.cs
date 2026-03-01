@@ -18,6 +18,13 @@ namespace ERP.Models
         public int? userId { get; set; }
         [ForeignKey("userId")]
         public virtual User? User { get; set; }
+        public int? venderId { get; set; }
+        [ForeignKey("venderId")]
+        public virtual Vender? Vender { get; set; }
+
+        public int? customerId { get; set; }
+        [ForeignKey("customerId")]
+        public virtual Customer? Customer { get; set; }
 
         public string? etype { get; set; } = string.Empty;
 

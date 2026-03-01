@@ -61,10 +61,7 @@
                                 class="px-5 py-2.5 rounded-xl text-sm font-semibold text-gray-700 bg-yellow-300 hover:bg-yellow-400 shadow-md transition">
                             <i class="fa-solid fa-rotate-right mr-2"></i> Reset
                         </button>
-                        <button type="button" onclick="refreshPage('form')"
-                                class="px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-purple-500 hover:bg-purple-600 shadow-md transition">
-                            <i class="fa-solid fa-arrows-rotate mr-2"></i> Refresh
-                        </button>
+                    
                     </div>
                 </div>
             </div>
@@ -217,10 +214,10 @@
                             <input type="number" id="net_amount" readonly class="w-full p-2 border rounded-lg bg-gray-50" 
                                    step="0.01" min="0" placeholder="0.00" />
                         </div>
-                        <div class="col-span-12 md:col-span-2">
+                           <div class="col-span-2">
                             <button type="button" id="btnAddDetail"
-                                    class="w-full px-5 py-2 rounded-xl text-sm font-semibold text-white bg-blue-900 hover:bg-blue-800 transition">
-                                <i class="fa-solid fa-plus mr-1"></i> Add
+                                    class="px-5 py-2 rounded-xl text-sm font-semibold text-white bg-blue-900">
+                                Add
                             </button>
                         </div>
                     </div>
@@ -229,29 +226,30 @@
                     <div id="addMessage" class="hidden mt-2 px-4 py-2 rounded-lg text-sm font-semibold"></div>
 
                     <!-- Details Table -->
-                    <div class="overflow-hidden border rounded-lg mt-4 shadow-sm">
-                        <div class="max-h-72 overflow-y-auto">
+                      <div class="overflow-hidden border rounded-lg mt-6">
+                        <div class="max-h-96 overflow-y-auto">
                             <table class="table-auto w-full text-sm" id="detailsTable">
-                                <thead class="bg-gradient-to-r from-blue-800 to-blue-900 text-white sticky top-0">
+                                <thead class="bg-gradient-to-r from-blue-800 to-blue-900 text-white">
                                     <tr>
-                                        <th class="p-2 text-left">S.No</th>
-                                        <th class="p-2 text-left">Date</th>
-                                        <th class="p-2 text-left">Warehouse</th>
-                                        <th class="p-2 text-left">Item</th>
-                                        <th class="p-2 text-right">Qty</th>
-                                        <th class="p-2 text-right">Rate</th>
-                                        <th class="p-2 text-right">Amount</th>
-                                        <th class="p-2 text-right">Dis%</th>
-                                        <th class="p-2 text-right">Dis Amt</th>
-                                        <th class="p-2 text-right">Net Amt</th>
-                                        <th class="p-2 text-center">Action</th>
+                                        <th class="p-3">S.No</th>
+                                        <th class="p-3">Date</th>
+                                        <th class="p-3">Warehouse</th>
+                                        <th class="p-3">Item</th>
+                                        <th class="p-3">Qty</th>
+                                        <th class="p-3">Rate</th>
+                                        <th class="p-3">Amount</th>
+                                        <th class="p-3">Dis %</th>
+                                        <th class="p-3">Dis Amt</th>
+                                        <th class="p-3">Net Amt</th>
+                                        <th class="p-3">Action</th>
                                     </tr>
                                 </thead>
-                                <tbody class="divide-y divide-gray-200"></tbody>
+                                <tbody></tbody>
                             </table>
                         </div>
                     </div>
-                </div>
+                
+                       </div>
 
                 <!-- Additional Charges Content -->
                 <div id="content-additional-charges" class="hidden">
@@ -309,10 +307,6 @@
                 <button type="button" id="btn-add-new"
                         class="px-5 py-2 rounded-xl text-sm font-semibold text-white bg-green-600 hover:bg-green-700 shadow-md">
                     <i class="fa-solid fa-plus mr-2"></i> Add New
-                </button>
-                <button type="button" onclick="refreshPage('list')"
-                        class="px-5 py-2 rounded-xl text-sm font-semibold text-white bg-purple-500 hover:bg-purple-600 shadow-md">
-                    <i class="fa-solid fa-arrows-rotate mr-2"></i> Refresh
                 </button>
             </div>
         </div>
@@ -508,10 +502,6 @@
         updateNetAmount();
     }
 
-    // ✅ Fixed: SalesOrder action
-    function refreshPage(tab) {
-        window.location.href = '@Url.Action("SalesOrder", "SalesOrder")?page=@currentPage&pageSize=@pageSize&activeTab=' + tab;
-    }
 
     // ══════════════════════════════════════
     // INNER DETAIL TABS

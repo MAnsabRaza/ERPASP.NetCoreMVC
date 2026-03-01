@@ -65,7 +65,7 @@ namespace ERP.Controllers.Purchase
             ViewBag.Venders = await _context.Vender.ToListAsync();
             ViewBag.Transporters = await _context.Transporter.ToListAsync();
 
-            ViewBag.Purchase = purchaseDetail; // List<PurchaseListDto>
+            ViewBag.PurchaseReturn = purchaseDetail; // List<PurchaseListDto>
 
             return View("~/Views/Purchase/PurchaseReturnVoucher.cshtml", model);
         }
@@ -222,6 +222,7 @@ namespace ERP.Controllers.Purchase
                             due_date = pvm.StockMaster.due_date,
                             posted_date = pvm.StockMaster.posted_date,
                             companyId = companyId,
+                            venderId = pvm.StockMaster.venderId,
                             userId = userId,
                             etype = "PurchaseReturn",
                             description = $"Purchase Return Entry for StockMaster {pvm.StockMaster.Id}",
@@ -399,6 +400,7 @@ namespace ERP.Controllers.Purchase
                             due_date = pvm.StockMaster.due_date,
                             posted_date = pvm.StockMaster.posted_date,
                             companyId = companyId,
+                            venderId = pvm.StockMaster.venderId,
                             userId = userId,
                             etype = "PurchaseReturn",
                             description = $"Purchase Return Entry for StockMaster {existingPurchase.Id}",

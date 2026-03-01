@@ -49,6 +49,7 @@ namespace ERP.Controllers.Finance
             ViewBag.PageSize = pageSize;
             ViewBag.ActiveTab = activeTab;
             ViewBag.CompanyList = await _context.Company.ToListAsync();
+            ViewBag.Venders = await _context.Vender.ToListAsync();
             ViewBag.ChartOfAccount = await _context.ChartOfAccount
                 .Where(c => c.parentAccountId != null)
                 .ToListAsync();
@@ -177,6 +178,7 @@ namespace ERP.Controllers.Finance
             ViewBag.PageSize = pageSize;
             ViewBag.ActiveTab = "form";
             ViewBag.CompanyList = await _context.Company.ToListAsync();
+            ViewBag.Venders = await _context.Vender.ToListAsync();
             ViewBag.ChartOfAccount = await _context.ChartOfAccount
                 .Where(c => c.parentAccountId != null)
                 .ToListAsync();

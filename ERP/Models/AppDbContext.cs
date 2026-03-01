@@ -258,6 +258,18 @@ public class AppDbContext : DbContext
             .HasForeignKey(je => je.userId)
             .OnDelete(DeleteBehavior.NoAction);
 
+        modelBuilder.Entity<JournalEntry>()
+          .HasOne(sm => sm.Vender)
+          .WithMany()
+          .HasForeignKey(sm => sm.venderId)
+          .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<JournalEntry>()
+            .HasOne(sm => sm.Customer)
+            .WithMany()
+            .HasForeignKey(sm => sm.customerId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         modelBuilder.Entity<JournalDetail>()
             .HasOne(je => je.ChartOfAccount)
             .WithMany()
