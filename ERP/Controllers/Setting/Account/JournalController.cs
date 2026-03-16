@@ -51,9 +51,7 @@ namespace ERP.Controllers.Setting.Account
             ViewBag.PageSize = pageSize;
             ViewBag.ActiveTab = activeTab;
             ViewBag.CompanyList = await _context.Company.ToListAsync();
-            ViewBag.ChartOfAccount = await _context.ChartOfAccount
-                .Where(c => c.parentAccountId != null)
-                .ToListAsync();
+            ViewBag.ChartOfAccount = await _context.ChartOfAccount.ToListAsync();
             ViewBag.Journal = journalData;
 
             return View("~/Views/Setting/Account/Journal.cshtml", model);
@@ -180,9 +178,7 @@ namespace ERP.Controllers.Setting.Account
             ViewBag.PageSize = pageSize;
             ViewBag.ActiveTab = "form";
             ViewBag.CompanyList = await _context.Company.ToListAsync();
-            ViewBag.ChartOfAccount = await _context.ChartOfAccount
-                .Where(c => c.parentAccountId != null)
-                .ToListAsync();
+            ViewBag.ChartOfAccount = await _context.ChartOfAccount.ToListAsync();
             ViewBag.Journal = journalData;
 
             return View("~/Views/Setting/Account/Journal.cshtml", model);

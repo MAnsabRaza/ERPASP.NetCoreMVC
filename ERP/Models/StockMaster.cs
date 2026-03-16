@@ -11,6 +11,8 @@ namespace ERP.Models
         public DateOnly due_date { get; set; }
         public DateOnly posted_date { get; set; }
 
+        public int voucher_no { get;set; }
+
         public int companyId { get; set; }
         [ForeignKey("companyId")]
         public virtual Company? Company { get; set; }
@@ -30,6 +32,11 @@ namespace ERP.Models
         public int? transporterId { get; set; }
         [ForeignKey("transporterId")]
         public virtual Transporter? Transporter { get; set; }
+        public int? fiscalYearId { get; set; }
+        [ForeignKey("fiscalYearId")]
+        public virtual FinancialYear? FinancialYear{ get; set; }
+
+        public string? payment_status { get; set; }
 
         [Required, MaxLength(50)]
         public string etype { get; set; } = string.Empty;

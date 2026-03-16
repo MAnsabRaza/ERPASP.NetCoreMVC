@@ -9,13 +9,13 @@ namespace ERP.Controllers.Setting.Account
     {
         private readonly AppDbContext _contaxt;
         private readonly INotyfService _notyf;
-        public ChartOfAccountController(AppDbContext contaxt,INotyfService notyf)
+        public ChartOfAccountController(AppDbContext contaxt, INotyfService notyf)
         {
             _notyf = notyf;
             _contaxt = contaxt;
         }
 
-        public async Task<IActionResult> ChartOfAccount(string searchString, int page1 = 1, int page2 = 1, int pageSize = 5)
+        public async Task<IActionResult> ChartOfAccount(string searchString, int page1 = 1, int pageSize = 5)
         {
             var query = _contaxt.ChartOfAccount.AsQueryable();
             if (!string.IsNullOrEmpty(searchString))
@@ -23,46 +23,33 @@ namespace ERP.Controllers.Setting.Account
                 query = query.Where(c => c.name.Contains(searchString));
             }
 
-            var totalItemsLevel1 = await query.Where(c => c.parentAccountId == null).CountAsync();
-            var totalItemsLevel2 = await query.Where(c => c.parentAccountId != null).CountAsync();
+            var totalItems = await query.CountAsync();
 
-            var level1List = await query.Include(c => c.Company)
-                                        .Include(a => a.AccountType)
-                                        .Where(c => c.parentAccountId == null)
-                                        .OrderBy(c => c.Id)
-                                        .Skip((page1 - 1) * pageSize)
-                                        .Take(pageSize)
-                                        .ToListAsync();
-
-            var level2List = await query.Include(c => c.Company)
-                                        .Include(a => a.AccountType)
-                                        .Where(c => c.parentAccountId != null)
-                                        .OrderBy(c => c.Id)
-                                        .Skip((page2 - 1) * pageSize)
-                                        .Take(pageSize)
-                                        .ToListAsync();
+            var level1List = await query
+                .Include(c => c.Company)
+                .Include(a => a.AccountType)
+                .OrderBy(c => c.Id)
+                .Skip((page1 - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
 
             var model = new ChartOfAccount
             {
                 current_date = DateOnly.FromDateTime(DateTime.Now)
             };
+
             ViewBag.compantList = await _contaxt.Company.ToListAsync();
             ViewBag.accountTypeList = await _contaxt.AccountType.ToListAsync();
-            ViewBag.parentAccount = await _contaxt.ChartOfAccount.Where(c => c.parentAccountId == null).ToListAsync();
             ViewBag.Level1 = level1List;
-            ViewBag.Level2 = level2List;
             ViewBag.SearchString = searchString;
             ViewBag.Page1 = page1;
-            ViewBag.Page2 = page2;
             ViewBag.PageSize = pageSize;
-            ViewBag.TotalItemsLevel1 = totalItemsLevel1;
-            ViewBag.TotalItemsLevel2 = totalItemsLevel2;
+            ViewBag.TotalItems = totalItems;
             return View("~/Views/Setting/Account/ChartOfAccount.cshtml", model);
-            //return View("ChartOfAccount", model);
         }
 
         [HttpGet]
-        public async Task<IActionResult> Edit(int id, string searchString, int page1 = 1, int page2 = 1, int pageSize = 5)
+        public async Task<IActionResult> Edit(int id, string searchString, int page1 = 1, int pageSize = 5)
         {
             var chartOfAccount = await _contaxt.ChartOfAccount.FindAsync(id);
             if (chartOfAccount == null) return NotFound();
@@ -73,35 +60,22 @@ namespace ERP.Controllers.Setting.Account
                 query = query.Where(c => c.name.Contains(searchString));
             }
 
-            // Totals
-            var totalItemsLevel1 = await query.Where(c => c.parentAccountId == null).CountAsync();
-            var totalItemsLevel2 = await query.Where(c => c.parentAccountId != null).CountAsync();
+            var totalItems = await query.CountAsync();
 
-            // Lists
-            var level1List = await query.Include(c => c.Company).Include(a => a.AccountType)
-                                        .Where(c => c.parentAccountId == null)
-                                        .OrderBy(c => c.Id)
-                                        .Skip((page1 - 1) * pageSize)
-                                        .Take(pageSize)
-                                        .ToListAsync();
-
-            var level2List = await query.Include(c => c.Company).Include(a => a.AccountType)
-                                        .Where(c => c.parentAccountId != null)
-                                        .OrderBy(c => c.Id)
-                                        .Skip((page2 - 1) * pageSize)
-                                        .Take(pageSize)
-                                        .ToListAsync();
+            var level1List = await query
+                .Include(c => c.Company)
+                .Include(a => a.AccountType)
+                .OrderBy(c => c.Id)
+                .Skip((page1 - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
 
             ViewBag.compantList = await _contaxt.Company.ToListAsync();
             ViewBag.accountTypeList = await _contaxt.AccountType.ToListAsync();
-            ViewBag.parentAccount = await _contaxt.ChartOfAccount.Where(c => c.parentAccountId == null).ToListAsync();
             ViewBag.Level1 = level1List;
-            ViewBag.Level2 = level2List;
             ViewBag.Page1 = page1;
-            ViewBag.Page2 = page2;
             ViewBag.PageSize = pageSize;
-            ViewBag.TotalItemsLevel1 = totalItemsLevel1;
-            ViewBag.TotalItemsLevel2 = totalItemsLevel2;
+            ViewBag.TotalItems = totalItems;
             ViewBag.SearchString = searchString;
             return View("~/Views/Setting/Account/ChartOfAccount.cshtml", chartOfAccount);
         }
@@ -114,7 +88,7 @@ namespace ERP.Controllers.Setting.Account
             {
                 _contaxt.ChartOfAccount.Remove(chartOfAccount);
                 await _contaxt.SaveChangesAsync();
-                _notyf.Success("Chart Of Account Delete Successfully");
+                _notyf.Success("Chart Of Account Deleted Successfully");
             }
             return RedirectToAction("ChartOfAccount");
         }
@@ -122,15 +96,16 @@ namespace ERP.Controllers.Setting.Account
         [HttpPost]
         public async Task<IActionResult> CreateLevel1(ChartOfAccount level1)
         {
-
             var companyIdString = HttpContext.Session.GetString("companyId");
             if (string.IsNullOrEmpty(companyIdString))
             {
                 _notyf.Error("Session expired. Please log in again.");
                 return RedirectToAction("Login", "Auth");
             }
+
             int companyId = int.Parse(companyIdString);
-            level1.companyId=companyId;
+            level1.companyId = companyId;
+
             if (level1.Id > 0)
             {
                 var existing = await _contaxt.ChartOfAccount.FindAsync(level1.Id);
@@ -142,49 +117,14 @@ namespace ERP.Controllers.Setting.Account
                     existing.companyId = companyId;
                     _contaxt.Update(existing);
                     await _contaxt.SaveChangesAsync();
-                    _notyf.Success("Level One Update Successfully");
+                    _notyf.Success("Level One Updated Successfully");
                 }
             }
             else
             {
                 _contaxt.ChartOfAccount.Add(level1);
                 await _contaxt.SaveChangesAsync();
-                _notyf.Success("Level One Create Successfully");
-            }
-            return RedirectToAction("ChartOfAccount");
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> CreateLevel2(ChartOfAccount level2)
-        {
-            var companyIdString = HttpContext.Session.GetString("companyId");
-            if (string.IsNullOrEmpty(companyIdString))
-            {
-                _notyf.Error("Session expired. Please log in again.");
-                return RedirectToAction("Login", "Auth");
-            }
-            int companyId = int.Parse(companyIdString);
-            level2.companyId = companyId;
-            if (level2.Id > 0)
-            {
-                var existing = await _contaxt.ChartOfAccount.FindAsync(level2.Id);
-                if (existing != null)
-                {
-                    existing.current_date = level2.current_date;
-                    existing.name = level2.name;
-                    existing.parentAccountId = level2.parentAccountId;
-                    existing.accountTypeId = level2.accountTypeId;
-                    existing.companyId = companyId;
-                    _contaxt.Update(existing);
-                    _notyf.Success("Level Two Update Successfully");
-                    await _contaxt.SaveChangesAsync();
-                }
-            }
-            else
-            {
-                _contaxt.ChartOfAccount.Add(level2);
-                _notyf.Success("Level Two Update Successfully");
-                await _contaxt.SaveChangesAsync();
+                _notyf.Success("Level One Created Successfully");
             }
             return RedirectToAction("ChartOfAccount");
         }

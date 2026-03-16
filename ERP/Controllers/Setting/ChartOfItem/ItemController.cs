@@ -101,6 +101,10 @@ namespace ERP.Controllers.Setting.ChartOfItem
                         existingItem.item_barcode = item.item_barcode;
                         existingItem.item_name = item.item_name;
                         existingItem.status = item.status;
+                        existingItem.isExpireable=item.isExpireable;
+                        existingItem.expiry_date= item.expiry_date;
+                        existingItem.purchase_dic = item.purchase_dic;
+                        existingItem.sale_dic=item.sale_dic;
                         existingItem.categoryId = item.categoryId;
                         existingItem.subCategoryId = item.subCategoryId;
                         existingItem.brandId = item.brandId;
@@ -111,7 +115,6 @@ namespace ERP.Controllers.Setting.ChartOfItem
                         existingItem.rate = item.rate;
                         existingItem.discount_amount = item.discount_amount;
                         existingItem.total_amount = item.total_amount;
-                        existingItem.description = item.description;
                         existingItem.remark = item.remark;
                         _context.Update(existingItem);
                         await _context.SaveChangesAsync();

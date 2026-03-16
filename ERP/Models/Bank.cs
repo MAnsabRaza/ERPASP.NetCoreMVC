@@ -8,7 +8,9 @@ namespace ERP.Models
         public DateOnly current_date { get; set; }
         public string bank_name { get; set; } = string.Empty;
         public string account_no { get; set; } = string.Empty;
-        public string name { get; set; } = string.Empty;
+        public string account_title { get; set; } = string.Empty;
+
+        public string branch_code {  get; set; } = string.Empty;
 
         [Column(TypeName = "decimal(18,2)")]
         public decimal opening_balance { get; set; }

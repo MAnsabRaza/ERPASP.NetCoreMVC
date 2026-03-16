@@ -175,11 +175,6 @@ namespace ERP.Controllers.Sales
                 using var transaction = await _context.Database.BeginTransactionAsync();
                 try
                 {
-                    // ── Chart of Accounts fetch ──
-                    // ✅ Aapke table mein:
-                    //    Sales Revenue  = Id 31 (accountTypeId=15 Revenue)
-                    //    Accounts Payable = Id 29 (Liability) - Sale mein use nahi
-                    //    Sale ke liye: Accounts Receivable (Asset) DEBIT + Sales Revenue CREDIT
                     var accountsReceivable = await _context.ChartOfAccount
                         .FirstOrDefaultAsync(c => c.name == "Accounts Receivable"
                                                && c.companyId == companyId);

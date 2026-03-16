@@ -6,6 +6,8 @@ namespace ERP.Models
     {
         public int Id { get; set; }
         public DateOnly current_date { get; set; } = DateOnly.FromDateTime(DateTime.Today);
+        public DateOnly? expiry_date{ get; set; }
+        public bool? isExpireable{ get; set; }
         public string? remark { get; set; }
         public string item_name { get; set; } = string.Empty;
         public string item_barcode { get; set; } = string.Empty;
@@ -35,6 +37,17 @@ namespace ERP.Models
         [Column(TypeName = "decimal(18,2)")]
         public decimal sale_rate { get; set; }
 
+
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal? purchase_dic { get; set; }
+
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal? sale_dic { get; set; }
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal? min_stock_level { get; set; }
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal? max_stock_level { get; set; }
+
         [Column(TypeName = "decimal(18,2)")]
         public decimal rate { get; set; }
 
@@ -43,7 +56,5 @@ namespace ERP.Models
 
         [Column(TypeName = "decimal(18,2)")]
         public decimal total_amount { get; set; }
-
-        public string? description { get; set; }
     }
 }

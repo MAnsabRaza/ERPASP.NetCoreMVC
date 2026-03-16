@@ -96,7 +96,7 @@ namespace ERP.Controllers.Setting.Account
                         exisitngBank.current_date = bank.current_date;
                         exisitngBank.status = bank.status;
                         exisitngBank.account_no = bank.account_no;
-                        exisitngBank.name = bank.name;
+                        exisitngBank.account_title = bank.account_title;
                         exisitngBank.bank_name = bank.bank_name;
                         exisitngBank.opening_balance = bank.opening_balance;
                         exisitngBank.companyId =companyId;

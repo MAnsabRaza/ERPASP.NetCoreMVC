@@ -15,6 +15,8 @@ namespace ERP.Models
         [Required, EmailAddress]
         public string email { get; set; } = string.Empty;
 
+        public string? customer_type { get;set; }
+
         public string? address { get; set; }
         public string? city { get; set; }
         public bool status { get; set; }

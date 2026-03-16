@@ -1,0 +1,692 @@
+﻿@model ERP.Models.PurchaseViewModel
+@using System.Text.Json
+@{
+    ViewData["Title"] = "Stock Transfer";
+    var transferList = ViewBag.TransferList as List<ERP.Models.PurchaseListDto>;
+
+    int currentPage = (int)(ViewBag.Page ?? 1);
+    int pageSize    = (int)(ViewBag.PageSize ?? 5);
+    int totalItems  = (int)(ViewBag.TotalItems ?? 0);
+    string activeTab = ViewBag.ActiveTab as string ?? "form";
+
+    int startItem = (currentPage - 1) * pageSize + 1;
+    int endItem   = Math.Min(currentPage * pageSize, totalItems);
+
+    string warehouseMapping = ViewBag.WarehouseMapping as string ?? "[]";
+}
+
+<div class="space-y-8">
+
+    <!-- ══════════════════════════ MAIN TABS ══════════════════════════ -->
+    <div class="border-b border-gray-300 bg-white shadow-sm rounded-xl p-2">
+        <nav class="flex space-x-6">
+            <button id="tab-form" type="button"
+                    class="px-4 py-2 text-sm font-semibold @(activeTab == "form" ? "text-blue-900 border-b-2 border-blue-900" : "text-gray-500 hover:text-blue-900")">
+                <i class="fa-solid fa-plus-circle mr-2"></i> Stock Transfer Entry
+            </button>
+            <button id="tab-list" type="button"
+                    class="px-4 py-2 text-sm font-semibold @(activeTab == "list" ? "text-blue-900 border-b-2 border-blue-900" : "text-gray-500 hover:text-blue-900")">
+                <i class="fa-solid fa-list mr-2"></i> Stock Transfer List
+            </button>
+        </nav>
+    </div>
+
+    <!-- ══════════════════════════ FORM TAB ══════════════════════════ -->
+    <div id="content-form" class="@(activeTab == "list" ? "hidden" : "")">
+        @using (Html.BeginForm("Create", "StockTransfer", FormMethod.Post))
+        {
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(m => m.StockMaster.Id, new { id = "StockMasterId" })
+            @Html.HiddenFor(m => m.StockMaster.companyId)
+            @Html.HiddenFor(m => m.StockMaster.userId)
+            <input type="hidden" name="StockMaster.etype" value="stock_transfer" />
+
+            <!-- Header -->
+            <div class="shadow-lg rounded-2xl bg-gradient-to-r from-blue-50 to-blue-100 p-6 border border-gray-200">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h2 class="text-2xl font-bold text-blue-800 flex items-center gap-2">
+                            <i class="fa-solid fa-right-left text-blue-900"></i> Stock Transfer
+                        </h2>
+                        <p class="text-gray-600 mt-1 text-sm">
+                            Move stock from one warehouse to another — Item total qty stays the same
+                        </p>
+                    </div>
+                    <div class="space-x-2">
+                        <button type="submit" onclick="return beforeSave(event)"
+                                class="px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-green-600 hover:bg-green-700 shadow-md transition">
+                            <i class="fa-solid fa-save mr-2"></i> Save
+                        </button>
+                        <button type="button" onclick="resetForm()"
+                                class="px-5 py-2.5 rounded-xl text-sm font-semibold text-gray-700 bg-yellow-300 hover:bg-yellow-400 shadow-md transition">
+                            <i class="fa-solid fa-rotate-right mr-2"></i> Reset
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Master Fields -->
+            <div class="shadow-md rounded-2xl bg-white p-6 border border-gray-200 mt-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">Current Date <sup class="text-red-800 text-lg">*</sup></label>
+                        @Html.TextBoxFor(m => m.StockMaster.current_date, "{0:yyyy-MM-dd}",
+                            new { @class = "w-full p-2 border rounded-lg", type = "date", required = "required" })
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">Due Date <sup class="text-red-800 text-lg">*</sup></label>
+                        @Html.TextBoxFor(m => m.StockMaster.due_date, "{0:yyyy-MM-dd}",
+                            new { @class = "w-full p-2 border rounded-lg", type = "date", required = "required" })
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">Posted Date <sup class="text-red-800 text-lg">*</sup></label>
+                        @Html.TextBoxFor(m => m.StockMaster.posted_date, "{0:yyyy-MM-dd}",
+                            new { @class = "w-full p-2 border rounded-lg", type = "date", required = "required" })
+                    </div>
+                    <div class="md:col-span-3">
+                        <label class="block font-semibold text-gray-700 mb-1">Remarks <sup class="text-red-800 text-lg">*</sup></label>
+                        @Html.TextAreaFor(m => m.StockMaster.remarks,
+                            new { @id = "remarksInput", @class = "w-full p-2 border rounded-lg", rows = "2",
+                                  placeholder = "e.g. Transfer from Main Store to Branch Store..." })
+                    </div>
+                </div>
+            </div>
+
+            <!-- Item Input Section -->
+            <div class="shadow-md rounded-2xl bg-white p-6 border mt-4">
+
+                
+                <h3 class="text-lg font-semibold mb-4 text-gray-700">Add Items to Transfer</h3>
+
+                <div class="grid grid-cols-12 gap-4 items-end">
+
+                    <!-- FROM Warehouse -->
+                    <div class="col-span-3">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">
+                            From Warehouse <sup class="text-red-600">*</sup>
+                        </label>
+                        <select id="fromWarehouseId" class="w-full p-2 border rounded-lg">
+                            <option value="">Select From</option>
+                            @foreach (var wh in ViewBag.Warehouses as IEnumerable<dynamic>)
+                            {
+                                <option value="@wh.Id">@wh.warehouse_name</option>
+                            }
+                        </select>
+                    </div>
+
+                    <!-- TO Warehouse -->
+                    <div class="col-span-3">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">
+                            To Warehouse <sup class="text-red-600">*</sup>
+                        </label>
+                        <select id="toWarehouseId" class="w-full p-2 border rounded-lg">
+                            <option value="">Select To</option>
+                            @foreach (var wh in ViewBag.Warehouses as IEnumerable<dynamic>)
+                            {
+                                <option value="@wh.Id">@wh.warehouse_name</option>
+                            }
+                        </select>
+                    </div>
+
+                    <!-- Item -->
+                    <div class="col-span-3">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">
+                            Item <sup class="text-red-600">*</sup>
+                            <a href="javascript:void(0)" onclick="openItemModal()"
+                               class="ml-1 text-xs text-blue-600 font-semibold hover:text-blue-800">
+                                <i class="fa-solid fa-plus mr-1"></i>Add
+                            </a>
+                        </label>
+                        <select id="itemId" class="w-full p-2 border rounded-lg" onchange="fetchItemInfo()">
+                            <option value="">Select Item</option>
+                            @foreach (var item in ViewBag.Items as IEnumerable<dynamic>)
+                            {
+                                <option value="@item.Id" data-qty="@item.qty" data-rate="@item.purchase_rate">
+                                    @item.item_name
+                                </option>
+                            }
+                        </select>
+                    </div>
+
+                    <!-- Stock Qty (readonly) -->
+                    <div class="col-span-2">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Available Qty</label>
+                        <input type="number" id="currentStockQty" readonly
+                               class="w-full p-2 border rounded-lg bg-gray-50 text-gray-600 font-semibold"
+                               placeholder="0" />
+                    </div>
+
+                    <!-- Transfer Qty -->
+                    <div class="col-span-2">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Transfer Qty <sup class="text-red-600">*</sup></label>
+                        <input type="number" id="qty" class="w-full p-2 border rounded-lg" min="1" placeholder="0" />
+                    </div>
+
+                    <!-- Rate -->
+                    <div class="col-span-2">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Rate</label>
+                        <input type="number" id="rate" class="w-full p-2 border rounded-lg bg-gray-50" step="0.01" readonly />
+                    </div>
+
+                    <!-- Amount -->
+                    <div class="col-span-2">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Amount</label>
+                        <input type="number" id="amount" class="w-full p-2 border rounded-lg bg-gray-50" step="0.01" readonly />
+                    </div>
+
+                    <!-- Discount % -->
+                    <div class="col-span-1">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Discount %</label>
+                        <input type="number" id="discount_percentage" class="w-full p-2 border rounded-lg" step="0.01" min="0" />
+                    </div>
+
+                    <!-- Disc Amt -->
+                    <div class="col-span-1">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Disc Amt</label>
+                        <input type="number" id="discount_amount" readonly class="w-full p-2 border rounded-lg bg-gray-50" step="0.01" />
+                    </div>
+
+                    <!-- Net Amount -->
+                    <div class="col-span-2">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Net Amount</label>
+                        <input type="number" id="net_amount" readonly class="w-full p-2 border rounded-lg bg-gray-50" step="0.01" />
+                    </div>
+
+                    <!-- Add Button -->
+                    <div class="col-span-2">
+                        <button type="button" id="btnAddDetail"
+                                class="w-full px-4 py-2 rounded-xl text-sm font-semibold text-white bg-blue-900 hover:bg-blue-800 transition">
+                            <i class="fa-solid fa-plus mr-1"></i> Add
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Toast Area -->
+                <div id="toastArea" class="mt-3"></div>
+
+                <!-- Details Table -->
+                <div class="overflow-hidden border rounded-lg mt-6">
+                    <div class="max-h-96 overflow-y-auto">
+                        <table class="table-auto w-full text-sm" id="detailsTable">
+                            <thead class="bg-gradient-to-r from-blue-800 to-blue-900 text-white">
+                                <tr>
+                                    <th class="p-3">#</th>
+                                    <th class="p-3">Item</th>
+                                    <th class="p-3">From Warehouse</th>
+                                    <th class="p-3">To Warehouse</th>
+                                    <th class="p-3">Available Qty</th>
+                                    <th class="p-3">Transfer Qty</th>
+                                    <th class="p-3">Rate</th>
+                                    <th class="p-3">Amount</th>
+                                    <th class="p-3">Dis%</th>
+                                    <th class="p-3">Dis Amt</th>
+                                    <th class="p-3">Net Amt</th>
+                                    <th class="p-3">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Totals -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mt-6 border-t pt-4">
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">Total Amount</label>
+                        @Html.TextBoxFor(m => m.StockMaster.total_amount,
+                            new { @class = "w-full p-2 border rounded-lg bg-gray-50", type = "number", step = "0.01", @readonly = "readonly" })
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">Discount Amount</label>
+                        @Html.TextBoxFor(m => m.StockMaster.discount_amount,
+                            new { @class = "w-full p-2 border rounded-lg", type = "number", step = "0.01", @onchange = "updateNetAmount()" })
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">Tax Amount</label>
+                        @Html.TextBoxFor(m => m.StockMaster.tax_amount,
+                            new { @class = "w-full p-2 border rounded-lg", type = "number", step = "0.01", @onchange = "updateNetAmount()" })
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">Net Amount</label>
+                        @Html.TextBoxFor(m => m.StockMaster.net_amount,
+                            new { @class = "w-full p-2 border rounded-lg bg-gray-50 font-bold", type = "number", step = "0.01", @readonly = "readonly" })
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hidden inputs for StockDetail + FromWarehouse + ToWarehouse -->
+            <div id="detailsContainer"></div>
+        }
+    </div>
+
+    <!-- ══════════════════════════ LIST TAB ══════════════════════════ -->
+    <div id="content-list" class="@(activeTab == "list" ? "" : "hidden") shadow-lg rounded-2xl bg-white p-6 border">
+        <div class="flex justify-between items-center">
+            <h2 class="text-2xl font-bold text-blue-900">
+                <i class="fa-solid fa-list-ul"></i> Stock Transfer List
+            </h2>
+            <div class="flex items-center space-x-4">
+                <div class="px-5 py-2 rounded-xl text-sm font-semibold text-white bg-blue-900 shadow-md">
+                    Total: @totalItems
+                </div>
+                <button type="button" id="btn-add-new"
+                        class="px-5 py-2 rounded-xl text-sm font-semibold text-white bg-green-600 hover:bg-green-700">
+                    <i class="fa-solid fa-plus"></i> Add New
+                </button>
+            </div>
+        </div>
+
+        <div class="overflow-hidden border rounded-lg mt-6">
+            <div class="max-h-96 overflow-y-auto">
+                <table class="table-auto w-full text-sm">
+                    <thead class="bg-gradient-to-r from-blue-800 to-blue-900 text-white">
+                        <tr>
+                            <th class="p-3">ID</th>
+                            <th class="p-3">Date</th>
+                            <th class="p-3">Type</th>
+                            <th class="p-3">Remarks</th>
+                            <th class="p-3">Total</th>
+                            <th class="p-3">Net</th>
+                            <th class="p-3">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in transferList ?? new List<ERP.Models.PurchaseListDto>())
+                        {
+                            <tr class="hover:bg-gray-50">
+                                <td class="p-3 font-semibold">@item.Id</td>
+                                <td class="p-3">@item.CurrentDate.ToString("dd-MMM-yyyy")</td>
+                                <td class="p-3">
+                                    <span class="px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-800">
+                                        <i class="fa-solid fa-right-left mr-1"></i> Transfer
+                                    </span>
+                                </td>
+                                <td class="p-3 text-gray-500">@(string.IsNullOrEmpty(item.Remarks) ? "-" : item.Remarks)</td>
+                                <td class="p-3 text-right text-blue-700">@item.TotalAmount.ToString("F2")</td>
+                                <td class="p-3 text-right text-green-700 font-semibold">@item.NetAmount.ToString("F2")</td>
+                                <td class="p-3 text-center space-x-2">
+                                    <a asp-action="Edit"
+                                       asp-controller="StockTransfer"
+                                       asp-route-id="@item.Id"
+                                       asp-route-page="@currentPage"
+                                       asp-route-pageSize="@pageSize"
+                                       class="px-3 py-1.5 rounded-lg text-xs font-medium bg-blue-100 text-blue-700 hover:bg-blue-200">
+                                        <i class="fa-solid fa-edit mr-1"></i> Edit
+                                    </a>
+                                    @using (Html.BeginForm("Delete", "StockTransfer", FormMethod.Post,
+                                        new { onsubmit = "return confirm('Delete this transfer?');", @class = "inline" }))
+                                    {
+                                        @Html.AntiForgeryToken()
+                                        @Html.Hidden("id", item.Id)
+                                        <button type="submit"
+                                                class="px-3 py-1 rounded bg-red-100 text-red-700 hover:bg-red-200 text-xs font-medium">
+                                            <i class="fa-solid fa-trash mr-1"></i> Delete
+                                        </button>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="flex justify-between items-center mt-4 text-sm text-gray-600">
+            <div>Showing @startItem to @endItem of @totalItems entries</div>
+            <div class="flex space-x-2">
+                @if (currentPage > 1)
+                {
+                    <a href="@Url.Action("StockTransfer", new { page = currentPage - 1, pageSize, activeTab = "list" })"
+                       class="px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700">Previous</a>
+                }
+                @if (endItem < totalItems)
+                {
+                    <a href="@Url.Action("StockTransfer", new { page = currentPage + 1, pageSize, activeTab = "list" })"
+                       class="px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700">Next</a>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@await Html.PartialAsync("_WarehouseModal", new ERP.Models.Warehouse())
+<div id="itemModalContainer"></div>
+
+<script>
+    let details = [];
+
+    // ═══════════════════════════════════════
+    // FETCH ITEM INFO
+    // ═══════════════════════════════════════
+    function fetchItemInfo() {
+        const sel = document.getElementById("itemId");
+        const opt = sel.options[sel.selectedIndex];
+        document.getElementById("currentStockQty").value = opt.getAttribute("data-qty") || "";
+        document.getElementById("rate").value            = parseFloat(opt.getAttribute("data-rate") || 0).toFixed(2);
+        calculateAmounts();
+    }
+
+    // ═══════════════════════════════════════
+    // CALCULATIONS
+    // ═══════════════════════════════════════
+    document.getElementById("qty").addEventListener("input", calculateAmounts);
+    document.getElementById("discount_percentage").addEventListener("input", calculateDiscount);
+
+    function calculateAmounts() {
+        const qty  = parseFloat(document.getElementById("qty").value)  || 0;
+        const rate = parseFloat(document.getElementById("rate").value) || 0;
+        const amt  = qty * rate;
+        document.getElementById("amount").value             = amt.toFixed(2);
+        document.getElementById("discount_percentage").value = "";
+        document.getElementById("discount_amount").value    = "";
+        document.getElementById("net_amount").value         = amt.toFixed(2);
+    }
+
+    function calculateDiscount() {
+        const amt  = parseFloat(document.getElementById("amount").value)              || 0;
+        const per  = parseFloat(document.getElementById("discount_percentage").value) || 0;
+        const disc = (amt * per) / 100;
+        document.getElementById("discount_amount").value = disc.toFixed(2);
+        document.getElementById("net_amount").value      = (amt - disc).toFixed(2);
+    }
+
+    // ═══════════════════════════════════════
+    // ADD ROW
+    // ═══════════════════════════════════════
+    document.getElementById("btnAddDetail").addEventListener("click", () => {
+        const fromWhId   = document.getElementById("fromWarehouseId").value;
+        const fromWhName = document.getElementById("fromWarehouseId").selectedOptions[0]?.text;
+        const toWhId     = document.getElementById("toWarehouseId").value;
+        const toWhName   = document.getElementById("toWarehouseId").selectedOptions[0]?.text;
+        const itemId     = document.getElementById("itemId").value;
+        const itemName   = document.getElementById("itemId").selectedOptions[0]?.text;
+        const stockQty   = parseFloat(document.getElementById("currentStockQty").value) || 0;
+        const qty        = parseFloat(document.getElementById("qty").value)  || 0;
+        const rate       = parseFloat(document.getElementById("rate").value) || 0;
+        const amount     = parseFloat(document.getElementById("amount").value)              || 0;
+        const discPer    = parseFloat(document.getElementById("discount_percentage").value) || 0;
+        const discAmt    = parseFloat(document.getElementById("discount_amount").value)     || 0;
+        const netAmt     = parseFloat(document.getElementById("net_amount").value)          || 0;
+        const curDate    = document.querySelector('input[name="StockMaster.current_date"]').value;
+
+        // Validations
+        if (!fromWhId)            { showToast("Please select From Warehouse.", false); return; }
+        if (!toWhId)              { showToast("Please select To Warehouse.", false); return; }
+        if (fromWhId === toWhId)  { showToast("From and To Warehouse cannot be the same.", false); return; }
+        if (!itemId)              { showToast("Please select an Item.", false); return; }
+        if (qty <= 0)             { showToast("Please enter a valid Qty.", false); return; }
+        if (stockQty <= 0)        { showToast(`'${itemName}' has zero stock.`, false); return; }
+        if (qty > stockQty)       { showToast(`'${itemName}' available qty is ${stockQty}.`, false); return; }
+
+        details.push({
+            fromWhId, fromWhName,
+            toWhId, toWhName,
+            itemId, itemName,
+            stockQty, qty, rate, amount,
+            discPer, discAmt, netAmt,
+            current_date: curDate
+        });
+
+        renderTable();
+        clearInputs();
+        showToast(`'${itemName}' added — ${fromWhName} → ${toWhName}`, true);
+    });
+
+    // ═══════════════════════════════════════
+    // RENDER TABLE
+    // ═══════════════════════════════════════
+    function renderTable() {
+        const tbody     = document.querySelector("#detailsTable tbody");
+        const container = document.getElementById("detailsContainer");
+        tbody.innerHTML     = "";
+        container.innerHTML = "";
+
+        let totalAmt = 0, totalDisc = 0, totalNet = 0;
+
+        details.forEach((d, i) => {
+            totalAmt  += d.amount;
+            totalDisc += d.discAmt;
+            totalNet  += d.netAmt;
+
+            tbody.innerHTML += `
+                <tr class="border-b hover:bg-gray-50">
+                    <td class="p-3">${i + 1}</td>
+                    <td class="p-3 font-medium">${d.itemName}</td>
+                    <td class="p-3 text-red-700 font-semibold">
+                        <i class="fa-solid fa-arrow-right mr-1"></i>${d.fromWhName}
+                    </td>
+                    <td class="p-3 text-green-700 font-semibold">
+                        <i class="fa-solid fa-arrow-right mr-1"></i>${d.toWhName}
+                    </td>
+                    <td class="p-3 text-gray-500">${d.stockQty}</td>
+                    <td class="p-3 text-blue-700 font-bold">${d.qty}</td>
+                    <td class="p-3">${d.rate.toFixed(2)}</td>
+                    <td class="p-3">${d.amount.toFixed(2)}</td>
+                    <td class="p-3">${d.discPer.toFixed(2)}</td>
+                    <td class="p-3">${d.discAmt.toFixed(2)}</td>
+                    <td class="p-3 font-semibold">${d.netAmt.toFixed(2)}</td>
+                    <td class="p-3">
+                        <button type="button" onclick="removeDetail(${i})"
+                                class="text-red-600 hover:text-red-800 text-xs font-semibold">
+                            <i class="fa-solid fa-trash mr-1"></i>Delete
+                        </button>
+                    </td>
+                </tr>`;
+
+            // Hidden inputs — item detail
+            container.innerHTML += `
+                <input type="hidden" name="StockDetail[${i}].itemId"               value="${d.itemId}" />
+                <input type="hidden" name="StockDetail[${i}].qty"                  value="${d.qty}" />
+                <input type="hidden" name="StockDetail[${i}].rate"                 value="${d.rate}" />
+                <input type="hidden" name="StockDetail[${i}].amount"               value="${d.amount}" />
+                <input type="hidden" name="StockDetail[${i}].discount_percentage"  value="${d.discPer}" />
+                <input type="hidden" name="StockDetail[${i}].discount_amount"      value="${d.discAmt}" />
+                <input type="hidden" name="StockDetail[${i}].net_amount"           value="${d.netAmt}" />
+                <input type="hidden" name="StockDetail[${i}].current_date"         value="${d.current_date}" />
+                <input type="hidden" name="fromWarehouseIds[${i}]"                 value="${d.fromWhId}" />
+                <input type="hidden" name="toWarehouseIds[${i}]"                   value="${d.toWhId}" />
+            `;
+        });
+
+        if (details.length > 0) {
+            tbody.innerHTML += `
+                <tr class="bg-gray-100 font-bold">
+                    <td colspan="7" class="p-3 text-right">Total:</td>
+                    <td class="p-3 text-blue-700">${totalAmt.toFixed(2)}</td>
+                    <td></td>
+                    <td class="p-3 text-orange-600">${totalDisc.toFixed(2)}</td>
+                    <td class="p-3 text-green-700">${totalNet.toFixed(2)}</td>
+                    <td></td>
+                </tr>`;
+        }
+
+        document.querySelector('input[name="StockMaster.total_amount"]').value = totalNet.toFixed(2);
+        updateNetAmount();
+    }
+
+    function removeDetail(i) {
+        details.splice(i, 1);
+        renderTable();
+    }
+
+    function clearInputs() {
+        ["fromWarehouseId","toWarehouseId","itemId","qty","rate",
+         "amount","discount_percentage","discount_amount","net_amount","currentStockQty"]
+            .forEach(id => document.getElementById(id).value = "");
+    }
+
+    function updateNetAmount() {
+        const total = parseFloat(document.querySelector('input[name="StockMaster.total_amount"]').value) || 0;
+        const disc  = parseFloat(document.querySelector('input[name="StockMaster.discount_amount"]').value) || 0;
+        const tax   = parseFloat(document.querySelector('input[name="StockMaster.tax_amount"]').value) || 0;
+        document.querySelector('input[name="StockMaster.net_amount"]').value = (total - disc + tax).toFixed(2);
+    }
+
+    // ═══════════════════════════════════════
+    // BEFORE SAVE VALIDATION
+    // ═══════════════════════════════════════
+    function beforeSave(event) {
+        updateNetAmount();
+        let hasError = false;
+
+        // Remarks check
+        const remarks = document.getElementById("remarksInput");
+        document.getElementById("remarksError")?.remove();
+        if (!remarks.value.trim()) {
+            remarks.classList.add("border-red-500", "border-2");
+            remarks.insertAdjacentHTML("afterend",
+                '<p id="remarksError" class="mt-1 text-sm font-semibold text-red-600">' +
+                '<i class="fa-solid fa-circle-xmark mr-1"></i>Remarks is required.</p>');
+            remarks.focus();
+            hasError = true;
+        } else {
+            remarks.classList.remove("border-red-500", "border-2");
+        }
+
+        // Items check
+        document.getElementById("itemsError")?.remove();
+        if (details.length === 0) {
+            const table = document.querySelector("#detailsTable")?.closest(".overflow-hidden");
+            const err = '<div id="itemsError" class="mt-3 px-4 py-3 rounded-lg text-sm font-semibold bg-red-50 text-red-700 border border-red-400">' +
+                        '<i class="fa-solid fa-triangle-exclamation mr-2"></i>No items added. Please add at least one item before saving.</div>';
+            table ? table.insertAdjacentHTML("beforebegin", err)
+                  : document.getElementById("toastArea").insertAdjacentHTML("beforeend", err);
+            hasError = true;
+        }
+
+        if (hasError) { event.preventDefault(); return false; }
+        return true;
+    }
+
+    // Auto remove remarks error
+    document.getElementById("remarksInput")?.addEventListener("input", function () {
+        if (this.value.trim()) {
+            this.classList.remove("border-red-500", "border-2");
+            document.getElementById("remarksError")?.remove();
+        }
+    });
+
+    // ═══════════════════════════════════════
+    // TOAST
+    // ═══════════════════════════════════════
+    function showToast(msg, ok = true) {
+        const div = document.createElement("div");
+        div.className = `mt-2 px-4 py-2 rounded-lg text-sm font-semibold border ${
+            ok ? "bg-green-100 text-green-700 border-green-300"
+               : "bg-red-100 text-red-700 border-red-300"}`;
+        div.innerHTML = `<i class="fa-solid ${ok ? "fa-circle-check" : "fa-circle-xmark"} mr-2"></i>${msg}`;
+        document.getElementById("toastArea").appendChild(div);
+        setTimeout(() => div.remove(), 4000);
+    }
+
+    // ═══════════════════════════════════════
+    // MAIN TABS
+    // ═══════════════════════════════════════
+    document.getElementById("tab-form").addEventListener("click", () => showTab("form"));
+    document.getElementById("tab-list").addEventListener("click", () => showTab("list"));
+    document.getElementById("btn-add-new")?.addEventListener("click", () => { resetForm(); showTab("form"); });
+
+    function showTab(tab) {
+        const isForm = tab === "form";
+        document.getElementById("content-form").classList.toggle("hidden", !isForm);
+        document.getElementById("content-list").classList.toggle("hidden", isForm);
+        document.getElementById("tab-form").classList.toggle("text-blue-900",  isForm);
+        document.getElementById("tab-form").classList.toggle("border-b-2",     isForm);
+        document.getElementById("tab-form").classList.toggle("border-blue-900",isForm);
+        document.getElementById("tab-form").classList.toggle("text-gray-500",  !isForm);
+        document.getElementById("tab-list").classList.toggle("text-blue-900",  !isForm);
+        document.getElementById("tab-list").classList.toggle("border-b-2",     !isForm);
+        document.getElementById("tab-list").classList.toggle("border-blue-900",!isForm);
+        document.getElementById("tab-list").classList.toggle("text-gray-500",  isForm);
+    }
+
+    function resetForm() {
+        document.querySelector("form").reset();
+        details = [];
+        renderTable();
+        clearInputs();
+        updateNetAmount();
+        document.getElementById("StockMasterId").value = "0";
+    }
+
+    // ═══════════════════════════════════════
+    // MODALS
+    // ═══════════════════════════════════════
+    function openWarehouseModal() {
+        document.getElementById('warehouseModal').classList.remove('hidden');
+    }
+    function closeWarehouseModal() {
+        document.getElementById('warehouseModal').classList.add('hidden');
+    }
+    function openItemModal() {
+        fetch('/StockTransfer/ItemModal')
+            .then(r => r.text())
+            .then(html => {
+                document.getElementById('itemModalContainer').innerHTML = html;
+                document.getElementById('itemModal').classList.remove('hidden');
+            });
+    }
+    function closeItemModal() {
+        document.getElementById('itemModal')?.closest('#itemModalContainer')?.remove();
+    }
+
+    // ═══════════════════════════════════════
+    // EDIT MODE — Load existing rows
+    // ═══════════════════════════════════════
+    @if (Model.StockMaster.Id > 0 && Model.StockDetail?.Any() == true)
+    {
+        var warehouses    = ViewBag.Warehouses as IEnumerable<dynamic>;
+        var items         = ViewBag.Items as IEnumerable<dynamic>;
+        var whDict        = warehouses?.ToDictionary(w => (int)w.Id, w => (string)w.warehouse_name) ?? new Dictionary<int, string>();
+        var itemDict      = items?.ToDictionary(i => (int)i.Id, i => (string)i.item_name) ?? new Dictionary<int, string>();
+
+        // Parse warehouse mapping from ViewBag
+        var mappingRaw = ViewBag.WarehouseMapping as string ?? "[]";
+
+        var jsonDetails = JsonSerializer.Serialize(Model.StockDetail.Select((d, idx) => new
+        {
+            itemId       = d.itemId,
+            itemName     = itemDict.ContainsKey(d.itemId) ? itemDict[d.itemId] : "Unknown",
+            stockQty     = 0,
+            qty          = Math.Abs(d.qty),
+            rate         = d.rate,
+            amount       = d.amount,
+            discPer      = d.discount_percentage,
+            discAmt      = d.discount_amount,
+            netAmt       = d.net_amount,
+            current_date = d.current_date.ToString("yyyy-MM-dd")
+        }));
+
+        <text>
+        // Load warehouse mapping
+        const mapping = @Html.Raw(mappingRaw);
+        const rawDetails = @Html.Raw(jsonDetails);
+
+        rawDetails.forEach((d, i) => {
+            const map = mapping[i] || {};
+            const fromWhId   = map.fromWarehouseId || "";
+            const toWhId     = map.toWarehouseId   || "";
+
+            // Get warehouse names from dropdowns
+            const whSel = document.getElementById("fromWarehouseId");
+            const fromName = [...whSel.options].find(o => o.value == fromWhId)?.text || "Unknown";
+            const toName   = [...document.getElementById("toWarehouseId").options].find(o => o.value == toWhId)?.text || "Unknown";
+
+            details.push({
+                fromWhId, fromWhName: fromName,
+                toWhId,   toWhName: toName,
+                itemId:   d.itemId,   itemName: d.itemName,
+                stockQty: d.stockQty, qty: d.qty,
+                rate:     d.rate,     amount: d.amount,
+                discPer:  d.discPer,  discAmt: d.discAmt,
+                netAmt:   d.netAmt,   current_date: d.current_date
+            });
+        });
+        renderTable();
+        </text>
+    }
+
+    // Init
+    showTab('@activeTab');
+</script>

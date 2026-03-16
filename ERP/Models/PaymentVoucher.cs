@@ -14,6 +14,14 @@ namespace ERP.Models
         public string method { get; set; } = string.Empty;
         public bool status { get; set; }
 
+        public string? payment_type { get; set; }
+
+        public string? cheque_no { get;set; }
+        public DateOnly? cheque_date { get; set; }
+        public int journal_entryId { get; set; }
+        [ForeignKey("journal_entryId")]
+        public virtual JournalEntry? JournalEntry { get; set; }
+
         public int companyId { get; set; }
         [ForeignKey("companyId")]
         public virtual Company? Company { get; set; }

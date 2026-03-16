@@ -17,6 +17,10 @@ namespace ERP.Models
         [ForeignKey("warehouseId")]
         public virtual Warehouse? Warehouse { get; set; }
 
+        public int? taxSetupId { get; set; }
+        [ForeignKey("taxSetupId")]
+        public virtual TaxSetup? TaxSetup { get; set; }
+
         public int itemId { get; set; }
         [ForeignKey("itemId")]
         public virtual Item? Item { get; set; }
@@ -37,5 +41,16 @@ namespace ERP.Models
 
         [Column(TypeName = "decimal(18,2)")]
         public decimal net_amount { get; set; }
+
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal? gst { get; set; }
+
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal? gst_amount { get; set; } = 0;
+
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal? incl_Tax_Amount { get; set; } = 0;
+
+
     }
 }

@@ -9,12 +9,17 @@ namespace ERP.Controllers.Finance
     {
         private readonly AppDbContext _context;
         private readonly INotyfService _notyf;
+
         public AccountReceivableController(AppDbContext context, INotyfService notyf)
         {
             _context = context;
             _notyf = notyf;
         }
-          public async Task<IActionResult> AccountReceivable(int page = 1, int pageSize = 5, string activeTab = "form")
+
+        // ════════════════════════════════════════════════════════
+        // INDEX
+        // ════════════════════════════════════════════════════════
+        public async Task<IActionResult> AccountReceivable(int page = 1, int pageSize = 5, string activeTab = "form")
         {
             var model = new JournalViewModel
             {
@@ -27,11 +32,13 @@ namespace ERP.Controllers.Finance
                 JournalDetail = new List<JournalDetail>()
             };
 
-            var totalJournal = await _context.JournalEntry.CountAsync();
+            var totalJournal = await _context.JournalEntry
+                .CountAsync(j => j.etype == "AccountReceivable");
+
             var journalData = await _context.JournalEntry
                 .Include(j => j.Company)
-                 .Where(j => j.etype == "AccountReceivable")
-                .OrderBy(j => j.Id)
+                .Where(j => j.etype == "AccountReceivable")
+                .OrderByDescending(j => j.Id)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .Select(j => new JournalViewModel
@@ -49,90 +56,204 @@ namespace ERP.Controllers.Finance
             ViewBag.PageSize = pageSize;
             ViewBag.ActiveTab = activeTab;
             ViewBag.CompanyList = await _context.Company.ToListAsync();
-            ViewBag.ChartOfAccount = await _context.ChartOfAccount
-                .Where(c => c.parentAccountId != null)
-                .ToListAsync();
+            ViewBag.Customers = await _context.Customer.ToListAsync();
+            ViewBag.ChartOfAccount = await _context.ChartOfAccount.ToListAsync();
             ViewBag.Journal = journalData;
+
             return View("~/Views/Finance/AccountReceivable.cshtml", model);
-            //return View("AccountReceivable", model);
         }
 
+        // ════════════════════════════════════════════════════════
+        // CREATE / UPDATE
+        // ════════════════════════════════════════════════════════
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(JournalViewModel jvm, int page = 1, int pageSize = 5)
+        public async Task<IActionResult> Create(JournalViewModel jvm)
         {
             try
             {
                 var companyIdString = HttpContext.Session.GetString("companyId");
                 var userIdString = HttpContext.Session.GetString("userId");
+
                 if (string.IsNullOrEmpty(companyIdString) || string.IsNullOrEmpty(userIdString))
                 {
-                    _notyf.Error("Session expired. Please log in again.");
+                    _notyf.Error("Session expired. Please login again.");
                     return RedirectToAction("Login", "Auth");
                 }
+
                 int companyId = int.Parse(companyIdString);
                 int userId = int.Parse(userIdString);
+
                 jvm.JournalEntry.companyId = companyId;
                 jvm.JournalEntry.userId = userId;
-                if (jvm.JournalEntry.Id > 0)
-                {
-                    var existingEntry = await _context.JournalEntry
-                        .FirstOrDefaultAsync(x => x.Id == jvm.JournalEntry.Id);
+                jvm.JournalEntry.etype = "AccountReceivable";
 
-                    if (existingEntry != null)
+                if (jvm.JournalDetail == null || !jvm.JournalDetail.Any())
+                {
+                    _notyf.Error("Please add journal details.");
+                    return RedirectToAction("AccountReceivable", new { activeTab = "form" });
+                }
+
+                decimal totalDebit = jvm.JournalDetail.Sum(x => x.debit_amount);
+                decimal totalCredit = jvm.JournalDetail.Sum(x => x.credit_amount);
+
+                if (totalDebit != totalCredit)
+                {
+                    _notyf.Error("Debit and Credit must be equal.");
+                    return RedirectToAction("AccountReceivable", new { activeTab = "form" });
+                }
+
+                using var transaction = await _context.Database.BeginTransactionAsync();
+
+                try
+                {
+                    // ═════════════════════════════════════════════
+                    // UPDATE EXISTING ENTRY
+                    // ═════════════════════════════════════════════
+                    if (jvm.JournalEntry.Id > 0)
                     {
+                        var existingEntry = await _context.JournalEntry
+                            .FirstOrDefaultAsync(x => x.Id == jvm.JournalEntry.Id);
+
+                        if (existingEntry == null)
+                        {
+                            _notyf.Error("Journal entry not found.");
+                            return RedirectToAction("AccountReceivable");
+                        }
+
+                        // 1️⃣ Reverse Old Customer Balance
+                        if (existingEntry.customerId.HasValue)
+                        {
+                            var oldCustomer = await _context.Customer
+                                .FindAsync(existingEntry.customerId.Value);
+                            if (oldCustomer != null)
+                            {
+                                oldCustomer.current_balance += existingEntry.total_credit;
+                                _context.Customer.Update(oldCustomer);
+                            }
+                        }
+
+                        // 2️⃣ Delete Old JournalDetails
+                        var oldDetails = _context.JournalDetail
+                            .Where(d => d.journalEntryId == existingEntry.Id);
+                        _context.JournalDetail.RemoveRange(oldDetails);
+
+                        // 3️⃣ Delete Old Ledger rows
+                        var oldLedger = _context.Ledger
+                            .Where(l => l.journalEntryId == existingEntry.Id);
+                        _context.Ledger.RemoveRange(oldLedger);
+
+                        await _context.SaveChangesAsync();
+
+                        // 4️⃣ Update JournalEntry
                         existingEntry.current_date = jvm.JournalEntry.current_date;
                         existingEntry.due_date = jvm.JournalEntry.due_date;
                         existingEntry.posted_date = jvm.JournalEntry.posted_date;
-                        existingEntry.companyId = companyId;
-                        existingEntry.userId = userId;
-                        existingEntry.etype = jvm.JournalEntry.etype;
                         existingEntry.description = jvm.JournalEntry.description;
-                        existingEntry.total_credit = jvm.JournalDetail.Sum(x => x.credit_amount);
-                        existingEntry.total_debit = jvm.JournalDetail.Sum(x => x.debit_amount);
-
-                        _context.Update(existingEntry);
+                        existingEntry.total_debit = totalDebit;
+                        existingEntry.total_credit = totalCredit;
+                        existingEntry.customerId = jvm.JournalEntry.customerId;
+                        _context.JournalEntry.Update(existingEntry);
                         await _context.SaveChangesAsync();
 
-                        var existingDetails = _context.JournalDetail.Where(d => d.journalEntryId == existingEntry.Id);
-                        _context.JournalDetail.RemoveRange(existingDetails);
-                        await _context.SaveChangesAsync();
-
-                        foreach (var d in jvm.JournalDetail)
+                        // 5️⃣ Insert New JournalDetails
+                        foreach (var detail in jvm.JournalDetail)
                         {
-                            d.journalEntryId = existingEntry.Id;
-                            _context.JournalDetail.Add(d);
+                            detail.journalEntryId = existingEntry.Id;
+                            _context.JournalDetail.Add(detail);
                         }
                         await _context.SaveChangesAsync();
-                        _notyf.Success("Account Receivable Voucher Update Successfully");
-                    }
-                }
-                else
-                {
-                    jvm.JournalEntry.total_credit = jvm.JournalDetail.Sum(x => x.credit_amount);
-                    jvm.JournalEntry.total_debit = jvm.JournalDetail.Sum(x => x.debit_amount);
-                    jvm.JournalEntry.etype = "AccountReceivable";
-                    _context.JournalEntry.Add(jvm.JournalEntry);
-                    await _context.SaveChangesAsync();
 
-                    foreach (var d in jvm.JournalDetail)
+                        // 6️⃣ Insert New Ledger rows
+                        await InsertLedgerEntries(
+                            jvm.JournalDetail,
+                            existingEntry.Id,
+                            companyId,
+                            jvm.JournalEntry.current_date);
+                        await _context.SaveChangesAsync();
+
+                        // 7️⃣ Apply New Customer Balance
+                        if (jvm.JournalEntry.customerId.HasValue)
+                        {
+                            var newCustomer = await _context.Customer
+                                .FindAsync(jvm.JournalEntry.customerId.Value);
+                            if (newCustomer != null)
+                            {
+                                newCustomer.current_balance -= totalCredit;
+                                _context.Customer.Update(newCustomer);
+                            }
+                        }
+
+                        await _context.SaveChangesAsync();
+                        await transaction.CommitAsync();
+
+                        _notyf.Success("Account Receivable Updated Successfully");
+                    }
+
+                    // ═════════════════════════════════════════════
+                    // CREATE NEW ENTRY
+                    // ═════════════════════════════════════════════
+                    else
                     {
-                        d.journalEntryId = jvm.JournalEntry.Id;
-                        _context.JournalDetail.Add(d);
-                    }
-                    await _context.SaveChangesAsync();
-                    _notyf.Success("Account Receivable Voucher Create Successfully");
-                }
+                        // 1️⃣ Save JournalEntry
+                        jvm.JournalEntry.total_debit = totalDebit;
+                        jvm.JournalEntry.total_credit = totalCredit;
+                        _context.JournalEntry.Add(jvm.JournalEntry);
+                        await _context.SaveChangesAsync();
 
-                return RedirectToAction("AccountReceivable", new { page, pageSize, activeTab = "list" });
+                        // 2️⃣ Save JournalDetails
+                        foreach (var detail in jvm.JournalDetail)
+                        {
+                            detail.journalEntryId = jvm.JournalEntry.Id;
+                            _context.JournalDetail.Add(detail);
+                        }
+                        await _context.SaveChangesAsync();
+
+                        // 3️⃣ Insert Ledger rows
+                        await InsertLedgerEntries(
+                            jvm.JournalDetail,
+                            jvm.JournalEntry.Id,
+                            companyId,
+                            jvm.JournalEntry.current_date);
+                        await _context.SaveChangesAsync();
+
+                        // 4️⃣ Update Customer Balance
+                        if (jvm.JournalEntry.customerId.HasValue)
+                        {
+                            var customer = await _context.Customer
+                                .FindAsync(jvm.JournalEntry.customerId.Value);
+                            if (customer != null)
+                            {
+                                customer.current_balance -= totalCredit;
+                                _context.Customer.Update(customer);
+                            }
+                        }
+
+                        await _context.SaveChangesAsync();
+                        await transaction.CommitAsync();
+
+                        _notyf.Success("Account Receivable Created Successfully");
+                    }
+
+                    return RedirectToAction("AccountReceivable", new { activeTab = "list" });
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    _notyf.Error(ex.Message);
+                    return RedirectToAction("AccountReceivable", new { activeTab = "form" });
+                }
             }
             catch (Exception ex)
             {
-                _notyf.Error($"An Error Occurred: {ex.Message}");
-                var inner = ex.InnerException != null ? ex.InnerException.Message : "";
-                return BadRequest($"{ex.Message} - {inner}");
+                _notyf.Error(ex.Message);
+                return RedirectToAction("AccountReceivable", new { activeTab = "form" });
             }
         }
+
+        // ════════════════════════════════════════════════════════
+        // EDIT
+        // ════════════════════════════════════════════════════════
         [HttpGet]
         public async Task<IActionResult> Edit(int id, int page = 1, int pageSize = 5)
         {
@@ -142,6 +263,7 @@ namespace ERP.Controllers.Finance
 
             if (journal == null)
             {
+                _notyf.Error("Journal entry not found.");
                 return NotFound();
             }
 
@@ -156,10 +278,13 @@ namespace ERP.Controllers.Finance
                 JournalDetail = journalDetails
             };
 
-            var totalJournal = await _context.JournalEntry.CountAsync();
+            var totalJournal = await _context.JournalEntry
+                .CountAsync(j => j.etype == "AccountReceivable");
+
             var journalData = await _context.JournalEntry
                 .Include(j => j.Company)
-                .OrderBy(j => j.Id)
+                .Where(j => j.etype == "AccountReceivable")
+                .OrderByDescending(j => j.Id)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .Select(j => new JournalViewModel
@@ -177,27 +302,116 @@ namespace ERP.Controllers.Finance
             ViewBag.PageSize = pageSize;
             ViewBag.ActiveTab = "form";
             ViewBag.CompanyList = await _context.Company.ToListAsync();
-            ViewBag.ChartOfAccount = await _context.ChartOfAccount
-                .Where(c => c.parentAccountId != null)
-                .ToListAsync();
+            ViewBag.Customers = await _context.Customer.ToListAsync();
+            ViewBag.ChartOfAccount = await _context.ChartOfAccount.ToListAsync();
             ViewBag.Journal = journalData;
+
             return View("~/Views/Finance/AccountReceivable.cshtml", model);
-            //return View("AccountReceivable", model);
         }
 
+        // ════════════════════════════════════════════════════════
+        // DELETE
+        // ════════════════════════════════════════════════════════
         [HttpPost]
-        public async Task<IActionResult> Delete(int id, int page = 1, int pageSize = 5)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(int id)
         {
-            var journal = await _context.JournalEntry.FindAsync(id);
-            if (journal != null)
+            try
             {
-                var detail = _context.JournalDetail.Where(d => d.journalEntryId == id);
-                _context.JournalDetail.RemoveRange(detail);
+                using var transaction = await _context.Database.BeginTransactionAsync();
+
+                var journal = await _context.JournalEntry
+                    .FirstOrDefaultAsync(j => j.Id == id);
+
+                if (journal == null)
+                {
+                    _notyf.Error("Record not found.");
+                    return RedirectToAction("AccountReceivable");
+                }
+
+                // ✅ STEP 1: Reverse Customer Balance
+                if (journal.customerId.HasValue)
+                {
+                    var customer = await _context.Customer
+                        .FindAsync(journal.customerId.Value);
+                    if (customer != null)
+                    {
+                        customer.current_balance += journal.total_credit;
+                        _context.Customer.Update(customer);
+                        await _context.SaveChangesAsync();
+                    }
+                }
+
+                // ✅ STEP 2: Delete Ledger
+                var ledgerEntries = _context.Ledger
+                    .Where(l => l.journalEntryId == id);
+                _context.Ledger.RemoveRange(ledgerEntries);
+
+                // ✅ STEP 3: Delete JournalDetail
+                var details = _context.JournalDetail
+                    .Where(d => d.journalEntryId == id);
+                _context.JournalDetail.RemoveRange(details);
+
+                // ✅ STEP 4: Delete JournalEntry
                 _context.JournalEntry.Remove(journal);
+
                 await _context.SaveChangesAsync();
-                _notyf.Success("Account Receivable Voucher Delete Successfully");
+                await transaction.CommitAsync();
+
+                _notyf.Success("Account Receivable Voucher Deleted Successfully");
+
+                return RedirectToAction("AccountReceivable", new { activeTab = "list" });
             }
-            return RedirectToAction("AccountReceivable", new { page, pageSize, activeTab = "list" });
+            catch (Exception ex)
+            {
+                _notyf.Error(ex.Message);
+                return RedirectToAction("AccountReceivable");
+            }
+        }
+
+        // ════════════════════════════════════════════════════════
+        // PRIVATE HELPER — Ledger Insert
+        // ════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Har JournalDetail ke liye ek Ledger row insert karta hai.
+        /// Running Balance formula (Asset accounts):
+        ///   new_balance = previous_balance + debit - credit
+        /// </summary>
+        private async Task InsertLedgerEntries(
+            List<JournalDetail> details,
+            int journalEntryId,
+            int companyId,
+            DateOnly entryDate)
+        {
+            foreach (var detail in details)
+            {
+                // Is chart of account ka last running balance lo
+                var lastLedger = await _context.Ledger
+                    .Where(l => l.chartOfAccountId == detail.chartOfAccountId
+                             && l.companyId == companyId)
+                    .OrderByDescending(l => l.Id)
+                    .FirstOrDefaultAsync();
+
+                decimal previousBalance = lastLedger?.running_balance ?? 0;
+
+                // Asset account formula: +Debit -Credit
+                decimal newBalance = previousBalance + detail.debit_amount - detail.credit_amount;
+
+                var ledger = new Ledger
+                {
+                    current_date = entryDate,
+                    companyId = companyId,
+                    chartOfAccountId = detail.chartOfAccountId,
+                    journalEntryId = journalEntryId,
+                    debit_amount = detail.debit_amount,
+                    credit_amount = detail.credit_amount,
+                    running_balance = newBalance,
+                    description = detail.description
+                };
+
+                _context.Ledger.Add(ledger);
+            }
         }
     }
 }

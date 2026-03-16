@@ -15,6 +15,8 @@ public class AppDbContext : DbContext
     public DbSet<Module> Module { get; set; }
     public DbSet<Component> Component { get; set; }
     public DbSet<Permission> Permission { get; set; }
+    public DbSet<FinancialYear> FinancialYear { get; set; }
+    public DbSet<TaxSetup> TaxSetup { get; set; }
 
     // Masters
     public DbSet<Category> Category { get; set; }
@@ -58,13 +60,13 @@ public class AppDbContext : DbContext
                 if (property.ClrType == typeof(DateOnly))
                 {
                     property.SetValueConverter(dateOnlyConverter);
-                    property.SetColumnType("date"); // ✅ force SQL column to `date`
+                    property.SetColumnType("date");
                 }
 
                 if (property.ClrType == typeof(DateOnly?))
                 {
                     property.SetValueConverter(nullableDateOnlyConverter);
-                    property.SetColumnType("date"); // ✅ force SQL column to `date`
+                    property.SetColumnType("date");
                 }
             }
         }
@@ -82,7 +84,6 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Item>().Property(i => i.total_amount).HasPrecision(18, 2);
         modelBuilder.Entity<StockMaster>().Property(s => s.total_amount).HasPrecision(18, 2);
         modelBuilder.Entity<StockMaster>().Property(s => s.discount_amount).HasPrecision(18, 2);
-//        modelBuilder.Entity<StockMaster>().Property(s => s.tax_amount).HasPrecision(18, 2);
         modelBuilder.Entity<StockMaster>().Property(s => s.net_amount).HasPrecision(18, 2);
         modelBuilder.Entity<StockDetail>().Property(s => s.rate).HasPrecision(18, 2);
         modelBuilder.Entity<StockDetail>().Property(s => s.amount).HasPrecision(18, 2);
@@ -97,13 +98,18 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Ledger>().Property(l => l.credit_amount).HasPrecision(18, 2);
         modelBuilder.Entity<Ledger>().Property(l => l.running_balance).HasPrecision(18, 2);
 
-        // ✅ Relationships (shortened for readability)
+        // ==========================================
+        // ✅ RELATIONSHIPS
+        // ==========================================
+
+        // --- SubCategory ---
         modelBuilder.Entity<SubCategory>()
             .HasOne(sc => sc.Category)
             .WithMany()
             .HasForeignKey(sc => sc.categoryId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.NoAction);
 
+        // --- Item ---
         modelBuilder.Entity<Item>()
             .HasOne(i => i.Category)
             .WithMany()
@@ -114,25 +120,26 @@ public class AppDbContext : DbContext
             .HasOne(i => i.SubCategory)
             .WithMany()
             .HasForeignKey(i => i.subCategoryId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.NoAction);
 
         modelBuilder.Entity<Item>()
             .HasOne(i => i.Brand)
             .WithMany()
             .HasForeignKey(i => i.brandId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.NoAction);
 
         modelBuilder.Entity<Item>()
             .HasOne(i => i.UOM)
             .WithMany()
             .HasForeignKey(i => i.uomId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.NoAction);
 
+        // --- Permission ---
         modelBuilder.Entity<Permission>()
             .HasOne(p => p.Role)
             .WithMany()
             .HasForeignKey(p => p.roleId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.NoAction);
 
         modelBuilder.Entity<Permission>()
             .HasOne(p => p.Module)
@@ -144,19 +151,22 @@ public class AppDbContext : DbContext
             .HasOne(p => p.Component)
             .WithMany()
             .HasForeignKey(p => p.componentId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.NoAction);
 
+        // --- Component ---
         modelBuilder.Entity<Component>()
             .HasOne(c => c.Module)
             .WithMany()
             .HasForeignKey(c => c.moduleId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.NoAction);
 
+        // --- User ---
+        // User → Company: NoAction (Company delete se User delete na ho automatically)
         modelBuilder.Entity<User>()
             .HasOne(u => u.Company)
             .WithMany()
             .HasForeignKey(u => u.companyId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.NoAction);
 
         modelBuilder.Entity<User>()
             .HasOne(u => u.Role)
@@ -164,6 +174,63 @@ public class AppDbContext : DbContext
             .HasForeignKey(u => u.roleId)
             .OnDelete(DeleteBehavior.NoAction);
 
+        // --- FinancialYear ---
+        // ✅ FIX: Both Company and User set to NoAction to avoid cascade cycles
+        modelBuilder.Entity<FinancialYear>()
+            .HasOne(f => f.Company)
+            .WithMany()
+            .HasForeignKey(f => f.companyId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        modelBuilder.Entity<FinancialYear>()
+            .HasOne(f => f.User)
+            .WithMany()
+            .HasForeignKey(f => f.userId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        // --- TaxSetup ---
+        modelBuilder.Entity<TaxSetup>()
+            .HasOne(t => t.Company)
+            .WithMany()
+            .HasForeignKey(t => t.companyId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        // --- Category ---
+        modelBuilder.Entity<Category>()
+            .HasOne(u => u.Company)
+            .WithMany()
+            .HasForeignKey(u => u.companyId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        // --- SubCategory → Company ---
+        modelBuilder.Entity<SubCategory>()
+            .HasOne(u => u.Company)
+            .WithMany()
+            .HasForeignKey(u => u.companyId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        // --- Brand ---
+        modelBuilder.Entity<Brand>()
+            .HasOne(u => u.Company)
+            .WithMany()
+            .HasForeignKey(u => u.companyId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        // --- UOM ---
+        modelBuilder.Entity<UOM>()
+            .HasOne(u => u.Company)
+            .WithMany()
+            .HasForeignKey(u => u.companyId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        // --- Transporter ---
+        modelBuilder.Entity<Transporter>()
+            .HasOne(u => u.Company)
+            .WithMany()
+            .HasForeignKey(u => u.companyId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        // --- PaymentVoucher ---
         modelBuilder.Entity<PaymentVoucher>()
             .HasOne(p => p.Company)
             .WithMany()
@@ -181,77 +248,104 @@ public class AppDbContext : DbContext
             .WithMany()
             .HasForeignKey(p => p.bankAccountId)
             .OnDelete(DeleteBehavior.NoAction);
+
         modelBuilder.Entity<PaymentVoucher>()
             .HasOne(p => p.Customer)
             .WithMany()
             .HasForeignKey(p => p.customerId)
             .OnDelete(DeleteBehavior.NoAction);
 
+        modelBuilder.Entity<PaymentVoucher>()
+            .HasOne(p => p.JournalEntry)
+            .WithMany()
+            .HasForeignKey(p => p.journal_entryId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        // --- Ledger ---
         modelBuilder.Entity<Ledger>()
             .HasOne(l => l.Company)
             .WithMany()
             .HasForeignKey(l => l.companyId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.NoAction);
 
         modelBuilder.Entity<Ledger>()
             .HasOne(l => l.ChartOfAccount)
             .WithMany()
             .HasForeignKey(l => l.chartOfAccountId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.NoAction);
 
         modelBuilder.Entity<Ledger>()
             .HasOne(l => l.JournalEntry)
             .WithMany()
             .HasForeignKey(l => l.journalEntryId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.NoAction);
 
+        // --- StockMaster ---
         modelBuilder.Entity<StockMaster>()
             .HasOne(sm => sm.Company)
             .WithMany()
             .HasForeignKey(sm => sm.companyId)
-            .OnDelete(DeleteBehavior.Restrict);
-        modelBuilder.Entity<StockMaster>()
-         .HasOne(sm => sm.User)
-         .WithMany()
-         .HasForeignKey(je => je.userId)
-         .OnDelete(DeleteBehavior.NoAction);
+            .OnDelete(DeleteBehavior.NoAction);
 
+        modelBuilder.Entity<StockMaster>()
+            .HasOne(sm => sm.User)
+            .WithMany()
+            .HasForeignKey(sm => sm.userId)
+            .OnDelete(DeleteBehavior.NoAction);
 
         modelBuilder.Entity<StockMaster>()
             .HasOne(sm => sm.Vender)
             .WithMany()
             .HasForeignKey(sm => sm.venderId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.NoAction);
+
+        modelBuilder.Entity<StockMaster>()
+            .HasOne(sm => sm.FinancialYear)
+            .WithMany()
+            .HasForeignKey(sm => sm.fiscalYearId)
+            .OnDelete(DeleteBehavior.NoAction);
 
         modelBuilder.Entity<StockMaster>()
             .HasOne(sm => sm.Customer)
             .WithMany()
             .HasForeignKey(sm => sm.customerId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.NoAction);
 
         modelBuilder.Entity<StockMaster>()
             .HasOne(sm => sm.Transporter)
             .WithMany()
             .HasForeignKey(sm => sm.transporterId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.NoAction);
 
+        // --- StockDetail ---
+        // StockDetail → StockMaster: Cascade (master delete hone par details bhi delete hon)
         modelBuilder.Entity<StockDetail>()
-       .HasOne(sd => sd.StockMaster)
-       .WithMany(sm => sm.StockDetail)  // now correctly references the collection
-       .HasForeignKey(sd => sd.StockMasterId)
-       .OnDelete(DeleteBehavior.Cascade);
+            .HasOne(sd => sd.StockMaster)
+            .WithMany(sm => sm.StockDetail)
+            .HasForeignKey(sd => sd.StockMasterId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<StockDetail>()
             .HasOne(sd => sd.Item)
             .WithMany()
             .HasForeignKey(sd => sd.itemId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.NoAction);
 
+        // ✅ FIX: taxSetupId nullable + NoAction (existing rows mein 0 tha jo TaxSetup mein exist nahi karta)
+        modelBuilder.Entity<StockDetail>()
+            .HasOne(sd => sd.TaxSetup)
+            .WithMany()
+            .HasForeignKey(sd => sd.taxSetupId)
+            .IsRequired(false)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        // --- JournalEntry ---
         modelBuilder.Entity<JournalEntry>()
             .HasOne(je => je.Company)
             .WithMany()
             .HasForeignKey(je => je.companyId)
             .OnDelete(DeleteBehavior.NoAction);
+
         modelBuilder.Entity<JournalEntry>()
             .HasOne(je => je.User)
             .WithMany()
@@ -259,27 +353,34 @@ public class AppDbContext : DbContext
             .OnDelete(DeleteBehavior.NoAction);
 
         modelBuilder.Entity<JournalEntry>()
-          .HasOne(sm => sm.Vender)
-          .WithMany()
-          .HasForeignKey(sm => sm.venderId)
-          .OnDelete(DeleteBehavior.Restrict);
+            .HasOne(je => je.Vender)
+            .WithMany()
+            .HasForeignKey(je => je.venderId)
+            .OnDelete(DeleteBehavior.NoAction);
 
         modelBuilder.Entity<JournalEntry>()
-            .HasOne(sm => sm.Customer)
+            .HasOne(je => je.Customer)
             .WithMany()
-            .HasForeignKey(sm => sm.customerId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .HasForeignKey(je => je.customerId)
+            .OnDelete(DeleteBehavior.NoAction);
 
-        modelBuilder.Entity<JournalDetail>()
-            .HasOne(je => je.ChartOfAccount)
+        modelBuilder.Entity<JournalEntry>()
+            .HasOne(je => je.FinancialYear)
             .WithMany()
-            .HasForeignKey(je => je.chartOfAccountId)
+            .HasForeignKey(je => je.fiscalYearId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        // --- JournalDetail ---
+        modelBuilder.Entity<JournalDetail>()
+            .HasOne(jd => jd.ChartOfAccount)
+            .WithMany()
+            .HasForeignKey(jd => jd.chartOfAccountId)
             .OnDelete(DeleteBehavior.NoAction);
 
         modelBuilder.Entity<JournalDetail>()
-            .HasOne(je => je.JournalEntry)
+            .HasOne(jd => jd.JournalEntry)
             .WithMany()
-            .HasForeignKey(je => je.journalEntryId)
+            .HasForeignKey(jd => jd.journalEntryId)
             .OnDelete(DeleteBehavior.NoAction);
 
         base.OnModelCreating(modelBuilder);

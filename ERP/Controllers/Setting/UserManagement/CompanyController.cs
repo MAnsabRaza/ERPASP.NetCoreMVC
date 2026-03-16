@@ -100,9 +100,8 @@ namespace ERP.Controllers.Setting.UserManagement
                         existingCompany.status = company.status;
                         existingCompany.website_path = company.website_path;
                         existingCompany.company_email = company.company_email;
-                        existingCompany.city = company.city;
-                        existingCompany.country = company.country;
-                        existingCompany.zipcode = company.zipcode;
+                        existingCompany.financial_year_start=company.financial_year_start;
+                        existingCompany.currency=company.currency;
                         existingCompany.phone = company.phone;
                         if (!string.IsNullOrEmpty(company.logo))
                         {

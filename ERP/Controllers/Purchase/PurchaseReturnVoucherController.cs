@@ -484,73 +484,63 @@ namespace ERP.Controllers.Purchase
             }
         }
         [HttpPost]
-        public async Task<IActionResult> Delete(int id)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(int id, int page = 1, int pageSize = 5)
         {
             try
             {
                 using var transaction = await _context.Database.BeginTransactionAsync();
 
-                var purchase = await _context.StockMaster.FindAsync(id);
-                if (purchase != null)
+                var journal = await _context.JournalEntry
+                    .FirstOrDefaultAsync(j => j.Id == id);
+
+                if (journal == null)
                 {
-                    // STEP 1: Vendor balance update
-                    var vendor = await _context.Vender
-                        .FirstOrDefaultAsync(v => v.Id == purchase.venderId);
-                    if (vendor != null)
-                    {
-                        vendor.current_balance -= purchase.net_amount;
-                        _context.Update(vendor);
-                    }
-
-                    // STEP 2: StockDetail fetch karo
-                    var details = await _context.StockDetail
-                        .Where(d => d.StockMasterId == id)
-                        .ToListAsync();
-
-                    // ✅ STEP 3: Har item ki qty WAPAS GHATAO
-                    foreach (var detail in details)
-                    {
-                        var item = await _context.Item
-                            .FirstOrDefaultAsync(i => i.Id == detail.itemId);
-                        if (item != null)
-                        {
-                            item.qty -= detail.qty; // jo purchase ki thi woh wapas hatao
-                            _context.Update(item);
-                        }
-                    }
-
-                    // STEP 4: StockDetail delete karo
-                    _context.StockDetail.RemoveRange(details);
-
-                    // STEP 5: JournalEntry, JournalDetail, Ledger delete
-                    var journalEntry = await _context.JournalEntry
-                        .FirstOrDefaultAsync(je => je.etype == "PurchaseReturn"
-                            && je.description == $"Purchase Return Entry for StockMaster {id}");
-                    if (journalEntry != null)
-                    {
-                        _context.JournalDetail.RemoveRange(
-                            _context.JournalDetail.Where(jd =>
-                                jd.journalEntryId == journalEntry.Id));
-                        _context.Ledger.RemoveRange(
-                            _context.Ledger.Where(l =>
-                                l.journalEntryId == journalEntry.Id));
-                        _context.JournalEntry.Remove(journalEntry);
-                    }
-
-                    // STEP 6: StockMaster delete
-                    _context.StockMaster.Remove(purchase);
-
-                    await _context.SaveChangesAsync();
-                    await transaction.CommitAsync();
-                    _notyf.Success("Purchase Return Voucher Deleted Successfully");
+                    _notyf.Error("Record not found.");
+                    return RedirectToAction("AccountPayable");
                 }
 
-                return RedirectToAction("PurchaseReturnVoucher");
+                // ✅ STEP 1: Reverse Vendor Balance (VERY IMPORTANT)
+                if (journal.venderId.HasValue)
+                {
+                    var vendor = await _context.Vender
+                        .FindAsync(journal.venderId.Value);
+
+                    if (vendor != null)
+                    {
+                        // Jab create hua tha to balance minus hua tha
+                        // Ab delete ho raha hai to wapas add hoga
+                        vendor.current_balance += journal.total_debit;
+
+                        _context.Vender.Update(vendor);
+                        await _context.SaveChangesAsync();
+                    }
+                }
+
+                // ✅ STEP 2: Delete Ledger
+                var ledgerEntries = _context.Ledger
+                    .Where(l => l.journalEntryId == id);
+                _context.Ledger.RemoveRange(ledgerEntries);
+
+                // ✅ STEP 3: Delete JournalDetail
+                var details = _context.JournalDetail
+                    .Where(d => d.journalEntryId == id);
+                _context.JournalDetail.RemoveRange(details);
+
+                // ✅ STEP 4: Delete JournalEntry
+                _context.JournalEntry.Remove(journal);
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                _notyf.Success("Account Payable Voucher Deleted Successfully");
+
+                return RedirectToAction("AccountPayable", new { page, pageSize, activeTab = "list" });
             }
             catch (Exception ex)
             {
-                _notyf.Error($"An Error Occurred: {ex.Message}");
-                return BadRequest(ex.Message);
+                _notyf.Error(ex.Message);
+                return RedirectToAction("AccountPayable");
             }
         }
         [HttpGet]

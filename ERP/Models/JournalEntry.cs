@@ -26,6 +26,10 @@ namespace ERP.Models
         [ForeignKey("customerId")]
         public virtual Customer? Customer { get; set; }
 
+        public int? fiscalYearId { get; set; }
+        [ForeignKey("fiscalYearId")]
+        public virtual FinancialYear? FinancialYear { get; set; }
+
         public string? etype { get; set; } = string.Empty;
 
         [Required]

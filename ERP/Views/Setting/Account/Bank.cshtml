@@ -58,8 +58,8 @@
                         })
                 </div>
                 <div>
-                    <label class="block font-semibold text-gray-700 mb-1">Name</label>
-                    @Html.TextBoxFor(m => m.name,
+                    <label class="block font-semibold text-gray-700 mb-1">Account Title</label>
+                    @Html.TextBoxFor(m => m.account_title,
                              new { @class = "w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none", required = "required", type = "text", placeholder = "Enter Name" })
                 </div>
 
@@ -144,7 +144,7 @@
                             <tr class="hover:bg-gray-50 transition">
                                 <td class="p-3">@item.Id</td>
                                 <td class="p-3">@item.current_date</td>
-                                <td class="p-3 font-medium">@item.name</td>
+                                <td class="p-3 font-medium">@item.account_title</td>
                                 <td class="p-3 font-medium">@item.bank_name</td>
                                 <td class="p-3 font-medium">@item.account_no</td>
                                 <td class="p-3 font-medium">@item.Company.company_name</td>

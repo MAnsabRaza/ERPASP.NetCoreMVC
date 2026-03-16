@@ -14,5 +14,8 @@ namespace ERP.Models
         public string sub_category_name { get; set; } = string.Empty;
         public string? sub_category_description { get; set; }
         public bool status { get; set; }
+        public int? companyId { get; set; }
+        [ForeignKey("companyId")]
+        public virtual Company? Company { get; set; }
     }
 }

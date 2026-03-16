@@ -15,11 +15,6 @@ namespace ERP.Models
         public int accountTypeId { get; set; }
         [ForeignKey("accountTypeId")]
         public virtual AccountType? AccountType { get; set; }
-
-        public int? parentAccountId { get; set; }
-        [ForeignKey("parentAccountId")]
-        public virtual ChartOfAccount? ParentAccount { get; set; }
-
     
     }
 }

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ERP.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260314082014_editChartOfAccount")]
+    partial class editChartOfAccount
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -56,15 +59,7 @@ namespace ERP.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("account_title")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("bank_name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("branch_code")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -73,6 +68,10 @@ namespace ERP.Migrations
 
                     b.Property<DateTime>("current_date")
                         .HasColumnType("date");
+
+                    b.Property<string>("name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("opening_balance")
                         .HasPrecision(18, 2)
@@ -103,9 +102,6 @@ namespace ERP.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("companyId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("current_date")
                         .HasColumnType("date");
 
@@ -113,8 +109,6 @@ namespace ERP.Migrations
                         .HasColumnType("bit");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("companyId");
 
                     b.ToTable("Brand");
                 });
@@ -134,9 +128,6 @@ namespace ERP.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("companyId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("current_date")
                         .HasColumnType("date");
 
@@ -144,8 +135,6 @@ namespace ERP.Migrations
                         .HasColumnType("bit");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("companyId");
 
                     b.ToTable("Category");
                 });
@@ -192,6 +181,10 @@ namespace ERP.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("city")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("company_email")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -200,13 +193,11 @@ namespace ERP.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("currency")
+                    b.Property<string>("country")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("current_date")
-                        .HasColumnType("date");
-
-                    b.Property<DateTime?>("financial_year_start")
                         .HasColumnType("date");
 
                     b.Property<string>("logo")
@@ -221,6 +212,10 @@ namespace ERP.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("website_path")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("zipcode")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -288,9 +283,6 @@ namespace ERP.Migrations
                     b.Property<DateTime>("current_date")
                         .HasColumnType("date");
 
-                    b.Property<string>("customer_type")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("email")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -313,46 +305,6 @@ namespace ERP.Migrations
                     b.ToTable("Customer");
                 });
 
-            modelBuilder.Entity("ERP.Models.FinancialYear", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("companyId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("current_date")
-                        .HasColumnType("date");
-
-                    b.Property<DateTime>("end_date")
-                        .HasColumnType("date");
-
-                    b.Property<DateTime>("start_date")
-                        .HasColumnType("date");
-
-                    b.Property<string>("status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("userId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("year_name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("companyId");
-
-                    b.HasIndex("userId");
-
-                    b.ToTable("FinancialYear");
-                });
-
             modelBuilder.Entity("ERP.Models.Item", b =>
                 {
                     b.Property<int>("Id")
@@ -370,15 +322,12 @@ namespace ERP.Migrations
                     b.Property<DateTime>("current_date")
                         .HasColumnType("date");
 
+                    b.Property<string>("description")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<decimal?>("discount_amount")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime?>("expiry_date")
-                        .HasColumnType("date");
-
-                    b.Property<bool?>("isExpireable")
-                        .HasColumnType("bit");
 
                     b.Property<string>("item_barcode")
                         .IsRequired()
@@ -387,15 +336,6 @@ namespace ERP.Migrations
                     b.Property<string>("item_name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal?>("max_stock_level")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal?>("min_stock_level")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal?>("purchase_dic")
-                        .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("purchase_rate")
                         .HasPrecision(18, 2)
@@ -410,9 +350,6 @@ namespace ERP.Migrations
 
                     b.Property<string>("remark")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal?>("sale_dic")
-                        .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("sale_rate")
                         .HasPrecision(18, 2)
@@ -508,9 +445,6 @@ namespace ERP.Migrations
                     b.Property<string>("etype")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("fiscalYearId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("posted_date")
                         .HasColumnType("date");
 
@@ -533,8 +467,6 @@ namespace ERP.Migrations
                     b.HasIndex("companyId");
 
                     b.HasIndex("customerId");
-
-                    b.HasIndex("fiscalYearId");
 
                     b.HasIndex("userId");
 
@@ -635,12 +567,6 @@ namespace ERP.Migrations
                     b.Property<int?>("bankAccountId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime?>("cheque_date")
-                        .HasColumnType("date");
-
-                    b.Property<string>("cheque_no")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int>("companyId")
                         .HasColumnType("int");
 
@@ -650,14 +576,8 @@ namespace ERP.Migrations
                     b.Property<int?>("customerId")
                         .HasColumnType("int");
 
-                    b.Property<int>("journal_entryId")
-                        .HasColumnType("int");
-
                     b.Property<string>("method")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("payment_type")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("status")
@@ -676,8 +596,6 @@ namespace ERP.Migrations
                     b.HasIndex("companyId");
 
                     b.HasIndex("customerId");
-
-                    b.HasIndex("journal_entryId");
 
                     b.HasIndex("venderId");
 
@@ -775,15 +693,6 @@ namespace ERP.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<decimal?>("gst")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal?>("gst_amount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal?>("incl_Tax_Amount")
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<int>("itemId")
                         .HasColumnType("int");
 
@@ -798,9 +707,6 @@ namespace ERP.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int?>("taxSetupId")
-                        .HasColumnType("int");
-
                     b.Property<int?>("warehouseId")
                         .HasColumnType("int");
 
@@ -809,8 +715,6 @@ namespace ERP.Migrations
                     b.HasIndex("StockMasterId");
 
                     b.HasIndex("itemId");
-
-                    b.HasIndex("taxSetupId");
 
                     b.HasIndex("warehouseId");
 
@@ -846,15 +750,9 @@ namespace ERP.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<int?>("fiscalYearId")
-                        .HasColumnType("int");
-
                     b.Property<decimal>("net_amount")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("payment_status")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("posted_date")
                         .HasColumnType("date");
@@ -879,16 +777,11 @@ namespace ERP.Migrations
                     b.Property<int?>("venderId")
                         .HasColumnType("int");
 
-                    b.Property<int>("voucher_no")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("companyId");
 
                     b.HasIndex("customerId");
-
-                    b.HasIndex("fiscalYearId");
 
                     b.HasIndex("transporterId");
 
@@ -910,9 +803,6 @@ namespace ERP.Migrations
                     b.Property<int>("categoryId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("companyId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("current_date")
                         .HasColumnType("date");
 
@@ -930,41 +820,7 @@ namespace ERP.Migrations
 
                     b.HasIndex("categoryId");
 
-                    b.HasIndex("companyId");
-
                     b.ToTable("SubCategory");
-                });
-
-            modelBuilder.Entity("ERP.Models.TaxSetup", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("applicable_on")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("companyId")
-                        .HasColumnType("int");
-
-                    b.Property<decimal?>("percentage")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<bool>("status")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("tax_name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("companyId");
-
-                    b.ToTable("TaxSetup");
                 });
 
             modelBuilder.Entity("ERP.Models.Transporter", b =>
@@ -977,9 +833,6 @@ namespace ERP.Migrations
 
                     b.Property<string>("address")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("companyId")
-                        .HasColumnType("int");
 
                     b.Property<DateTime>("current_date")
                         .HasColumnType("date");
@@ -1003,8 +856,6 @@ namespace ERP.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("companyId");
-
                     b.ToTable("Transporter");
                 });
 
@@ -1015,9 +866,6 @@ namespace ERP.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("companyId")
-                        .HasColumnType("int");
 
                     b.Property<DateTime>("current_date")
                         .HasColumnType("date");
@@ -1030,8 +878,6 @@ namespace ERP.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("companyId");
 
                     b.ToTable("UOM");
                 });
@@ -1193,26 +1039,6 @@ namespace ERP.Migrations
                     b.Navigation("Company");
                 });
 
-            modelBuilder.Entity("ERP.Models.Brand", b =>
-                {
-                    b.HasOne("ERP.Models.Company", "Company")
-                        .WithMany()
-                        .HasForeignKey("companyId")
-                        .OnDelete(DeleteBehavior.NoAction);
-
-                    b.Navigation("Company");
-                });
-
-            modelBuilder.Entity("ERP.Models.Category", b =>
-                {
-                    b.HasOne("ERP.Models.Company", "Company")
-                        .WithMany()
-                        .HasForeignKey("companyId")
-                        .OnDelete(DeleteBehavior.NoAction);
-
-                    b.Navigation("Company");
-                });
-
             modelBuilder.Entity("ERP.Models.ChartOfAccount", b =>
                 {
                     b.HasOne("ERP.Models.AccountType", "AccountType")
@@ -1237,7 +1063,7 @@ namespace ERP.Migrations
                     b.HasOne("ERP.Models.Module", "Module")
                         .WithMany()
                         .HasForeignKey("moduleId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Module");
@@ -1254,29 +1080,12 @@ namespace ERP.Migrations
                     b.Navigation("Company");
                 });
 
-            modelBuilder.Entity("ERP.Models.FinancialYear", b =>
-                {
-                    b.HasOne("ERP.Models.Company", "Company")
-                        .WithMany()
-                        .HasForeignKey("companyId")
-                        .OnDelete(DeleteBehavior.NoAction);
-
-                    b.HasOne("ERP.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("userId")
-                        .OnDelete(DeleteBehavior.NoAction);
-
-                    b.Navigation("Company");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("ERP.Models.Item", b =>
                 {
                     b.HasOne("ERP.Models.Brand", "Brand")
                         .WithMany()
                         .HasForeignKey("brandId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("ERP.Models.Category", "Category")
@@ -1288,13 +1097,13 @@ namespace ERP.Migrations
                     b.HasOne("ERP.Models.SubCategory", "SubCategory")
                         .WithMany()
                         .HasForeignKey("subCategoryId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("ERP.Models.UOM", "UOM")
                         .WithMany()
                         .HasForeignKey("uomId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Brand");
@@ -1336,12 +1145,7 @@ namespace ERP.Migrations
                     b.HasOne("ERP.Models.Customer", "Customer")
                         .WithMany()
                         .HasForeignKey("customerId")
-                        .OnDelete(DeleteBehavior.NoAction);
-
-                    b.HasOne("ERP.Models.FinancialYear", "FinancialYear")
-                        .WithMany()
-                        .HasForeignKey("fiscalYearId")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("ERP.Models.User", "User")
                         .WithMany()
@@ -1351,13 +1155,11 @@ namespace ERP.Migrations
                     b.HasOne("ERP.Models.Vender", "Vender")
                         .WithMany()
                         .HasForeignKey("venderId")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Company");
 
                     b.Navigation("Customer");
-
-                    b.Navigation("FinancialYear");
 
                     b.Navigation("User");
 
@@ -1369,19 +1171,19 @@ namespace ERP.Migrations
                     b.HasOne("ERP.Models.ChartOfAccount", "ChartOfAccount")
                         .WithMany()
                         .HasForeignKey("chartOfAccountId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("ERP.Models.Company", "Company")
                         .WithMany()
                         .HasForeignKey("companyId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("ERP.Models.JournalEntry", "JournalEntry")
                         .WithMany()
                         .HasForeignKey("journalEntryId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("ChartOfAccount");
@@ -1409,12 +1211,6 @@ namespace ERP.Migrations
                         .HasForeignKey("customerId")
                         .OnDelete(DeleteBehavior.NoAction);
 
-                    b.HasOne("ERP.Models.JournalEntry", "JournalEntry")
-                        .WithMany()
-                        .HasForeignKey("journal_entryId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
                     b.HasOne("ERP.Models.Vender", "Vender")
                         .WithMany()
                         .HasForeignKey("venderId")
@@ -1426,8 +1222,6 @@ namespace ERP.Migrations
 
                     b.Navigation("Customer");
 
-                    b.Navigation("JournalEntry");
-
                     b.Navigation("Vender");
                 });
 
@@ -1436,7 +1230,7 @@ namespace ERP.Migrations
                     b.HasOne("ERP.Models.Component", "Component")
                         .WithMany()
                         .HasForeignKey("componentId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("ERP.Models.Module", "Module")
@@ -1448,7 +1242,7 @@ namespace ERP.Migrations
                     b.HasOne("ERP.Models.Role", "Role")
                         .WithMany()
                         .HasForeignKey("roleId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Component");
@@ -1469,13 +1263,8 @@ namespace ERP.Migrations
                     b.HasOne("ERP.Models.Item", "Item")
                         .WithMany()
                         .HasForeignKey("itemId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.HasOne("ERP.Models.TaxSetup", "TaxSetup")
-                        .WithMany()
-                        .HasForeignKey("taxSetupId")
-                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.HasOne("ERP.Models.Warehouse", "Warehouse")
                         .WithMany()
@@ -1485,8 +1274,6 @@ namespace ERP.Migrations
 
                     b.Navigation("StockMaster");
 
-                    b.Navigation("TaxSetup");
-
                     b.Navigation("Warehouse");
                 });
 
@@ -1495,23 +1282,18 @@ namespace ERP.Migrations
                     b.HasOne("ERP.Models.Company", "Company")
                         .WithMany()
                         .HasForeignKey("companyId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("ERP.Models.Customer", "Customer")
                         .WithMany()
                         .HasForeignKey("customerId")
-                        .OnDelete(DeleteBehavior.NoAction);
-
-                    b.HasOne("ERP.Models.FinancialYear", "FinancialYear")
-                        .WithMany()
-                        .HasForeignKey("fiscalYearId")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("ERP.Models.Transporter", "Transporter")
                         .WithMany()
                         .HasForeignKey("transporterId")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("ERP.Models.User", "User")
                         .WithMany()
@@ -1521,13 +1303,11 @@ namespace ERP.Migrations
                     b.HasOne("ERP.Models.Vender", "Vender")
                         .WithMany()
                         .HasForeignKey("venderId")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Company");
 
                     b.Navigation("Customer");
-
-                    b.Navigation("FinancialYear");
 
                     b.Navigation("Transporter");
 
@@ -1541,47 +1321,10 @@ namespace ERP.Migrations
                     b.HasOne("ERP.Models.Category", "Category")
                         .WithMany()
                         .HasForeignKey("categoryId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ERP.Models.Company", "Company")
-                        .WithMany()
-                        .HasForeignKey("companyId")
-                        .OnDelete(DeleteBehavior.NoAction);
-
                     b.Navigation("Category");
-
-                    b.Navigation("Company");
-                });
-
-            modelBuilder.Entity("ERP.Models.TaxSetup", b =>
-                {
-                    b.HasOne("ERP.Models.Company", "Company")
-                        .WithMany()
-                        .HasForeignKey("companyId")
-                        .OnDelete(DeleteBehavior.NoAction);
-
-                    b.Navigation("Company");
-                });
-
-            modelBuilder.Entity("ERP.Models.Transporter", b =>
-                {
-                    b.HasOne("ERP.Models.Company", "Company")
-                        .WithMany()
-                        .HasForeignKey("companyId")
-                        .OnDelete(DeleteBehavior.NoAction);
-
-                    b.Navigation("Company");
-                });
-
-            modelBuilder.Entity("ERP.Models.UOM", b =>
-                {
-                    b.HasOne("ERP.Models.Company", "Company")
-                        .WithMany()
-                        .HasForeignKey("companyId")
-                        .OnDelete(DeleteBehavior.NoAction);
-
-                    b.Navigation("Company");
                 });
 
             modelBuilder.Entity("ERP.Models.User", b =>
@@ -1589,7 +1332,7 @@ namespace ERP.Migrations
                     b.HasOne("ERP.Models.Company", "Company")
                         .WithMany()
                         .HasForeignKey("companyId")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("ERP.Models.Role", "Role")
                         .WithMany()

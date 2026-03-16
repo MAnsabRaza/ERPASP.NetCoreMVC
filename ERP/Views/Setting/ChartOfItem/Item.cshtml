@@ -62,119 +62,167 @@
             </div>
 
             <!-- Section 1 -->
-            <div class="shadow-md rounded-2xl bg-white p-6 border border-gray-200 mt-4">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 mt-2">
+                <p class="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4 border-b border-gray-100 pb-2">
+                    <i class="fa-solid fa-circle-info text-blue-500 mr-1"></i> General Info
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
                     <div>
-                        <label class="block font-semibold text-gray-700 mb-1">Current Date</label>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Current Date <span class="text-red-500">*</span></label>
                         @Html.TextBoxFor(m => m.current_date, "{0:yyyy-MM-dd}",
-                                 new { @class = "w-full mt-1 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400", type = "date", required = "required" })
-                    </div>
-                    <div>
-                        <label class="block font-semibold text-gray-700 mb-1">Remark</label>
-                        @Html.TextBoxFor(m => m.remark,
-                                 new { @class = "w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400", type = "text", required = "required", placeholder = "Enter Remark" })
-                    </div>
-                    <div>
-                        <label class="block font-semibold text-gray-700 mb-1">Status</label>
-                        <div class="flex items-center space-x-2 mt-1">
-                            @Html.CheckBoxFor(m => m.status, new { @class = "w-5 h-5 text-blue-900 rounded focus:ring-blue-500" })
-                            <span class="text-gray-600">Active</span>
-                        </div>
+                        new { @class = "w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400", type = "date", required = "required" })
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Remark <span class="text-red-500">*</span></label>
+                    @Html.TextBoxFor(m => m.remark,
+                                        new { @class = "w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400", type = "text", required = "required", placeholder = "Enter remark..." })
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Status</label>
+                    <div class="flex items-center gap-3 px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 h-9">
+                        @Html.CheckBoxFor(m => m.status, new { @class = "w-4 h-4 text-blue-600 rounded focus:ring-blue-500", id = "statusCheck" })
+                        <span class="text-sm font-semibold text-green-600" id="statusLabel">Active</span>
                     </div>
                 </div>
             </div>
+        </div>
+
 
             <!-- Section 2 -->
-            <div class="shadow-md rounded-2xl bg-white p-6 border border-gray-200 mt-4">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div>
-                        <label class="block font-semibold text-gray-700 mb-1">Item Barcode</label>
-                        @Html.TextBoxFor(m => m.item_barcode,
-                                 new { @class = "w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400", type = "text", required = "required", placeholder = "Enter barcode" })
-                    </div>
-                    <div>
-                        <label class="block font-semibold text-gray-700 mb-1">Item Name</label>
-                        @Html.TextBoxFor(m => m.item_name,
-                                 new { @class = "w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400", type = "text", required = "required", placeholder = "Enter item name" })
-                    </div>
-                    <div>
-                        <label class="block font-semibold text-gray-700 mb-1">Description</label>
-                        @Html.TextAreaFor(m => m.description,
-                                 new { @class = "w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400", required = "required", placeholder = "Enter Description" })
+
+        <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 mt-2">
+            <p class="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4 border-b border-gray-100 pb-2">
+                <i class="fa-solid fa-barcode text-blue-500 mr-1"></i> Item Identity
+            </p>
+            <!-- grid starts as 3-col, JS switches to 4-col when expireable checked -->
+            <div id="item-identity-grid" class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Item Barcode <span class="text-red-500">*</span></label>
+                    @Html.TextBoxFor(m => m.item_barcode,
+                                        new { @class = "w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400", type = "text", required = "required", placeholder = "Scan or enter barcode" })
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Item Name <span class="text-red-500">*</span></label>
+                    @Html.TextBoxFor(m => m.item_name,
+                                        new { @class = "w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400", type = "text", required = "required", placeholder = "Enter item name" })
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Expireable?</label>
+                    <div class="flex items-center gap-3 px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 h-9">
+                        <input type="checkbox" id="isExpireableCheck" name="isExpireable" value="true"
+                               class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                               @(Model.isExpireable == true ? "checked" : "") />
+                        <input type="hidden" name="isExpireable" value="false" />
+                        <span class="text-sm font-semibold text-gray-500" id="expireableLabel">Not Expireable</span>
                     </div>
                 </div>
+                <!-- Expiry Date — hidden until isExpireable checked -->
+                <div id="expiry-col" class="hidden">
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">
+                        Expiry Date
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 ml-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700 border border-amber-300">
+                            <i class="fa-solid fa-clock text-xs"></i> Required
+                        </span>
+                    </label>
+                    @Html.TextBoxFor(m => m.expiry_date, "{0:yyyy-MM-dd}",
+                                        new { @class = "w-full px-3 py-2 text-sm border border-amber-300 rounded-lg bg-amber-50 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400", type = "date", id = "expiry_date_input" })
+                </div>
             </div>
+        </div>
+
 
             <!-- Section 3 -->
-            <div class="shadow-md rounded-2xl bg-white p-6 border border-gray-200 mt-4">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                    <div>
-                        <label class="block font-semibold text-gray-700 mb-1">Brand</label>
-                        @Html.DropDownListFor(m => m.brandId,
-                            new SelectList(ViewBag.brandList, "Id", "brand_name"),
-                            "Select Brand",
-                            new { @class = "w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400", required = "required" })
-                    </div>
-                    <div>
-                        <label class="block font-semibold text-gray-700 mb-1">Category</label>
-                        @Html.DropDownListFor(m => m.categoryId,
-                            new SelectList(ViewBag.categoryList, "Id", "category_name"),
-                            "Select Category",
-                            new { @class = "w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400", required = "required" })
-                    </div>
-                    <div>
-                        <label class="block font-semibold text-gray-700 mb-1">Sub Category</label>
-                        @Html.DropDownListFor(m => m.subCategoryId,
-                            new SelectList(ViewBag.subCategoryList, "Id", "sub_category_name"),
-                            "Select Sub Category",
-                            new { @class = "w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400", required = "required" })
-                    </div>
-                    <div>
-                        <label class="block font-semibold text-gray-700 mb-1">UOM</label>
-                        @Html.DropDownListFor(m => m.uomId,
-                            new SelectList(ViewBag.uomList, "Id", "uom_name"),
-                            "Select UOM",
-                            new { @class = "w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400", required = "required" })
-                    </div>
+        <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 mt-2">
+            <p class="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4 border-b border-gray-100 pb-2">
+                <i class="fa-solid fa-tags text-blue-500 mr-1"></i> Classification
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Brand <span class="text-red-500">*</span></label>
+                    @Html.DropDownListFor(m => m.brandId,
+                                        new SelectList(ViewBag.brandList, "Id", "brand_name"),
+                                        "— Select Brand —",
+                                        new { @class = "w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400", required = "required" })
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Category <span class="text-red-500">*</span></label>
+                    @Html.DropDownListFor(m => m.categoryId,
+                                        new SelectList(ViewBag.categoryList, "Id", "category_name"),
+                                        "Select Category",
+                                        new { @class = "w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400", required = "required" })
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Sub Category <span class="text-red-500">*</span></label>
+                    @Html.DropDownListFor(m => m.subCategoryId,
+                                        new SelectList(ViewBag.subCategoryList, "Id", "sub_category_name"),
+                                        "— Select Sub Category —",
+                                        new { @class = "w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400", required = "required" })
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">UOM <span class="text-red-500">*</span></label>
+                    @Html.DropDownListFor(m => m.uomId,
+                                        new SelectList(ViewBag.uomList, "Id", "uom_name"),
+                                        "— Select UOM —",
+                                        new { @class = "w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400", required = "required" })
                 </div>
             </div>
-
+        </div>
             <!-- Section 4 -->
-            <div class="shadow-md rounded-2xl bg-white p-6 border border-gray-200 mt-4">
-                <div class="grid grid-cols-1 md:grid-cols-6 gap-6">
+          <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 mt-2">
+                <p class="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4 border-b border-gray-100 pb-2">
+                    <i class="fa-solid fa-coins text-blue-500 mr-1"></i> Pricing & Quantity
+                </p>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-5">
                     <div>
-                        <label class="block font-semibold text-gray-700 mb-1">Quantity</label>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Quantity <span class="text-red-500">*</span></label>
                         @Html.TextBoxFor(m => m.qty,
-                                 new { @class = "w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400", id = "qty",type = "number", required = "required", placeholder = "Enter Quantity" })
+                            new { @class = "w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400", id = "qty", type = "number", min = "0", required = "required", placeholder = "0" })
                     </div>
                     <div>
-                        <label class="block font-semibold text-gray-700 mb-1">Purchase Rate</label>
-                        @Html.TextBoxFor(m => m.purchase_rate,
-                                 new { @class = "w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400", type = "number", required = "required", placeholder = "Enter Purchase Rate" })
-                    </div>
-                    <div>
-                        <label class="block font-semibold text-gray-700 mb-1">Sales Rate</label>
-                        @Html.TextBoxFor(m => m.sale_rate,
-                                 new { @class = "w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400", type = "number", required = "required", placeholder = "Enter Sales Rate" })
-                    </div>
-                    <div>
-                        <label class="block font-semibold text-gray-700 mb-1">Rate</label>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Rate <span class="text-red-500">*</span></label>
                         @Html.TextBoxFor(m => m.rate,
-                                 new { @class = "w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400",id = "rate", type = "number", required = "required", placeholder = "Enter Rate" })
+                            new { @class = "w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400", id = "rate", type = "number", step = "0.01", min = "0", required = "required", placeholder = "0.00" })
                     </div>
                     <div>
-                        <label class="block font-semibold text-gray-700 mb-1">Discount</label>
-                        @Html.TextBoxFor(m => m.discount_amount,
-                                 new { @class = "w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400", id = "discount_amount",type = "number", placeholder = "Enter Discount" })
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Purchase Rate <span class="text-red-500">*</span></label>
+                        @Html.TextBoxFor(m => m.purchase_rate,
+                            new { @class = "w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400", type = "number", step = "0.01", min = "0", required = "required", placeholder = "0.00" })
                     </div>
                     <div>
-                        <label class="block font-semibold text-gray-700 mb-1">Total Amount</label>
-@Html.TextBoxFor(m => m.total_amount,
-                                 new { @class = "w-full p-2 border border-gray-300 rounded-lg bg-gray-100", type = "number", id = "total_amount", @readonly = "readonly" })
-
-                          </div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Sales Rate <span class="text-red-500">*</span></label>
+                        @Html.TextBoxFor(m => m.sale_rate,
+                            new { @class = "w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400", type = "number", step = "0.01", min = "0", required = "required", placeholder = "0.00" })
+                    </div>
                 </div>
             </div>
+
+        <div class="bg-yellow-50 rounded-2xl border border-yellow-200 shadow-sm p-5 mt-2">
+            <p class="text-xs font-bold uppercase tracking-widest text-yellow-700 mb-4 border-b border-yellow-200 pb-2">
+                <i class="fa-solid fa-percent text-yellow-500 mr-1"></i> Discounts & Total
+            </p>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-5">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Purchase Discount</label>
+                    @Html.TextBoxFor(m => m.purchase_dic,
+                                        new { @class = "w-full px-3 py-2 text-sm border border-yellow-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-yellow-400", id = "purchase_dic", type = "number", step = "0.01", min = "0", placeholder = "0.00" })
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Sales Discount</label>
+                    @Html.TextBoxFor(m => m.sale_dic,
+                                        new { @class = "w-full px-3 py-2 text-sm border border-yellow-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-yellow-400", id = "sale_dic", type = "number", step = "0.01", min = "0", placeholder = "0.00" })
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Discount Amount</label>
+                    @Html.TextBoxFor(m => m.discount_amount,
+                                        new { @class = "w-full px-3 py-2 text-sm border border-yellow-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-yellow-400", id = "discount_amount", type = "number", step = "0.01", min = "0", placeholder = "0.00" })
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Total Amount</label>
+                    @Html.TextBoxFor(m => m.total_amount,
+                                        new { @class = "w-full px-3 py-2 text-sm border border-blue-300 rounded-lg bg-blue-50 text-blue-800 font-bold focus:outline-none", type = "number", id = "total_amount", @readonly = "readonly", placeholder = "Auto-calculated" })
+                </div>
+            </div>
+        </div>
         }
     </div>
 
@@ -357,10 +405,57 @@
     tabList.addEventListener("click", showListTab);
     if (btnAddNew) btnAddNew.addEventListener("click", showFormTab);
 
-    // Refresh button → always go to Form tab
-    function refreshPage() {
-        window.location.href = '@Url.Action("Item", "Item")?activeTab=form';
+      const statusCheck = document.getElementById("statusCheck");
+    const statusLabel = document.getElementById("statusLabel");
+    function updateStatusLabel() {
+        if (statusCheck.checked) {
+            statusLabel.textContent = "Active";
+            statusLabel.className = "text-sm font-semibold text-green-600";
+        } else {
+            statusLabel.textContent = "Inactive";
+            statusLabel.className = "text-sm font-semibold text-red-500";
+        }
     }
+    statusCheck.addEventListener("change", updateStatusLabel);
+    updateStatusLabel();
+
+    // ── isExpireable → show/hide expiry date ──
+    const isExpireableCheck = document.getElementById("isExpireableCheck");
+    const expiryCol         = document.getElementById("expiry-col");
+    const expireableLabel   = document.getElementById("expireableLabel");
+    const expiryInput       = document.getElementById("expiry_date_input");
+    const identityGrid      = document.getElementById("item-identity-grid");
+
+    function updateExpiryVisibility() {
+        if (isExpireableCheck.checked) {
+            expiryCol.classList.remove("hidden");
+            identityGrid.className = "grid grid-cols-1 md:grid-cols-4 gap-5";
+            expireableLabel.textContent = "Expireable";
+            expireableLabel.className = "text-sm font-semibold text-blue-600";
+            expiryInput.required = true;
+        } else {
+            expiryCol.classList.add("hidden");
+            identityGrid.className = "grid grid-cols-1 md:grid-cols-3 gap-5";
+            expireableLabel.textContent = "Not Expireable";
+            expireableLabel.className = "text-sm font-semibold text-gray-500";
+            expiryInput.required = false;
+            expiryInput.value = "";
+        }
+    }
+    isExpireableCheck.addEventListener("change", updateExpiryVisibility);
+    updateExpiryVisibility();
+
+    // Refresh button → always go to Form tab
+      function calculateTotal() {
+        const qty      = parseFloat(document.getElementById("qty").value) || 0;
+        const rate     = parseFloat(document.getElementById("rate").value) || 0;
+        const discount = parseFloat(document.getElementById("discount_amount").value) || 0;
+        const total    = (qty * rate) - discount;
+        document.getElementById("total_amount").value = total >= 0 ? total.toFixed(2) : "0.00";
+    }
+    ["qty", "rate", "discount_amount"].forEach(id => {
+        document.getElementById(id).addEventListener("input", calculateTotal);
+    });
 
     // Search clear → reload but keep list tab
     searchInput.addEventListener("input", () => {
@@ -381,15 +476,5 @@
     } else {
         showFormTab(); // default
     }
-    function calculateTotal() {
-        const qty = parseFloat(document.getElementById("qty").value) || 0;
-        const rate = parseFloat(document.getElementById("rate").value) || 0;
-        const discount = parseFloat(document.getElementById("discount_amount").value) || 0;
-        const total = (qty * rate) - discount;
-        document.getElementById("total_amount").value = total.toFixed(2);
-    }
-    document.getElementById("qty").addEventListener("input", calculateTotal);
-    document.getElementById("rate").addEventListener("input", calculateTotal);
-    document.getElementById("discount_amount").addEventListener("input", calculateTotal);
 </script>
 

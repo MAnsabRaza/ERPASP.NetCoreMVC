@@ -10,188 +10,244 @@
     int totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
 }
 
-<div class="space-y-8">
+<div class="space-y-6">
+
     <!-- Company Form -->
     @using (Html.BeginForm("Create", "Company", FormMethod.Post, new { enctype = "multipart/form-data" }))
     {
         @Html.AntiForgeryToken()
         @Html.HiddenFor(m => m.Id)
 
-        <div class="shadow-lg rounded-2xl bg-gradient-to-r from-blue-50 to-blue-100 p-6 border border-gray-200">
-            <div class="flex justify-between items-center">
+        <!-- Header Card -->
+        <div class="rounded-2xl bg-gradient-to-r from-blue-50 to-blue-100 p-5 border border-blue-200 shadow-md">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h2 class="text-2xl font-bold text-blue-800 flex items-center gap-2">
-                        <i class="fa-solid fa-building text-blue-900"></i> Company
+                    <h2 class="text-2xl font-bold text-blue-900 flex items-center gap-2">
+                        <i class="fa-solid fa-building"></i> Company
                     </h2>
-                    <p class="text-gray-600 mt-1 text-sm">Add and manage your Company efficiently</p>
+                    <p class="text-gray-500 mt-1 text-sm">Add and manage your Company efficiently</p>
                 </div>
-
-                <div class="space-x-2">
+                <div class="flex gap-2 flex-wrap">
                     <button type="submit"
-                            class="px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-green-600 hover:bg-green-700 shadow-md transition">
+                            class="inline-flex items-center px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-green-600 hover:bg-green-700 shadow transition">
                         <i class="fa-solid fa-save mr-2"></i> Save
                     </button>
                     <button type="reset"
-                            class="px-5 py-2.5 rounded-xl text-sm font-semibold text-gray-700 bg-yellow-300 hover:bg-yellow-400 shadow-md transition">
+                            class="inline-flex items-center px-5 py-2.5 rounded-xl text-sm font-semibold text-gray-700 bg-yellow-300 hover:bg-yellow-400 shadow transition">
                         <i class="fa-solid fa-rotate-right mr-2"></i> Reset
-                    </button>
-                    <button type="button" onclick="refreshPage()"
-                            class="px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-purple-500 hover:bg-purple-600 shadow-md transition">
-                        <i class="fa-solid fa-arrows-rotate mr-2"></i> Refresh
                     </button>
                 </div>
             </div>
         </div>
 
+        <!-- Form Fields Card -->
+        <div class="rounded-2xl bg-white p-6 border border-gray-200 shadow-md space-y-6 mt-2">
 
-
-        <div class="shadow-xl rounded-2xl bg-white p-6 border border-gray-200 mt-5">
-          
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div>
-                    <label class="block font-semibold text-gray-700 mb-1">Current Date</label>
-                    @Html.TextBoxFor(m => m.current_date, "{0:yyyy-MM-dd}", new { @class = "w-full mt-1 p-2 border border-gray-300 rounded", type = "date" })
+            <!-- Row 1: Date | Company Name | Status -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <div class="flex flex-col gap-1">
+                    <label class="text-sm font-semibold text-gray-700">Current Date</label>
+                    @Html.TextBoxFor(m => m.current_date, "{0:yyyy-MM-dd}",
+                        new { @class = "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400", type = "date" })
                 </div>
 
-                <div>
-                    <label class="block font-semibold text-gray-700 mb-1">Company Name</label>
-                    @Html.TextBoxFor(m => m.company_name, new { @class = "w-full p-2.5 border border-gray-300 rounded", required = "required", placeholder = "Enter Company Name" })
+                <div class="flex flex-col gap-1">
+                    <label class="text-sm font-semibold text-gray-700">
+                        Company Name <sup class="text-red-600">*</sup>
+                    </label>
+                    @Html.TextBoxFor(m => m.company_name,
+                        new { @class = "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400", required = "required", placeholder = "Enter Company Name" })
                 </div>
 
-                <div>
-                    <label class="block font-semibold text-gray-700 mb-1">Status</label>
-                    <div class="flex items-center space-x-2 mt-1">
-                        @Html.CheckBoxFor(m => m.status, new { @class = "w-5 h-5 text-blue-900" })
-                        <span class="text-gray-600">Active</span>
+                <div class="flex flex-col gap-1">
+                    <label class="text-sm font-semibold text-gray-700">Status</label>
+                    <div class="flex items-center gap-2 h-10 px-3 border border-gray-300 rounded-lg bg-gray-50">
+                        @Html.CheckBoxFor(m => m.status, new { @class = "w-4 h-4 accent-blue-700" })
+                        <span class="text-sm text-gray-600">Active</span>
                     </div>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
-                <div>
-                    <label class="block font-semibold text-gray-700 mb-1">Phone</label>
-                    @Html.TextBoxFor(m => m.phone, new { @class = "w-full p-2.5 border", type = "tel", required = "required" })
+      
+            <!-- Row 2: Phone | Website | Email -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
+                <div class="flex flex-col gap-1">
+                    <label class="text-sm font-semibold text-gray-700">
+                        Phone <sup class="text-red-600">*</sup>
+                    </label>
+                    @Html.TextBoxFor(m => m.phone,
+                        new { @class = "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400", type = "tel", required = "required", placeholder = "e.g. +92-300-0000000" })
                 </div>
-                <div>
-                    <label class="block font-semibold text-gray-700 mb-1">Website Link</label>
-                    @Html.TextBoxFor(m => m.website_path, new { @class = "w-full p-2.5 border", type = "text", required = "required" })
-                </div>
-                <div>
-                    <label class="block font-semibold text-gray-700 mb-1">Company Email</label>
-                    @Html.TextBoxFor(m => m.company_email, new { @class = "w-full p-2.5 border", type = "email", required = "required" })
-                </div>
-            </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
-                <div>
-                    <label class="block font-semibold text-gray-700 mb-1">Country</label>
-                    @Html.TextBoxFor(m => m.country, new { @class = "w-full p-2.5 border", type = "text", required = "required" })
+                <div class="flex flex-col gap-1">
+                    <label class="text-sm font-semibold text-gray-700">
+                        Website Link <sup class="text-red-600">*</sup>
+                    </label>
+                    @Html.TextBoxFor(m => m.website_path,
+                        new { @class = "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400", type = "text", required = "required", placeholder = "https://example.com" })
                 </div>
-                <div>
-                    <label class="block font-semibold text-gray-700 mb-1">City</label>
-                    @Html.TextBoxFor(m => m.city, new { @class = "w-full p-2.5 border", type = "text", required = "required" })
-                </div>
-                <div>
-                    <label class="block font-semibold text-gray-700 mb-1">Zip Code</label>
-                    @Html.TextBoxFor(m => m.zipcode, new { @class = "w-full p-2.5 border", type = "text", required = "required" })
-                </div>
-            </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-                <div>
-                    <label class="block font-semibold text-gray-700 mb-1">Address</label>
-                    @Html.TextAreaFor(m => m.address, new { @class = "w-full p-2.5 border", required = "required", placeholder = "Enter Company Address" })
+                <div class="flex flex-col gap-1">
+                    <label class="text-sm font-semibold text-gray-700">
+                        Company Email <sup class="text-red-600">*</sup>
+                    </label>
+                    @Html.TextBoxFor(m => m.company_email,
+                        new { @class = "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400", type = "email", required = "required", placeholder = "info@company.com" })
                 </div>
-                <div>
-                    <label class="block font-semibold text-gray-700 mb-1">Logo</label>
-                    <input type="file" name="logoFile" accept="image/*" class="w-full p-2.5 border" />
-                    @if (!string.IsNullOrEmpty(Model.logo))
+
+            <div class="flex flex-col gap-1">
+                <label class="text-sm font-semibold text-gray-700">Company Logo</label>
+                <input type="file" name="logoFile" accept="image/*"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-500
+                                  file:mr-3 file:py-1.5 file:px-4 file:rounded-lg file:border-0
+                                  file:text-sm file:font-semibold file:bg-blue-100 file:text-blue-700
+                                  hover:file:bg-blue-200 cursor-pointer" />
+                @if (!string.IsNullOrEmpty(Model.logo))
                     {
-                        <img src="data:image/png;base64,@Model.logo" class="mt-2 w-32 h-auto rounded border" />
+                        <div class="mt-2 inline-block rounded-lg border border-gray-200 overflow-hidden bg-gray-50 p-1">
+                            <img src="data:image/png;base64,@Model.logo"
+                                 class="w-28 h-20 object-contain rounded"
+                                 alt="Company Logo" />
+                        </div>
                     }
                 </div>
             </div>
+
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <div class="flex flex-col gap-1">
+                        <label class="text-sm font-semibold text-gray-700">Currency <sup class="text-red-600">*</sup></label>
+
+                        @Html.DropDownListFor(m => m.currency,
+                        new List<SelectListItem>
+                                        {
+
+                                        new SelectListItem { Text = "PKR", Value = "PKR" },
+                                        new SelectListItem { Text = "UED", Value = "UED" },
+                                        new SelectListItem { Text = "AED", Value = "AED" },
+                                        },
+                                        "Select Currency",
+                                        new { @class = "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400", type = "text", required = "required", placeholder = "e.g. PKR, USD" })
+                </div>
+
+            <div class="flex flex-col gap-1">
+                <label class="text-sm font-semibold text-gray-700">
+                    Financial Year Start <sup class="text-red-600">*</sup>
+                </label>
+                @Html.TextBoxFor(m => m.financial_year_start,
+                                new { @class = "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400", type = "text", required = "required", placeholder = "e.g. 01-July" })
+            </div>
+            <div class="flex flex-col gap-1">
+                <label class="text-sm font-semibold text-gray-700">
+                    Address <sup class="text-red-600">*</sup>
+                </label>
+                @Html.TextAreaFor(m => m.address,
+                                new { @class = "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none", required = "required", placeholder = "Enter Company Address", rows = "4" })
+            </div>
+        </div>
+
+
+
         </div>
     }
 
-    <!-- Companies Table -->
-    <div class="shadow-xl rounded-2xl bg-white p-6 border border-gray-200 mt-5">
+    <!-- Company List Table -->
+    <div class="rounded-2xl bg-white p-6 border border-gray-200 shadow-md">
 
-        <div class="flex justify-between items-center mb-4">
-            <h3 class="text-xl font-semibold text-blue-800 flex items-center gap-2">
-                <i class="fa-solid fa-list text-blue-900"></i> Company List
-            </h3>
-            <form method="get" asp-action="Company" class="flex items-center space-x-2 relative w-full max-w-xs">
-                <div class="relative w-full">
+        <!-- Table Top Bar -->
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-5">
+            <div class="flex items-center gap-3">
+                <h3 class="text-xl font-bold text-blue-900 flex items-center gap-2">
+                    <i class="fa-solid fa-list text-blue-800"></i> Company List
+                </h3>
+                <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
+                    @totalItems records
+                </span>
+            </div>
+
+            <!-- Search Form -->
+            <form method="get" asp-action="Company" class="flex items-center gap-2 w-full sm:w-auto">
+                <div class="relative w-full sm:w-64">
+                    <span class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-gray-400">
+                        <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                    </span>
                     <input type="text" id="searchInput" name="searchString" value="@searchString"
-                           placeholder="Search Role..."
-                           class="w-full px-3 py-2 pr-10 border rounded-lg focus:ring focus:ring-blue-300" />
-
+                           placeholder="Search company..."
+                           class="w-full pl-8 pr-8 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400" />
                     <button type="button" id="clearSearch"
-                            class="absolute inset-y-0 right-2 flex items-center text-gray-400 hover:text-red-500 hidden">
-                        <i class="fa-solid fa-xmark"></i>
+                            class="absolute inset-y-0 right-2 flex items-center text-gray-400 hover:text-red-500 @(string.IsNullOrEmpty(searchString) ? "hidden" : "")">
+                        <i class="fa-solid fa-xmark text-xs"></i>
                     </button>
                 </div>
-
                 <button type="submit"
-                        class="px-4 py-2 bg-blue-900 text-white rounded-lg hover:bg-blue-800">
-                    <i class="fa fa-search"></i>
+                        class="px-4 py-2 bg-blue-900 text-white rounded-lg text-sm font-semibold hover:bg-blue-800 transition whitespace-nowrap">
+                    <i class="fa fa-search mr-1"></i> Search
                 </button>
             </form>
-
         </div>
 
-        <div class="overflow-x-auto">
-            <table class="table-auto w-full text-sm border border-gray-200 rounded-lg overflow-hidden">
-                <thead class="bg-gradient-to-r from-blue-800 to-blue-900 text-white">
-                    <tr>
-                        <th class="p-3 text-left">ID</th>
-                        <th class="p-3 text-left">Date</th>
-                        <th class="p-3 text-left">Company Name</th>
-                        <th class="p-3 text-left">Website Link</th>
-                        <th class="p-3 text-left">Email</th>
-                        <th class="p-3 text-left">Phone</th>
-                        <th class="p-3 text-left">Status</th>
-                        <th class="p-3 text-center">Actions</th>
+        <!-- Table -->
+        <div class="overflow-x-auto rounded-xl border border-gray-200">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="bg-gradient-to-r from-blue-800 to-blue-900 text-white text-left">
+                        <th class="px-4 py-3 font-semibold whitespace-nowrap">ID</th>
+                        <th class="px-4 py-3 font-semibold whitespace-nowrap">Date</th>
+                        <th class="px-4 py-3 font-semibold whitespace-nowrap">Company Name</th>
+                        <th class="px-4 py-3 font-semibold whitespace-nowrap">Website</th>
+                        <th class="px-4 py-3 font-semibold whitespace-nowrap">Email</th>
+                        <th class="px-4 py-3 font-semibold whitespace-nowrap">Phone</th>
+                        <th class="px-4 py-3 font-semibold whitespace-nowrap text-center">Status</th>
+                        <th class="px-4 py-3 font-semibold whitespace-nowrap text-center">Actions</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-200">
+                <tbody class="divide-y divide-gray-100">
                     @if (companyList != null && companyList.Any())
                     {
                         foreach (var item in companyList)
                         {
-                            <tr class="hover:bg-gray-50 transition">
-                                <td class="p-3">@item.Id</td>
-                                <td class="p-3">@item.current_date</td>
-                                <td class="p-3 font-medium">@item.company_name</td>
-                                <td class="p-3">@item.website_path</td>
-                                <td class="p-3">@item.company_email</td>
-                                <td class="p-3">@item.phone</td>
-                                <td class="p-3">
+                            <tr class="hover:bg-blue-50 transition">
+                                <td class="px-4 py-3 font-semibold text-gray-600">@item.Id</td>
+                                <td class="px-4 py-3 text-gray-600 whitespace-nowrap">@item.current_date</td>
+                                <td class="px-4 py-3 font-semibold text-gray-800 whitespace-nowrap">@item.company_name</td>
+                                <td class="px-4 py-3 whitespace-nowrap">
+                                    <a href="@item.website_path" target="_blank"
+                                       class="text-blue-600 hover:underline hover:text-blue-800 transition">
+                                        @item.website_path
+                                    </a>
+                                </td>
+                                <td class="px-4 py-3 text-gray-600 whitespace-nowrap">@item.company_email</td>
+                                <td class="px-4 py-3 text-gray-600 whitespace-nowrap">@item.phone</td>
+                                <td class="px-4 py-3 text-center">
                                     @if (item.status)
                                     {
-                                        <span class="px-3 py-1 text-xs font-medium text-green-700 bg-green-100 rounded-full">Active</span>
+                                        <span class="inline-flex items-center gap-1 px-3 py-1 text-xs font-semibold text-green-700 bg-green-100 rounded-full">
+                                            <i class="fa-solid fa-circle-check"></i> Active
+                                        </span>
                                     }
                                     else
                                     {
-                                        <span class="px-3 py-1 text-xs font-medium text-red-700 bg-red-100 rounded-full">Inactive</span>
+                                        <span class="inline-flex items-center gap-1 px-3 py-1 text-xs font-semibold text-red-700 bg-red-100 rounded-full">
+                                            <i class="fa-solid fa-circle-xmark"></i> Inactive
+                                        </span>
                                     }
                                 </td>
-                                <td class="p-3 text-center space-x-2">
-                                    <a asp-action="Edit" asp-route-id="@item.Id"
-                                       class="px-3 py-1.5 rounded-lg text-xs font-medium bg-blue-100 text-blue-700 hover:bg-blue-200 transition">
-                                        <i class="fa-solid fa-pen"></i> Edit
-                                    </a>
-                                    @using (Html.BeginForm("Delete", "Company", FormMethod.Post, new { onsubmit = "return confirm('Are you sure?');", @class = "inline" }))
-                                    {
-                                        @Html.AntiForgeryToken()
-                                        @Html.Hidden("id", item.Id)
-                                        <button type="submit"
-                                                class="px-3 py-1.5 rounded-lg text-xs font-medium bg-red-100 text-red-700 hover:bg-red-200 transition">
-                                            <i class="fa-solid fa-trash"></i> Delete
-                                        </button>
-                                    }
+                                <td class="px-4 py-3 text-center">
+                                    <div class="flex items-center justify-center gap-2">
+                                        <a asp-action="Edit" asp-route-id="@item.Id"
+                                           class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-100 text-blue-700 hover:bg-blue-200 transition">
+                                            <i class="fa-solid fa-pen mr-1"></i> Edit
+                                        </a>
+                                        @using (Html.BeginForm("Delete", "Company", FormMethod.Post, new { onsubmit = "return confirm('Are you sure you want to delete this company?');", @class = "inline" }))
+                                        {
+                                            @Html.AntiForgeryToken()
+                                            @Html.Hidden("id", item.Id)
+                                            <button type="submit"
+                                                    class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold bg-red-100 text-red-700 hover:bg-red-200 transition">
+                                                <i class="fa-solid fa-trash mr-1"></i> Delete
+                                            </button>
+                                        }
+                                    </div>
                                 </td>
                             </tr>
                         }
@@ -199,43 +255,56 @@
                     else
                     {
                         <tr>
-                            <td colspan="8" class="text-center p-4 text-gray-500">No companies found.</td>
+                            <td colspan="8" class="py-12 text-center text-gray-400">
+                                <i class="fa-solid fa-building text-3xl block mb-2"></i>
+                                No companies found.
+                            </td>
                         </tr>
                     }
                 </tbody>
             </table>
         </div>
-        <div class="flex justify-between items-center mt-4">
-            <span class="text-sm text-gray-600">Page @(page) of  @totalPages</span>
-            <div class="space-x-2">
+
+        <!-- Pagination -->
+        <div class="flex flex-col sm:flex-row justify-between items-center mt-5 gap-3">
+            <span class="text-sm text-gray-500">
+                Page <span class="font-semibold text-gray-700"></span>
+                of <span class="font-semibold text-gray-700">@totalPages</span>
+                &nbsp;&mdash;&nbsp;
+                Total <span class="font-semibold text-gray-700">@totalItems</span> records
+            </span>
+            <div class="flex gap-2">
                 @if (page > 1)
                 {
-                    <a asp-action="Company" asp-route-page="@(page-1)" asp-route-searchString="@searchString"
-                       class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">Prev</a>
+                    <a asp-action="Company" asp-route-page="@(page - 1)" asp-route-searchString="@searchString"
+                       class="inline-flex items-center px-4 py-2 text-sm font-semibold rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition">
+                        <i class="fa-solid fa-chevron-left mr-1 text-xs"></i> Prev
+                    </a>
                 }
                 @if (page < totalPages)
                 {
-                    <a asp-action="Company" asp-route-page="@(page+1)" asp-route-searchString="@searchString"
-                       class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">Next</a>
+                    <a asp-action="Company" asp-route-page="@(page + 1)" asp-route-searchString="@searchString"
+                       class="inline-flex items-center px-4 py-2 text-sm font-semibold rounded-lg bg-blue-900 text-white hover:bg-blue-800 transition">
+                        Next <i class="fa-solid fa-chevron-right ml-1 text-xs"></i>
+                    </a>
                 }
             </div>
         </div>
+
     </div>
 </div>
-<script>
-    function refreshPage() {
-        window.location.href = '@Url.Action("Company", "Company")';
-    }
 
+<script>
     const searchInput = document.getElementById("searchInput");
     const clearBtn = document.getElementById("clearSearch");
+
     searchInput.addEventListener("input", () => {
-        clearBtn.style.display = searchInput.value ? "flex" : "none";
+        clearBtn.classList.toggle("hidden", !searchInput.value);
     });
+
     clearBtn.addEventListener("click", () => {
-        refreshPage();
+        searchInput.value = "";
+        clearBtn.classList.add("hidden");
+        searchInput.focus();
     });
-    if (searchInput.value) {
-        clearBtn.style.display = "flex";
-    }
 </script>

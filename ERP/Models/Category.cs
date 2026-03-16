@@ -1,4 +1,6 @@
-﻿namespace ERP.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace ERP.Models
 {
     public class Category
     {
@@ -7,6 +9,8 @@
         public string category_name { get; set; } = string.Empty;
         public string? category_description { get; set; }
         public bool status { get; set; }
-
+        public int? companyId { get; set; }
+        [ForeignKey("companyId")]
+        public virtual Company? Company { get; set; }
     }
 }
