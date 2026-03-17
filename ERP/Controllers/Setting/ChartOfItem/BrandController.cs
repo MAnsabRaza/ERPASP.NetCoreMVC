@@ -44,6 +44,15 @@ namespace ERP.Controllers.Setting.ChartOfItem
         {
             try
             {
+                var companyIdString = HttpContext.Session.GetString("companyId");
+
+                if (string.IsNullOrEmpty(companyIdString))
+                {
+                    _notyf.Error("Company Required");
+                    return RedirectToAction("Category");
+                }
+
+                int companyId = int.Parse(companyIdString);
                 if (brand.Id > 0)
                 {
                     var exisitngBrand = await _context.Brand.FindAsync(brand.Id);
@@ -53,6 +62,7 @@ namespace ERP.Controllers.Setting.ChartOfItem
                         exisitngBrand.status = brand.status;
                         exisitngBrand.brand_name = brand.brand_name;
                         exisitngBrand.brand_description = brand.brand_description;
+                        exisitngBrand.companyId = companyId;
                         _context.Update(exisitngBrand);
                         await _context.SaveChangesAsync();
                         _notyf.Success("Brand Update Successfully");

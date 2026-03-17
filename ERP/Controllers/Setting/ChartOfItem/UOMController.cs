@@ -84,6 +84,15 @@ namespace ERP.Controllers.Setting.ChartOfItem
         {
             try
             {
+                var companyIdString = HttpContext.Session.GetString("companyId");
+
+                if (string.IsNullOrEmpty(companyIdString))
+                {
+                    _notyf.Error("Company Required");
+                    return RedirectToAction("Category");
+                }
+
+                int companyId = int.Parse(companyIdString);
                 if (uom.Id > 0)
                 {
                     var existingUom = await _context.UOM.FindAsync(uom.Id);
@@ -92,6 +101,7 @@ namespace ERP.Controllers.Setting.ChartOfItem
                         existingUom.status = uom.status;
                         existingUom.current_date = uom.current_date;
                         existingUom.uom_name = uom.uom_name;
+                        existingUom.companyId = companyId;
                         _context.Update(existingUom);
                         await _context.SaveChangesAsync();
                         _notyf.Success("UOM Update Successfully");

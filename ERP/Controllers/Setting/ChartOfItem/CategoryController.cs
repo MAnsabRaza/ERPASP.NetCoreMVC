@@ -46,6 +46,15 @@ namespace ERP.Controllers.Setting.ChartOfItem
         {
             try
             {
+                var companyIdString = HttpContext.Session.GetString("companyId");
+
+                if (string.IsNullOrEmpty(companyIdString))
+                {
+                    _notyf.Error("Company Required");
+                    return RedirectToAction("Category");
+                }
+
+                int companyId = int.Parse(companyIdString);
                 if (category.Id > 0)
                 {
                     var exisitngCategory = await _context.Category.FindAsync(category.Id);
@@ -55,6 +64,7 @@ namespace ERP.Controllers.Setting.ChartOfItem
                         exisitngCategory.status = category.status;
                         exisitngCategory.category_name = category.category_name;
                         exisitngCategory.category_description = category.category_description;
+                        exisitngCategory.companyId = companyId;
                         _context.Update(exisitngCategory);
                         await _context.SaveChangesAsync();
                         _notyf.Success("Category Update successfully!");

@@ -3,10 +3,11 @@
     ViewData["Title"] = "Item";
     var itemList = ViewBag.Item as List<ERP.Models.Item>;
     int totalItems = ViewBag.TotalItems;
-    int page = ViewBag.Page;
+    int currentPage = ViewBag.Page;
     int pageSize = ViewBag.PageSize;
     string searchString = ViewBag.SearchString ?? "";
     int totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
+    string activeTab = ViewBag.ActiveTab ?? "form";
 }
 
 <div class="space-y-8">
@@ -39,29 +40,29 @@
                 <div class="flex justify-between items-center">
                     <div>
                         <h2 class="text-2xl font-bold text-blue-800 flex items-center gap-2">
-                            <i class="fa-solid fas fa-boxes text-blue-900"></i> Item Management
+                            <i class="fa-solid fa-boxes text-blue-900"></i> Item Management
                         </h2>
                         <p class="text-gray-600 mt-1 text-sm">Add and manage your inventory items efficiently</p>
                     </div>
-
                     <div class="space-x-2">
                         <button type="submit"
                                 class="px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-green-600 hover:bg-green-700 shadow-md transition">
-                            <i class="fa-solid fa-save mr-2"></i> Save
+                            <i class="fa-solid fa-save mr-2"></i>
+                            @(Model.Id > 0 ? "Update" : "Save")
                         </button>
                         <button type="reset"
                                 class="px-5 py-2.5 rounded-xl text-sm font-semibold text-gray-700 bg-yellow-300 hover:bg-yellow-400 shadow-md transition">
                             <i class="fa-solid fa-rotate-right mr-2"></i> Reset
                         </button>
-                        <button type="button" onclick="refreshPage()"
-                                class="px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-purple-500 hover:bg-purple-600 shadow-md transition">
+                        <a asp-action="Item" asp-controller="Item"
+                           class="inline-flex items-center px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-purple-500 hover:bg-purple-600 shadow-md transition">
                             <i class="fa-solid fa-arrows-rotate mr-2"></i> Refresh
-                        </button>
+                        </a>
                     </div>
                 </div>
             </div>
 
-            <!-- Section 1 -->
+            <!-- Section 1 — General Info -->
             <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 mt-2">
                 <p class="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4 border-b border-gray-100 pb-2">
                     <i class="fa-solid fa-circle-info text-blue-500 mr-1"></i> General Info
@@ -71,11 +72,12 @@
                         <label class="block text-xs font-semibold text-gray-600 mb-1">Current Date <span class="text-red-500">*</span></label>
                         @Html.TextBoxFor(m => m.current_date, "{0:yyyy-MM-dd}",
                         new { @class = "w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400", type = "date", required = "required" })
+                    @Html.ValidationMessageFor(m => m.current_date, "", new { @class = "text-red-500 text-xs mt-1" })
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-gray-600 mb-1">Remark <span class="text-red-500">*</span></label>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Remark</label>
                     @Html.TextBoxFor(m => m.remark,
-                                        new { @class = "w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400", type = "text", required = "required", placeholder = "Enter remark..." })
+                                        new { @class = "w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400", type = "text", placeholder = "Enter remark..." })
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-gray-600 mb-1">Status</label>
@@ -87,24 +89,23 @@
             </div>
         </div>
 
-
-            <!-- Section 2 -->
-
+        <!-- Section 2 — Item Identity -->
         <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 mt-2">
             <p class="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4 border-b border-gray-100 pb-2">
                 <i class="fa-solid fa-barcode text-blue-500 mr-1"></i> Item Identity
             </p>
-            <!-- grid starts as 3-col, JS switches to 4-col when expireable checked -->
             <div id="item-identity-grid" class="grid grid-cols-1 md:grid-cols-3 gap-5">
                 <div>
                     <label class="block text-xs font-semibold text-gray-600 mb-1">Item Barcode <span class="text-red-500">*</span></label>
                     @Html.TextBoxFor(m => m.item_barcode,
                                         new { @class = "w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400", type = "text", required = "required", placeholder = "Scan or enter barcode" })
+                    @Html.ValidationMessageFor(m => m.item_barcode, "", new { @class = "text-red-500 text-xs mt-1" })
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-gray-600 mb-1">Item Name <span class="text-red-500">*</span></label>
                     @Html.TextBoxFor(m => m.item_name,
                                         new { @class = "w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400", type = "text", required = "required", placeholder = "Enter item name" })
+                    @Html.ValidationMessageFor(m => m.item_name, "", new { @class = "text-red-500 text-xs mt-1" })
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-gray-600 mb-1">Expireable?</label>
@@ -130,8 +131,7 @@
             </div>
         </div>
 
-
-            <!-- Section 3 -->
+        <!-- Section 3 — Classification -->
         <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 mt-2">
             <p class="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4 border-b border-gray-100 pb-2">
                 <i class="fa-solid fa-tags text-blue-500 mr-1"></i> Classification
@@ -148,7 +148,7 @@
                     <label class="block text-xs font-semibold text-gray-600 mb-1">Category <span class="text-red-500">*</span></label>
                     @Html.DropDownListFor(m => m.categoryId,
                                         new SelectList(ViewBag.categoryList, "Id", "category_name"),
-                                        "Select Category",
+                                        "— Select Category —",
                                         new { @class = "w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400", required = "required" })
                 </div>
                 <div>
@@ -167,35 +167,47 @@
                 </div>
             </div>
         </div>
-            <!-- Section 4 -->
-          <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 mt-2">
-                <p class="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4 border-b border-gray-100 pb-2">
-                    <i class="fa-solid fa-coins text-blue-500 mr-1"></i> Pricing & Quantity
-                </p>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-5">
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">Quantity <span class="text-red-500">*</span></label>
-                        @Html.TextBoxFor(m => m.qty,
-                            new { @class = "w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400", id = "qty", type = "number", min = "0", required = "required", placeholder = "0" })
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">Rate <span class="text-red-500">*</span></label>
-                        @Html.TextBoxFor(m => m.rate,
-                            new { @class = "w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400", id = "rate", type = "number", step = "0.01", min = "0", required = "required", placeholder = "0.00" })
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">Purchase Rate <span class="text-red-500">*</span></label>
-                        @Html.TextBoxFor(m => m.purchase_rate,
-                            new { @class = "w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400", type = "number", step = "0.01", min = "0", required = "required", placeholder = "0.00" })
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">Sales Rate <span class="text-red-500">*</span></label>
-                        @Html.TextBoxFor(m => m.sale_rate,
-                            new { @class = "w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400", type = "number", step = "0.01", min = "0", required = "required", placeholder = "0.00" })
-                    </div>
+
+        <!-- Section 4 — Pricing & Quantity -->
+        <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 mt-2">
+            <p class="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4 border-b border-gray-100 pb-2">
+                <i class="fa-solid fa-coins text-blue-500 mr-1"></i> Pricing & Quantity
+            </p>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-5">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Quantity <span class="text-red-500">*</span></label>
+                    @Html.TextBoxFor(m => m.qty,
+                                        new { @class = "w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400", id = "qty", type = "number", min = "0", required = "required", placeholder = "0" })
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Rate <span class="text-red-500">*</span></label>
+                    @Html.TextBoxFor(m => m.rate,
+                                        new { @class = "w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400", id = "rate", type = "number", step = "0.01", min = "0", required = "required", placeholder = "0.00" })
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Purchase Rate <span class="text-red-500">*</span></label>
+                    @Html.TextBoxFor(m => m.purchase_rate,
+                                        new { @class = "w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400", type = "number", step = "0.01", min = "0", required = "required", placeholder = "0.00" })
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Sales Rate <span class="text-red-500">*</span></label>
+                    @Html.TextBoxFor(m => m.sale_rate,
+                                        new { @class = "w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400", type = "number", step = "0.01", min = "0", required = "required", placeholder = "0.00" })
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Min Stock</label>
+                    @Html.TextBoxFor(m => m.min_stock_level,
+                                        new { @class = "w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400", type = "number", step = "0.01", min = "0", placeholder = "0.00" })
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Max Stock</label>
+                    @Html.TextBoxFor(m => m.max_stock_level,
+                                        new { @class = "w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400", type = "number", step = "0.01", min = "0", placeholder = "0.00" })
                 </div>
             </div>
+        </div>
 
+        <!-- Section 5 — Discounts & Total -->
         <div class="bg-yellow-50 rounded-2xl border border-yellow-200 shadow-sm p-5 mt-2">
             <p class="text-xs font-bold uppercase tracking-widest text-yellow-700 mb-4 border-b border-yellow-200 pb-2">
                 <i class="fa-solid fa-percent text-yellow-500 mr-1"></i> Discounts & Total
@@ -223,7 +235,7 @@
                 </div>
             </div>
         </div>
-        }
+                }
     </div>
 
     <!-- List Tab -->
@@ -237,7 +249,7 @@
             </div>
             <div class="flex items-center space-x-4">
                 <div class="px-5 py-2 rounded-xl text-sm font-semibold text-white bg-blue-900 shadow-md">
-                    Total Items: @(itemList?.Count() ?? 0)
+                    Total Items: @totalItems
                 </div>
                 <button type="button" id="btn-add-new"
                         class="px-5 py-2 rounded-xl text-sm font-semibold text-white bg-green-600 hover:bg-green-700 shadow-md transition">
@@ -265,42 +277,47 @@
                     <i class="fa fa-search"></i>
                 </button>
             </form>
-            
         </div>
 
         <!-- Table -->
         <div class="overflow-hidden border border-gray-200 rounded-lg mt-6">
-            <div class="max-h-96 overflow-y-auto">
+            <div class="overflow-x-auto max-h-[500px] overflow-y-auto">
                 <table class="table-auto w-full text-sm">
                     <thead class="bg-gradient-to-r from-blue-800 to-blue-900 text-white sticky top-0">
                         <tr>
-                            <th class="p-3 text-left">ID</th>
-                            <th class="p-3 text-left">Date</th>
-                            <th class="p-3 text-left">Barcode</th>
-                            <th class="p-3 text-left">Name</th>
-                            <th class="p-3 text-left">Status</th>
-                            <th class="p-3 text-left">Category</th>
-                            <th class="p-3 text-left">Sub Category</th>
-                            <th class="p-3 text-left">Brand</th>
-                            <th class="p-3 text-left">Qty</th>
-                            <th class="p-3 text-left">Rate</th>
-                            <th class="p-3 text-left">Purchase Rate</th>
-                            <th class="p-3 text-left">Sales Rate</th>
-                            <th class="p-3 text-left">Discount</th>
-                            <th class="p-3 text-left">Total</th>
-                            <th class="p-3 text-center">Actions</th>
+                            <th class="p-3 text-left whitespace-nowrap">#</th>
+                            <th class="p-3 text-left whitespace-nowrap">Date</th>
+                            <th class="p-3 text-left whitespace-nowrap">Barcode</th>
+                            <th class="p-3 text-left whitespace-nowrap">Name</th>
+                            <th class="p-3 text-left whitespace-nowrap">Status</th>
+                            <th class="p-3 text-left whitespace-nowrap">Qty</th>
+                            <th class="p-3 text-left whitespace-nowrap">Rate</th>
+                            <th class="p-3 text-left whitespace-nowrap">Purchase Rate</th>
+                            <th class="p-3 text-left whitespace-nowrap">Sales Rate</th>
+                            <th class="p-3 text-left whitespace-nowrap">Discount</th>
+                            <th class="p-3 text-left whitespace-nowrap">Total</th>
+                            <th class="p-3 text-center whitespace-nowrap">Actions</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200 bg-white">
                         @if (itemList != null && itemList.Any())
                         {
+                            int serial = (currentPage - 1) * pageSize + 1;
                             foreach (var item in itemList)
                             {
                                 <tr class="hover:bg-gray-50 transition">
-                                    <td class="p-3">@item.Id</td>
-                                    <td class="p-3">@item.current_date</td>
-                                    <td class="p-3">@item.item_barcode</td>
-                                    <td class="p-3 font-medium">@item.item_name</td>
+                                    <td class="p-3 text-gray-500">@serial</td>
+                                    <td class="p-3 whitespace-nowrap">@item.current_date.ToString("dd MMM yyyy")</td>
+                                    <td class="p-3 whitespace-nowrap font-mono text-xs">@item.item_barcode</td>
+                                    <td class="p-3 font-medium whitespace-nowrap">
+                                        @item.item_name
+                                        @if (item.isExpireable == true)
+                                        {
+                                            <span class="ml-1 px-1.5 py-0.5 text-xs rounded bg-amber-100 text-amber-700 whitespace-nowrap">
+                                                Exp: @item.expiry_date?.ToString("dd MMM yyyy")
+                                            </span>
+                                        }
+                                    </td>
                                     <td class="p-3">
                                         @if (item.status)
                                         {
@@ -311,17 +328,14 @@
                                             <span class="px-3 py-1 text-xs font-medium text-red-700 bg-red-100 rounded-full">Inactive</span>
                                         }
                                     </td>
-                                    <td class="p-3">@item.Category.category_name</td>
-                                    <td class="p-3">@item.SubCategory.sub_category_name</td>
-                                    <td class="p-3">@item.Brand.brand_name</td>
-                                    <td class="p-3">@item.qty @item.UOM.uom_name</td>
-                                    <td class="p-3">@item.rate</td>
-                                    <td class="p-3">@item.purchase_rate</td>
-                                    <td class="p-3">@item.sale_rate</td>
-                                    <td class="p-3">@item.discount_amount</td>
-                                    <td class="p-3">@item.total_amount</td>
+                                    <td class="p-3 whitespace-nowrap">@item.qty @item.UOM?.uom_name</td>
+                                    <td class="p-3">@item.rate.ToString("0.00")</td>
+                                    <td class="p-3">@item.purchase_rate.ToString("0.00")</td>
+                                    <td class="p-3">@item.sale_rate.ToString("0.00")</td>
+                                    <td class="p-3">@(item.discount_amount?.ToString("0.00") ?? "—")</td>
+                                    <td class="p-3 font-bold text-blue-700">@item.total_amount.ToString("0.00")</td>
                                     <td class="p-3 text-center space-x-2">
-                                        <a asp-action="Edit" asp-route-id="@item.Id"
+                                        <a asp-action="Edit" asp-controller="Item" asp-route-id="@item.Id"
                                            class="px-3 py-1.5 rounded-lg text-xs font-medium bg-blue-100 text-blue-700 hover:bg-blue-200 transition">
                                             <i class="fa-solid fa-pen"></i> Edit
                                         </a>
@@ -336,12 +350,16 @@
                                         }
                                     </td>
                                 </tr>
+                                serial++;
                             }
                         }
                         else
                         {
                             <tr>
-                                <td colspan="16" class="text-center p-4 text-gray-500">No items found.</td>
+                                <td colspan="15" class="text-center p-8 text-gray-400">
+                                    <i class="fa-solid fa-boxes-stacked text-3xl block mb-2"></i>
+                                    No items found.
+                                </td>
                             </tr>
                         }
                     </tbody>
@@ -351,41 +369,47 @@
 
         <!-- Pagination -->
         <div class="flex justify-between items-center mt-4">
-            <span class="text-sm text-gray-600">Page @(page) of @totalPages</span>
+            <span class="text-sm text-gray-600">
+                Page <span class="font-semibold">@ViewBag.Page</span>
+                of <span class="font-semibold">@(totalPages == 0 ? 1 : totalPages)</span>
+                &mdash; Total <span class="font-semibold">@totalItems</span> records
+            </span>
             <div class="space-x-2">
-                @if (page > 1)
+                @if (currentPage > 1)
                 {
-                    <a asp-action="Item" asp-route-page="@(page-1)" asp-route-searchString="@searchString" asp-route-activeTab="list"
+                    <a asp-action="Item" asp-route-page="@(currentPage - 1)"
+                       asp-route-searchString="@searchString"
+                       asp-route-activeTab="list"
                        class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">Prev</a>
                 }
-                @if (page < totalPages)
+                @if (currentPage < totalPages)
                 {
-                    <a asp-action="Item" asp-route-page="@(page+1)" asp-route-searchString="@searchString" asp-route-activeTab="list"
+                    <a asp-action="Item" asp-route-page="@(currentPage + 1)"
+                       asp-route-searchString="@searchString"
+                       asp-route-activeTab="list"
                        class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">Next</a>
                 }
             </div>
         </div>
     </div>
-    </div>
+
 </div>
 
-<!-- Tabs + helpers -->
+<!-- Scripts -->
 <script>
-    const tabForm = document.getElementById("tab-form");
-    const tabList = document.getElementById("tab-list");
+    const tabForm     = document.getElementById("tab-form");
+    const tabList     = document.getElementById("tab-list");
     const contentForm = document.getElementById("content-form");
     const contentList = document.getElementById("content-list");
-    const btnAddNew = document.getElementById("btn-add-new");
+    const btnAddNew   = document.getElementById("btn-add-new");
     const searchInput = document.getElementById("searchInput");
-    const clearBtn = document.getElementById("clearSearch");
+    const clearBtn    = document.getElementById("clearSearch");
 
     function showFormTab() {
         tabForm.classList.add("text-blue-900", "border-blue-900");
         tabForm.classList.remove("text-gray-500", "border-transparent");
-
         tabList.classList.remove("text-blue-900", "border-blue-900");
         tabList.classList.add("text-gray-500", "border-transparent");
-
         contentForm.classList.remove("hidden");
         contentList.classList.add("hidden");
     }
@@ -393,10 +417,8 @@
     function showListTab() {
         tabList.classList.add("text-blue-900", "border-blue-900");
         tabList.classList.remove("text-gray-500", "border-transparent");
-
         tabForm.classList.remove("text-blue-900", "border-blue-900");
         tabForm.classList.add("text-gray-500", "border-transparent");
-
         contentList.classList.remove("hidden");
         contentForm.classList.add("hidden");
     }
@@ -405,7 +427,8 @@
     tabList.addEventListener("click", showListTab);
     if (btnAddNew) btnAddNew.addEventListener("click", showFormTab);
 
-      const statusCheck = document.getElementById("statusCheck");
+    // ── Status label ──
+    const statusCheck = document.getElementById("statusCheck");
     const statusLabel = document.getElementById("statusLabel");
     function updateStatusLabel() {
         if (statusCheck.checked) {
@@ -445,8 +468,8 @@
     isExpireableCheck.addEventListener("change", updateExpiryVisibility);
     updateExpiryVisibility();
 
-    // Refresh button → always go to Form tab
-      function calculateTotal() {
+    // ── Auto-calculate total ──
+    function calculateTotal() {
         const qty      = parseFloat(document.getElementById("qty").value) || 0;
         const rate     = parseFloat(document.getElementById("rate").value) || 0;
         const discount = parseFloat(document.getElementById("discount_amount").value) || 0;
@@ -457,7 +480,7 @@
         document.getElementById(id).addEventListener("input", calculateTotal);
     });
 
-    // Search clear → reload but keep list tab
+    // ── Search clear ──
     searchInput.addEventListener("input", () => {
         clearBtn.style.display = searchInput.value ? "flex" : "none";
     });
@@ -468,13 +491,11 @@
         clearBtn.style.display = "flex";
     }
 
-    // Check query string for active tab
-    const params = new URLSearchParams(window.location.search);
-    const activeTab = params.get("activeTab");
-    if (activeTab === "list") {
+    // ── Active tab from server (e.g. after Edit/Delete redirect) ──
+    const serverTab = '@activeTab';
+    if (serverTab === 'list') {
         showListTab();
     } else {
-        showFormTab(); // default
+        showFormTab();
     }
 </script>
-
