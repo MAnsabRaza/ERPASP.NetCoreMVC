@@ -15,5 +15,6 @@ namespace ERP.Models
 
         public string? VenderName { get; set; }
         public string? TransporterNo { get; set; }
+        public string? PaymentStatus { get; set; }
     }
 }

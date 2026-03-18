@@ -4,25 +4,27 @@
     ViewData["Title"] = "Purchase Voucher";
     var purchaseList = ViewBag.Purchase as List<ERP.Models.PurchaseListDto>;
 
-    int currentPage  = (int)(ViewBag.Page      ?? 1);
-    int pageSize     = (int)(ViewBag.PageSize   ?? 5);
-    int totalItems   = (int)(ViewBag.TotalItems ?? 0);
-    string activeTab = ViewBag.ActiveTab as string ?? "form";
+    int    currentPage = (int)(ViewBag.Page      ?? 1);
+    int    pageSize    = (int)(ViewBag.PageSize   ?? 5);
+    int    totalItems  = (int)(ViewBag.TotalItems ?? 0);
+    string activeTab   = ViewBag.ActiveTab as string ?? "form";
 
     int startItem = totalItems == 0 ? 0 : (currentPage - 1) * pageSize + 1;
     int endItem   = Math.Min(currentPage * pageSize, totalItems);
 
-    // TaxSetup → JS mein pass karne ke liye serialize
     var taxSetupList = ViewBag.TaxSetup as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
     var taxJson = JsonSerializer.Serialize(taxSetupList.Select(t => new {
         id         = (int)t.Id,
         tax_name   = (string)t.tax_name,
         percentage = (decimal)t.percentage
     }));
+
+    var banksList = ViewBag.Banks as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
 }
 
 <div class="space-y-8">
 
+    @* ═══ MAIN TAB HEADER ═══ *@
     <div class="border-b border-gray-300 bg-white shadow-sm rounded-xl p-2">
         <nav class="flex space-x-6" aria-label="Tabs">
             <button id="tab-form" type="button"
@@ -36,16 +38,18 @@
         </nav>
     </div>
 
+    @* ═══ FORM TAB ═══ *@
     <div id="content-form" class="@(activeTab == "list" ? "hidden" : "")">
         @using (Html.BeginForm("Create", "PurchaseVoucher", FormMethod.Post))
         {
             @Html.AntiForgeryToken()
-            @Html.HiddenFor(m => m.StockMaster.Id, new { id = "StockMasterId" })
+            @Html.HiddenFor(m => m.StockMaster.Id,             new { id = "StockMasterId" })
             @Html.HiddenFor(m => m.StockMaster.companyId)
             @Html.HiddenFor(m => m.StockMaster.userId)
             @Html.HiddenFor(m => m.StockMaster.payment_status)
             <input type="hidden" name="StockMaster.etype" value="Purchase" />
 
+            @* Header *@
             <div class="shadow-lg rounded-2xl bg-gradient-to-r from-blue-50 to-blue-100 p-6 border border-gray-200">
                 <div class="flex justify-between items-center">
                     <div>
@@ -71,6 +75,7 @@
                 </div>
             </div>
 
+            @* Master Fields *@
             <div class="shadow-md rounded-2xl bg-white p-6 border border-gray-200 mt-4">
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
 
@@ -156,8 +161,9 @@
                 </div>
             </div>
 
+            @* Detail Inner Tabs *@
             <div class="shadow-md rounded-2xl bg-white p-6 border mt-4">
-                <nav class="flex space-x-6 mb-6">
+                <nav class="flex space-x-6 mb-6 border-b pb-2">
                     <button id="tab-stock-details" type="button"
                             class="px-4 py-2 text-sm font-semibold text-blue-900 border-b-2 border-blue-900">
                         <i class="fa-solid fa-box mr-2"></i> Stock Details
@@ -166,11 +172,15 @@
                             class="px-4 py-2 text-sm font-semibold text-gray-500 hover:text-blue-900">
                         <i class="fa-solid fa-money-bill mr-2"></i> Additional Charges
                     </button>
+                    <button id="tab-payment" type="button"
+                            class="px-4 py-2 text-sm font-semibold text-gray-500 hover:text-blue-900">
+                        <i class="fa-solid fa-credit-card mr-2"></i> Payment
+                    </button>
                 </nav>
 
+                @* ─── Stock Details ─── *@
                 <div id="content-stock-details">
                     <h3 class="text-lg font-semibold mb-4 text-gray-700">Add Stock Details</h3>
-
                     <div class="grid grid-cols-12 gap-4 items-end">
 
                         <div class="col-span-3">
@@ -208,19 +218,13 @@
                         </div>
 
                         <div class="col-span-2">
-                            <label class="block text-sm font-semibold text-gray-700 mb-1">
-                                Rate <sup class="text-red-800">*</sup>
-                            </label>
-                            <input type="number" id="rate" step="0.01" min="0" placeholder="0.00"
-                                   class="w-full p-2 border rounded-lg" />
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Rate <sup class="text-red-800">*</sup></label>
+                            <input type="number" id="rate" step="0.01" min="0" placeholder="0.00" class="w-full p-2 border rounded-lg" />
                         </div>
 
                         <div class="col-span-2">
-                            <label class="block text-sm font-semibold text-gray-700 mb-1">
-                                Quantity <sup class="text-red-800">*</sup>
-                            </label>
-                            <input type="number" id="qty" min="1" placeholder="0"
-                                   class="w-full p-2 border rounded-lg" />
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Quantity <sup class="text-red-800">*</sup></label>
+                            <input type="number" id="qty" min="1" placeholder="0" class="w-full p-2 border rounded-lg" />
                         </div>
 
                         <div class="col-span-2">
@@ -249,8 +253,7 @@
 
                         <div class="col-span-2">
                             <label class="block text-sm font-semibold text-gray-700 mb-1">Tax</label>
-                            <select id="taxSetupId" class="w-full p-2 border rounded-lg"
-                                    onchange="onTaxSetupChange()">
+                            <select id="taxSetupId" class="w-full p-2 border rounded-lg" onchange="onTaxSetupChange()">
                                 <option value="">-- No Tax --</option>
                                 @foreach (var tax in taxSetupList)
                                 {
@@ -317,6 +320,7 @@
                     </div>
                 </div>
 
+                @* ─── Additional Charges ─── *@
                 <div id="content-additional-charges" class="hidden">
                     <h3 class="text-lg font-semibold mb-4 text-gray-700">Additional Charges</h3>
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -330,13 +334,13 @@
                             <label class="block font-semibold text-gray-700 mb-1">Discount Amount</label>
                             @Html.TextBoxFor(m => m.StockMaster.discount_amount,
                                 new { @class = "w-full p-2 border rounded-lg",
-                                      type = "number", step = "0.01", @onchange = "updateNetAmount()" })
+                                      type = "number", step = "0.01", onchange = "updateNetAmount()" })
                         </div>
                         <div>
                             <label class="block font-semibold text-gray-700 mb-1">Tax Amount</label>
                             @Html.TextBoxFor(m => m.StockMaster.tax_amount,
                                 new { @class = "w-full p-2 border rounded-lg",
-                                      type = "number", step = "0.01", @onchange = "updateNetAmount()" })
+                                      type = "number", step = "0.01", onchange = "updateNetAmount()" })
                         </div>
                         <div>
                             <label class="block font-semibold text-gray-700 mb-1">Net Amount</label>
@@ -346,12 +350,108 @@
                         </div>
                     </div>
                 </div>
+
+                @* ─── Payment Tab ─── *@
+                <div id="content-payment" class="hidden">
+                    <h3 class="text-lg font-semibold mb-4 text-gray-700">
+                        <i class="fa-solid fa-credit-card mr-2 text-blue-700"></i> Payment Details
+                    </h3>
+
+                    <div class="mb-5 p-3 rounded-lg bg-blue-50 border border-blue-200 text-sm text-blue-700">
+                        <i class="fa-solid fa-circle-info mr-2"></i>
+                        Payment is optional. Leave MOP blank to save as <strong>Unpaid</strong>.
+                        Fill details to save as <strong class="text-green-700">Paid</strong>.
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+
+                        @* ── MOP Dropdown — always visible ── *@
+                      <div>
+    <label class="block font-semibold text-gray-700 mb-1">MOP (Method of Payment)</label>
+    @Html.DropDownList("PaymentVoucher.method",
+        new SelectList(new[]
+        {
+            new { Value = "",       Text = "-- None (Unpaid) --" },
+            new { Value = "Cash",   Text = "Cash"                },
+            new { Value = "Cheque", Text = "Cheque"              },
+            new { Value = "Bank",   Text = "Bank Transfer"       }
+        }, "Value", "Text", Model.PaymentVoucher?.method ?? ""),
+        new
+        {
+            id       = "paymentMethod",
+            @class   = "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:ring-2 focus:ring-blue-400",
+            onchange = "onPaymentMethodChange()"
+        })
+</div>
+
+                        @* ── Amount — Cash / Cheque / Bank sab mein show ── *@
+                        <div id="pay-amount-col" style="display:none;">
+                            <label class="block font-semibold text-gray-700 mb-1">
+                                Payment Amount <sup class="text-red-800 text-lg">*</sup>
+                            </label>
+                            @Html.TextBoxFor(m => m.PaymentVoucher.amount,
+                                new { @class = "w-full p-2 border rounded-lg",
+                                      type = "number", step = "0.01", min = "0",
+                                      id = "payAmount", placeholder = "0.00" })
+                        </div>
+
+                        @* ── Bank Account — sirf Bank aur Cheque mein show ── *@
+                        <div id="pay-bank-col" style="display:none;">
+                            <label class="block font-semibold text-gray-700 mb-1">Bank Account</label>
+                            <select id="bankAccountId" name="PaymentVoucher.bankAccountId"
+                                    class="w-full p-2 border rounded-lg bg-white">
+                                <option value="">-- Select Account --</option>
+                                @foreach (var bank in banksList)
+                                {
+                                    <option value="@bank.Id"
+                                            selected="@(Model.PaymentVoucher != null && Model.PaymentVoucher.bankAccountId == (int)bank.Id ? "selected" : null)">
+                                        @bank.account_title
+                                    </option>
+                                }
+                            </select>
+                        </div>
+
+                        @* ── Cheque No — sirf Cheque mein show ── *@
+                        <div id="pay-cheque-no-col" style="display:none;">
+                            <label class="block font-semibold text-gray-700 mb-1">Cheque No</label>
+                            @Html.TextBoxFor(m => m.PaymentVoucher.cheque_no,
+                                new { @class = "w-full p-2 border rounded-lg",
+                                      type = "text", placeholder = "Enter Cheque Number" })
+                        </div>
+
+                        @* ── Cheque Date — sirf Cheque mein show ── *@
+                        <div id="pay-cheque-date-col" style="display:none;">
+                            <label class="block font-semibold text-gray-700 mb-1">Cheque Date</label>
+                            @Html.TextBoxFor(m => m.PaymentVoucher.cheque_date,
+                                new { @class = "w-full p-2 border rounded-lg", type = "date" })
+                        </div>
+
+                    </div>
+
+                    @* Payment Summary Card *@
+                    <div id="pay-summary-card" class="hidden mt-5 p-4 rounded-xl border-2 border-green-300 bg-green-50">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-full bg-green-600 flex items-center justify-center">
+                                    <i class="fa-solid fa-check text-white text-sm"></i>
+                                </div>
+                                <div>
+                                    <p class="font-semibold text-green-800 text-sm">Payment will be recorded on save</p>
+                                    <p id="pay-summary-text" class="text-green-700 text-xs mt-0.5"></p>
+                                </div>
+                            </div>
+                            <span class="px-3 py-1 rounded-full bg-green-600 text-white text-xs font-bold">PAID</span>
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
             <div id="detailsContainer"></div>
         }
     </div>
 
+    @* ═══ LIST TAB ═══ *@
     <div id="content-list"
          class="@(activeTab == "list" ? "" : "hidden") shadow-lg rounded-2xl bg-white p-6 border">
 
@@ -382,6 +482,7 @@
                             <th class="p-3">Remarks</th>
                             <th class="p-3">Total</th>
                             <th class="p-3">Net Amount</th>
+                            <th class="p-3">Status</th>
                             <th class="p-3">Action</th>
                         </tr>
                     </thead>
@@ -400,6 +501,23 @@
                                 <td class="p-3 text-gray-500">@(string.IsNullOrEmpty(item.Remarks) ? "-" : item.Remarks)</td>
                                 <td class="p-3 text-right text-blue-700">@item.TotalAmount.ToString("F2")</td>
                                 <td class="p-3 text-right text-green-700 font-semibold">@item.NetAmount.ToString("F2")</td>
+                                <td class="p-3 text-center">
+                                    @{
+                                        var ps = item.PaymentStatus ?? "Unpaid";
+                                    }
+                                    @if (ps == "Paid")
+                                    {
+                                        <span class="px-2 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700">
+                                            <i class="fa-solid fa-check mr-1"></i>Paid
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="px-2 py-1 rounded-full text-xs font-bold bg-orange-100 text-orange-700">
+                                            <i class="fa-solid fa-clock mr-1"></i>Unpaid
+                                        </span>
+                                    }
+                                </td>
                                 <td class="p-3 space-x-1 text-center">
                                     <a asp-action="Edit" asp-route-id="@item.Id"
                                        asp-route-page="@currentPage" asp-route-pageSize="@pageSize"
@@ -427,7 +545,7 @@
                         @if (!(purchaseList?.Any() ?? false))
                         {
                             <tr>
-                                <td colspan="8" class="p-8 text-center text-gray-400">
+                                <td colspan="9" class="p-8 text-center text-gray-400">
                                     <i class="fa-solid fa-inbox fa-2x mb-2 block"></i>
                                     No purchase vouchers found.
                                 </td>
@@ -465,9 +583,6 @@
 <div id="itemModalContainer"></div>
 
 <script>
-// ════════════════════════════════════════════════════════════════
-// TAX SETUP DATA  (server se JS mein pass)
-// ════════════════════════════════════════════════════════════════
 const TAX_LIST = @Html.Raw(taxJson);
 
 // ════════════════════════════════════════════════════════════════
@@ -489,148 +604,201 @@ function openItemModal() {
         })
         .catch(err => console.error('Item modal load failed:', err));
 }
-function closeItemModal() {
-    document.getElementById('itemModalContainer').innerHTML = '';
-}
+function closeItemModal() { document.getElementById('itemModalContainer').innerHTML = ''; }
 
 // ════════════════════════════════════════════════════════════════
 // MAIN TAB SWITCHING
 // ════════════════════════════════════════════════════════════════
-const tabForm     = document.getElementById("tab-form");
-const tabList     = document.getElementById("tab-list");
-const contentForm = document.getElementById("content-form");
-const contentList = document.getElementById("content-list");
-const btnAddNew   = document.getElementById("btn-add-new");
+const tabForm     = document.getElementById('tab-form');
+const tabList     = document.getElementById('tab-list');
+const contentForm = document.getElementById('content-form');
+const contentList = document.getElementById('content-list');
+const btnAddNew   = document.getElementById('btn-add-new');
 
-tabForm.addEventListener("click",  () => showTab("form"));
-tabList.addEventListener("click",  () => showTab("list"));
-if (btnAddNew) btnAddNew.addEventListener("click", addNew);
+tabForm.addEventListener('click',  () => showTab('form'));
+tabList.addEventListener('click',  () => showTab('list'));
+if (btnAddNew) btnAddNew.addEventListener('click', addNew);
 
 function showTab(tab) {
-    if (tab === "form") {
-        tabForm.classList.add("text-blue-900", "border-b-2", "border-blue-900");
-        tabForm.classList.remove("text-gray-500");
-        tabList.classList.remove("text-blue-900", "border-b-2", "border-blue-900");
-        tabList.classList.add("text-gray-500");
-        contentForm.classList.remove("hidden");
-        contentList.classList.add("hidden");
+    if (tab === 'form') {
+        tabForm.classList.add('text-blue-900','border-b-2','border-blue-900');
+        tabForm.classList.remove('text-gray-500');
+        tabList.classList.remove('text-blue-900','border-b-2','border-blue-900');
+        tabList.classList.add('text-gray-500');
+        contentForm.classList.remove('hidden');
+        contentList.classList.add('hidden');
     } else {
-        tabList.classList.add("text-blue-900", "border-b-2", "border-blue-900");
-        tabList.classList.remove("text-gray-500");
-        tabForm.classList.remove("text-blue-900", "border-b-2", "border-blue-900");
-        tabForm.classList.add("text-gray-500");
-        contentList.classList.remove("hidden");
-        contentForm.classList.add("hidden");
+        tabList.classList.add('text-blue-900','border-b-2','border-blue-900');
+        tabList.classList.remove('text-gray-500');
+        tabForm.classList.remove('text-blue-900','border-b-2','border-blue-900');
+        tabForm.classList.add('text-gray-500');
+        contentList.classList.remove('hidden');
+        contentForm.classList.add('hidden');
     }
 }
 
 function addNew() {
     resetForm();
-    document.getElementById("StockMasterId").value = "0";
-    showTab("form");
+    document.getElementById('StockMasterId').value = '0';
+    showTab('form');
 }
 
 function resetForm() {
-    document.querySelector("form")?.reset();
+    document.querySelector('form')?.reset();
     details = [];
     renderTable();
     clearInputs();
     updateNetAmount();
-    showDetailTab("stock-details");
+    onPaymentMethodChange(); // payment fields reset
+    showDetailTab('stock-details');
 }
 
 // ════════════════════════════════════════════════════════════════
 // DETAIL TAB SWITCHING
 // ════════════════════════════════════════════════════════════════
-const tabStockDetails          = document.getElementById("tab-stock-details");
-const tabAdditionalCharges     = document.getElementById("tab-additional-charges");
-const contentStockDetails      = document.getElementById("content-stock-details");
-const contentAdditionalCharges = document.getElementById("content-additional-charges");
+const tabStockDetails          = document.getElementById('tab-stock-details');
+const tabAdditionalCharges     = document.getElementById('tab-additional-charges');
+const tabPaymentBtn            = document.getElementById('tab-payment');
+const contentStockDetails      = document.getElementById('content-stock-details');
+const contentAdditionalCharges = document.getElementById('content-additional-charges');
+const contentPayment           = document.getElementById('content-payment');
 
-tabStockDetails.addEventListener("click",      () => showDetailTab("stock-details"));
-tabAdditionalCharges.addEventListener("click", () => showDetailTab("additional-charges"));
+tabStockDetails.addEventListener('click',      () => showDetailTab('stock-details'));
+tabAdditionalCharges.addEventListener('click', () => showDetailTab('additional-charges'));
+tabPaymentBtn.addEventListener('click',        () => showDetailTab('payment'));
 
 function showDetailTab(tab) {
-    if (tab === "stock-details") {
-        tabStockDetails.classList.add("text-blue-900", "border-b-2", "border-blue-900");
-        tabStockDetails.classList.remove("text-gray-500");
-        tabAdditionalCharges.classList.remove("text-blue-900", "border-b-2", "border-blue-900");
-        tabAdditionalCharges.classList.add("text-gray-500");
-        contentStockDetails.classList.remove("hidden");
-        contentAdditionalCharges.classList.add("hidden");
-    } else {
-        tabAdditionalCharges.classList.add("text-blue-900", "border-b-2", "border-blue-900");
-        tabAdditionalCharges.classList.remove("text-gray-500");
-        tabStockDetails.classList.remove("text-blue-900", "border-b-2", "border-blue-900");
-        tabStockDetails.classList.add("text-gray-500");
-        contentAdditionalCharges.classList.remove("hidden");
-        contentStockDetails.classList.add("hidden");
+    [tabStockDetails, tabAdditionalCharges, tabPaymentBtn].forEach(t => {
+        t.classList.remove('text-blue-900','border-b-2','border-blue-900');
+        t.classList.add('text-gray-500');
+    });
+    [contentStockDetails, contentAdditionalCharges, contentPayment].forEach(c => c.classList.add('hidden'));
+
+    if (tab === 'stock-details') {
+        tabStockDetails.classList.add('text-blue-900','border-b-2','border-blue-900');
+        tabStockDetails.classList.remove('text-gray-500');
+        contentStockDetails.classList.remove('hidden');
+    } else if (tab === 'additional-charges') {
+        tabAdditionalCharges.classList.add('text-blue-900','border-b-2','border-blue-900');
+        tabAdditionalCharges.classList.remove('text-gray-500');
+        contentAdditionalCharges.classList.remove('hidden');
+    } else if (tab === 'payment') {
+        tabPaymentBtn.classList.add('text-blue-900','border-b-2','border-blue-900');
+        tabPaymentBtn.classList.remove('text-gray-500');
+        contentPayment.classList.remove('hidden');
     }
+}
+
+// ════════════════════════════════════════════════════════════════
+// PAYMENT METHOD CONDITIONAL SHOW / HIDE
+// Cash   → Amount + Method
+// Cheque → Amount + Method + Bank Account + Cheque No + Cheque Date
+// Bank   → Amount + Method + Bank Account
+// None   → sab hide
+// ════════════════════════════════════════════════════════════════
+function onPaymentMethodChange() {
+    const method = document.getElementById('paymentMethod')?.value || '';
+
+    const amtCol        = document.getElementById('pay-amount-col');
+    const bankCol       = document.getElementById('pay-bank-col');
+    const chequeNoCol   = document.getElementById('pay-cheque-no-col');
+    const chequeDateCol = document.getElementById('pay-cheque-date-col');
+    const summaryCard   = document.getElementById('pay-summary-card');
+    const summaryText   = document.getElementById('pay-summary-text');
+
+    // Pehle sab hide karo
+    [amtCol, bankCol, chequeNoCol, chequeDateCol].forEach(el => {
+        if (el) el.style.display = 'none';
+    });
+    if (summaryCard) summaryCard.classList.add('hidden');
+
+    if (method === 'Cash') {
+        // Cash: Amount only
+        amtCol.style.display = '';
+        if (summaryCard) {
+            summaryCard.classList.remove('hidden');
+            summaryText.textContent = 'Cash payment — amount required';
+        }
+    } else if (method === 'Cheque') {
+        // Cheque: Amount + Bank Account + Cheque No + Cheque Date
+        amtCol.style.display        = '';
+        bankCol.style.display       = '';
+        chequeNoCol.style.display   = '';
+        chequeDateCol.style.display = '';
+        if (summaryCard) {
+            summaryCard.classList.remove('hidden');
+            summaryText.textContent = 'Cheque payment — bank account, cheque no & date required';
+        }
+    } else if (method === 'Bank') {
+        // Bank: Amount + Bank Account
+        amtCol.style.display  = '';
+        bankCol.style.display = '';
+        if (summaryCard) {
+            summaryCard.classList.remove('hidden');
+            summaryText.textContent = 'Bank transfer — select bank account';
+        }
+    }
+    // None: sab hidden (already done above)
 }
 
 // ════════════════════════════════════════════════════════════════
 // FETCH PURCHASE RATE
 // ════════════════════════════════════════════════════════════════
 function fetchPurchaseRate() {
-    const itemId = document.getElementById("itemId").value;
-    if (!itemId) { document.getElementById("rate").value = ""; calculateAmounts(); return; }
-
+    const itemId = document.getElementById('itemId').value;
+    if (!itemId) { document.getElementById('rate').value = ''; calculateAmounts(); return; }
     fetch(`@Url.Action("GetPurchaseRate", "PurchaseVoucher")?itemId=${itemId}`)
         .then(r => r.json())
         .then(data => {
-            document.getElementById("rate").value =
-                data.purchaseRate ? parseFloat(data.purchaseRate).toFixed(2) : "";
+            document.getElementById('rate').value = data.purchaseRate ? parseFloat(data.purchaseRate).toFixed(2) : '';
             calculateAmounts();
         })
-        .catch(() => { document.getElementById("rate").value = ""; calculateAmounts(); });
+        .catch(() => { document.getElementById('rate').value = ''; calculateAmounts(); });
 }
 
 // ════════════════════════════════════════════════════════════════
 // PRINT
 // ════════════════════════════════════════════════════════════════
 function printVoucher() {
-    const id = document.getElementById("StockMasterId").value;
+    const id = document.getElementById('StockMasterId').value;
     if (parseInt(id) > 0) {
         window.open('/PurchaseVoucher/PrintSalesReturnVoucher?id=' + id, '_blank');
     } else {
-        alert("Please save the voucher first before printing.");
+        alert('Please save the voucher first before printing.');
     }
 }
 
 // ════════════════════════════════════════════════════════════════
 // INPUT REFERENCES
 // ════════════════════════════════════════════════════════════════
-const qtyInput         = document.getElementById("qty");
-const rateInput        = document.getElementById("rate");
-const amountInput      = document.getElementById("amount");
-const discountPerInput = document.getElementById("discount_percentage");
-const discountAmtInput = document.getElementById("discount_amount");
-const netAmtInput      = document.getElementById("net_amount");
-const gstInput         = document.getElementById("gst");
-const gstAmtInput      = document.getElementById("gst_amount");
-const inclTaxInput     = document.getElementById("incl_Tax_Amount");
-const taxSetupSelect   = document.getElementById("taxSetupId");
-const gstPctCol        = document.getElementById("gst-pct-col");
-const gstAmtCol        = document.getElementById("gst-amt-col");
+const qtyInput         = document.getElementById('qty');
+const rateInput        = document.getElementById('rate');
+const amountInput      = document.getElementById('amount');
+const discountPerInput = document.getElementById('discount_percentage');
+const discountAmtInput = document.getElementById('discount_amount');
+const netAmtInput      = document.getElementById('net_amount');
+const gstInput         = document.getElementById('gst');
+const gstAmtInput      = document.getElementById('gst_amount');
+const inclTaxInput     = document.getElementById('incl_Tax_Amount');
+const taxSetupSelect   = document.getElementById('taxSetupId');
+const gstPctCol        = document.getElementById('gst-pct-col');
+const gstAmtCol        = document.getElementById('gst-amt-col');
 
 // ════════════════════════════════════════════════════════════════
-// TAX SETUP CHANGE → GST columns show/hide + auto calculate
+// TAX SETUP CHANGE
 // ════════════════════════════════════════════════════════════════
 function onTaxSetupChange() {
     const selectedOption = taxSetupSelect.selectedOptions[0];
     const pct = selectedOption ? parseFloat(selectedOption.dataset.percentage) || 0 : 0;
-
     if (pct > 0) {
-        // GST columns dikhao
-        gstPctCol.style.display = "";
-        gstAmtCol.style.display = "";
+        gstPctCol.style.display = '';
+        gstAmtCol.style.display = '';
         gstInput.value = pct.toFixed(2);
     } else {
-        // GST columns chhupao
-        gstPctCol.style.display = "none";
-        gstAmtCol.style.display = "none";
-        gstInput.value    = "0";
-        gstAmtInput.value = "0.00";
+        gstPctCol.style.display = 'none';
+        gstAmtCol.style.display = 'none';
+        gstInput.value    = '0';
+        gstAmtInput.value = '0.00';
     }
     calculateGST();
 }
@@ -638,52 +806,40 @@ function onTaxSetupChange() {
 // ════════════════════════════════════════════════════════════════
 // CALCULATION CHAIN
 // ════════════════════════════════════════════════════════════════
-qtyInput.addEventListener("input",         calculateAmounts);
-rateInput.addEventListener("input",        calculateAmounts);
-discountPerInput.addEventListener("input", calculateDiscount);
+qtyInput.addEventListener('input',         calculateAmounts);
+rateInput.addEventListener('input',        calculateAmounts);
+discountPerInput.addEventListener('input', calculateDiscount);
 
-// STEP 1: Qty × Rate = Amount
 function calculateAmounts() {
     const qty    = parseFloat(qtyInput.value)  || 0;
     const rate   = parseFloat(rateInput.value) || 0;
     const amount = qty * rate;
 
     amountInput.value      = amount.toFixed(2);
-    discountPerInput.value = "";
-    discountAmtInput.value = "0.00";
+    discountPerInput.value = '';
+    discountAmtInput.value = '0.00';
     netAmtInput.value      = amount.toFixed(2);
 
-    // Tax reset — dropdown selection maintain karo
     const pct = parseFloat(gstInput.value) || 0;
-    if (pct > 0) {
-        gstAmtInput.value  = "0.00";
-        inclTaxInput.value = amount.toFixed(2);
-        calculateGST();
-    } else {
-        gstAmtInput.value  = "0.00";
-        inclTaxInput.value = amount.toFixed(2);
-    }
+    if (pct > 0) { calculateGST(); }
+    else { gstAmtInput.value = '0.00'; inclTaxInput.value = amount.toFixed(2); }
 }
 
-// STEP 2: Discount
 function calculateDiscount() {
     const amount = parseFloat(amountInput.value)      || 0;
     const per    = parseFloat(discountPerInput.value) || 0;
     const disc   = (amount * per) / 100;
     const net    = amount - disc;
-
     discountAmtInput.value = disc.toFixed(2);
     netAmtInput.value      = net.toFixed(2);
     calculateGST();
 }
 
-// STEP 3: GST Amt = Excl Tax × GST% / 100 | Incl Tax = Excl Tax + GST Amt
 function calculateGST() {
     const netAmt  = parseFloat(netAmtInput.value) || 0;
     const gstPer  = parseFloat(gstInput.value)    || 0;
     const gstAmt  = (netAmt * gstPer) / 100;
     const inclTax = netAmt + gstAmt;
-
     gstAmtInput.value  = gstAmt.toFixed(2);
     inclTaxInput.value = inclTax.toFixed(2);
 }
@@ -693,17 +849,13 @@ function calculateGST() {
 // ════════════════════════════════════════════════════════════════
 let details = [];
 
-document.getElementById("btnAddDetail").addEventListener("click", () => {
-    const warehouseId   = document.getElementById("warehouseId").value;
-    const warehouseName = document.getElementById("warehouseId").selectedOptions[0]?.text || "";
-    const itemId        = document.getElementById("itemId").value;
-    const itemName      = document.getElementById("itemId").selectedOptions[0]?.text || "";
-
-    // TaxSetup
-    const taxSetupId   = taxSetupSelect.value ? parseInt(taxSetupSelect.value) : null;
-    const taxName      = taxSetupSelect.value
-                         ? (taxSetupSelect.selectedOptions[0]?.text || "")
-                         : "No Tax";
+document.getElementById('btnAddDetail').addEventListener('click', () => {
+    const warehouseId   = document.getElementById('warehouseId').value;
+    const warehouseName = document.getElementById('warehouseId').selectedOptions[0]?.text || '';
+    const itemId        = document.getElementById('itemId').value;
+    const itemName      = document.getElementById('itemId').selectedOptions[0]?.text || '';
+    const taxSetupId    = taxSetupSelect.value ? parseInt(taxSetupSelect.value) : null;
+    const taxName       = taxSetupSelect.value ? (taxSetupSelect.selectedOptions[0]?.text || '') : 'No Tax';
 
     const qty                 = parseFloat(qtyInput.value)         || 0;
     const rate                = parseFloat(rateInput.value)        || 0;
@@ -714,25 +866,16 @@ document.getElementById("btnAddDetail").addEventListener("click", () => {
     const gst                 = parseFloat(gstInput.value)         || 0;
     const gst_amount          = parseFloat(gstAmtInput.value)      || 0;
     const incl_Tax_Amount     = parseFloat(inclTaxInput.value)     || 0;
-    const currentDate         =
-        document.querySelector('input[name="StockMaster.current_date"]')?.value || "";
+    const currentDate         = document.querySelector('input[name="StockMaster.current_date"]')?.value || '';
 
-    // Validations
-    if (!warehouseId) { showAddMessage("Please select a warehouse.", false); return; }
-    if (!itemId)      { showAddMessage("Please select an item.", false); return; }
-    if (qty  <= 0)    { showAddMessage("Quantity must be greater than 0.", false); return; }
-    if (rate <= 0)    { showAddMessage("Rate must be greater than 0.", false); return; }
+    if (!warehouseId) { showAddMessage('Please select a warehouse.', false); return; }
+    if (!itemId)      { showAddMessage('Please select an item.', false); return; }
+    if (qty  <= 0)    { showAddMessage('Quantity must be greater than 0.', false); return; }
+    if (rate <= 0)    { showAddMessage('Rate must be greater than 0.', false); return; }
 
-    details.push({
-        warehouseId, warehouseName,
-        itemId, itemName,
-        taxSetupId, taxName,
-        qty, rate, amount,
-        discount_percentage, discount_amount,
-        net_amount,
-        gst, gst_amount, incl_Tax_Amount,
-        current_date: currentDate
-    });
+    details.push({ warehouseId, warehouseName, itemId, itemName, taxSetupId, taxName,
+        qty, rate, amount, discount_percentage, discount_amount,
+        net_amount, gst, gst_amount, incl_Tax_Amount, current_date: currentDate });
 
     renderTable();
     clearInputs();
@@ -741,28 +884,25 @@ document.getElementById("btnAddDetail").addEventListener("click", () => {
 });
 
 function showAddMessage(msg, isSuccess) {
-    const div = document.getElementById("addMessage");
+    const div = document.getElementById('addMessage');
     div.className = `mt-2 px-4 py-2 rounded-lg text-sm font-semibold ${
-        isSuccess
-            ? "bg-green-100 text-green-700 border border-green-300"
-            : "bg-red-100 text-red-700 border border-red-300"
-    }`;
+        isSuccess ? 'bg-green-100 text-green-700 border border-green-300'
+                  : 'bg-red-100 text-red-700 border border-red-300'}`;
     div.innerHTML = `<i class="fa-solid ${isSuccess ? 'fa-circle-check' : 'fa-circle-xmark'} mr-2"></i>${msg}`;
-    div.classList.remove("hidden");
-    setTimeout(() => div.classList.add("hidden"), 4000);
+    div.classList.remove('hidden');
+    setTimeout(() => div.classList.add('hidden'), 4000);
 }
 
 // ════════════════════════════════════════════════════════════════
-// RENDER TABLE
+// RENDER TABLE + HIDDEN INPUTS
 // ════════════════════════════════════════════════════════════════
 function renderTable() {
-    const tbody     = document.querySelector("#detailsTable tbody");
-    const container = document.getElementById("detailsContainer");
-    tbody.innerHTML     = "";
-    container.innerHTML = "";
+    const tbody     = document.querySelector('#detailsTable tbody');
+    const container = document.getElementById('detailsContainer');
+    tbody.innerHTML     = '';
+    container.innerHTML = '';
 
-    let totalAmount   = 0, totalDiscount = 0, totalNet = 0,
-        totalGstAmt   = 0, totalInclTax  = 0;
+    let totalAmount = 0, totalDiscount = 0, totalNet = 0, totalGstAmt = 0, totalInclTax = 0;
 
     details.forEach((d, i) => {
         totalAmount   += d.amount;
@@ -771,7 +911,6 @@ function renderTable() {
         totalGstAmt   += d.gst_amount;
         totalInclTax  += d.incl_Tax_Amount;
 
-        // GST columns sirf dikhao agar gst > 0
         const gstCols = d.gst > 0
             ? `<td class="p-3 text-center text-purple-700">${d.gst.toFixed(2)}%</td>
                <td class="p-3 text-right text-purple-700">${d.gst_amount.toFixed(2)}</td>`
@@ -801,7 +940,6 @@ function renderTable() {
                 </td>
             </tr>`;
 
-        // Hidden inputs for model binding
         container.innerHTML += `
             <input type="hidden" name="StockDetail[${i}].warehouseId"         value="${d.warehouseId}" />
             <input type="hidden" name="StockDetail[${i}].itemId"              value="${d.itemId}" />
@@ -815,8 +953,7 @@ function renderTable() {
             <input type="hidden" name="StockDetail[${i}].gst"                 value="${d.gst}" />
             <input type="hidden" name="StockDetail[${i}].gst_amount"          value="${d.gst_amount}" />
             <input type="hidden" name="StockDetail[${i}].incl_Tax_Amount"     value="${d.incl_Tax_Amount}" />
-            <input type="hidden" name="StockDetail[${i}].current_date"        value="${d.current_date}" />
-        `;
+            <input type="hidden" name="StockDetail[${i}].current_date"        value="${d.current_date}" />`;
     });
 
     if (details.length > 0) {
@@ -837,25 +974,18 @@ function renderTable() {
 
     const totalAmtInput = document.querySelector('input[name="StockMaster.total_amount"]');
     if (totalAmtInput) totalAmtInput.value = totalInclTax.toFixed(2);
-
     updateNetAmount();
 }
 
-function removeDetail(i) {
-    details.splice(i, 1);
-    renderTable();
-}
+function removeDetail(i) { details.splice(i, 1); renderTable(); }
 
 function clearInputs() {
-    ["warehouseId","itemId","qty","rate","amount",
-     "discount_percentage","discount_amount","net_amount",
-     "gst","gst_amount","incl_Tax_Amount"]
-        .forEach(id => { const el = document.getElementById(id); if (el) el.value = ""; });
-
-    // TaxSetup reset → GST columns hide
-    taxSetupSelect.value    = "";
-    gstPctCol.style.display = "none";
-    gstAmtCol.style.display = "none";
+    ['warehouseId','itemId','qty','rate','amount','discount_percentage',
+     'discount_amount','net_amount','gst','gst_amount','incl_Tax_Amount']
+        .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+    taxSetupSelect.value    = '';
+    gstPctCol.style.display = 'none';
+    gstAmtCol.style.display = 'none';
 }
 
 function updateNetAmount() {
@@ -865,11 +995,14 @@ function updateNetAmount() {
     const net   = total - disc + tax;
     const netEl = document.querySelector('input[name="StockMaster.net_amount"]');
     if (netEl) netEl.value = net.toFixed(2);
+
+     const payAmtEl = document.querySelector('input[name="PaymentVoucher.amount"]');
+    if (payAmtEl) payAmtEl.value = net.toFixed(2);
 }
 
 function beforeSave() {
     if (details.length === 0) {
-        alert("Please add at least one stock item before saving.");
+        alert('Please add at least one stock item before saving.');
         return false;
     }
     updateNetAmount();
@@ -881,9 +1014,9 @@ function beforeSave() {
 // ════════════════════════════════════════════════════════════════
 @if (Model.StockMaster.Id > 0 && Model.StockDetail?.Any() == true)
 {
-    var warehouses    = ViewBag.Warehouses as IEnumerable<dynamic>;
-    var items         = ViewBag.Items     as IEnumerable<dynamic>;
-    var taxSetups     = ViewBag.TaxSetup  as IEnumerable<dynamic>;
+    var warehouses = ViewBag.Warehouses as IEnumerable<dynamic>;
+    var items      = ViewBag.Items     as IEnumerable<dynamic>;
+    var taxSetups  = ViewBag.TaxSetup  as IEnumerable<dynamic>;
 
     var warehouseDict = warehouses?.ToDictionary(w => (int)w.Id, w => (string)w.warehouse_name)
                         ?? new Dictionary<int, string>();
@@ -918,6 +1051,11 @@ function beforeSave() {
     renderTable();
     </text>
 }
+
+// Page load par MOP state restore karo (edit mode ke liye)
+document.addEventListener('DOMContentLoaded', function () {
+    onPaymentMethodChange();
+});
 
 showTab('@activeTab');
 </script>

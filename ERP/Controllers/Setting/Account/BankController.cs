@@ -100,6 +100,7 @@ namespace ERP.Controllers.Setting.Account
                         exisitngBank.bank_name = bank.bank_name;
                         exisitngBank.opening_balance = bank.opening_balance;
                         exisitngBank.companyId =companyId;
+                        exisitngBank.branch_code= bank.branch_code;
                         _context.Update(exisitngBank);
                         await _context.SaveChangesAsync();
                         _notyf.Success("Bank Update Successfully");
