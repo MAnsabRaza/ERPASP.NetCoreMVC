@@ -2,6 +2,8 @@
 using ERP.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Rotativa.AspNetCore;
+using Rotativa.AspNetCore.Options;
 
 namespace ERP.Controllers.Purchase
 {
@@ -824,5 +826,38 @@ namespace ERP.Controllers.Purchase
                 return BadRequest(ex.Message);
             }
         }
+            
+        [HttpGet]
+        public async Task<IActionResult> PrintPurchaseVoucher(int id)
+        {
+            var purchase = await _context.StockMaster
+                .Include(s => s.Customer)
+                .Include(s => s.StockDetail)
+                    .ThenInclude(d => d.Item)
+                .Include(s => s.StockDetail)
+                    .ThenInclude(d => d.Warehouse)
+                .FirstOrDefaultAsync(s => s.Id == id && s.etype == "Purchase");
+
+            if (purchase == null)
+            {
+                _notyf.Error("purchase voucher not found.");
+                return NotFound();
+            }
+
+            var model = new PurchaseViewModel
+            {
+                StockMaster = purchase,
+                StockDetail = purchase.StockDetail.ToList()
+            };
+
+            return new ViewAsPdf("_PrintPurchaseVoucher", model)
+            {
+                FileName = $"Purchase_Voucher_{id}.pdf",
+                PageSize = Size.A4,
+                PageOrientation = Orientation.Portrait,
+                PageMargins = { Left = 15, Right = 15, Top = 20, Bottom = 20 }
+            };
+        }
+
     }
 }
